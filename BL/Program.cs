@@ -1,15 +1,10 @@
-using BL;
-using Microsoft.EntityFrameworkCore;
+using BL.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("application.json", optional: true, reloadOnChange: true);
 
-builder.Services.AddDbContext<AppDbContext>(optionsBuilder =>
-{
-    optionsBuilder.UseNpgsql(
-        "Username=postgres;Password=hellohell;Host=localhost;Port=5433;Database=Placely;Pooling=true;");
-    optionsBuilder.UseSnakeCaseNamingConvention();
-});
+builder.Services.AddDbContext(builder.Configuration);
 
 var app = builder.Build();
 
