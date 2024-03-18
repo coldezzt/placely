@@ -3,6 +3,7 @@ using System;
 using BL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240318170249_seeding_started_chats")]
+    partial class seeding_started_chats
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -335,43 +338,21 @@ namespace BL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("period_short");
 
+                    b.Property<long>("PropertyId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("property_id");
+
                     b.HasKey("Id")
                         .HasName("pk_prices");
 
                     b.ToTable("prices", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            PeriodLong = 11,
-                            PeriodMedium = 111,
-                            PeriodShort = 1111
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            PeriodLong = 22,
-                            PeriodMedium = 222,
-                            PeriodShort = 2222
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            PeriodLong = 33,
-                            PeriodMedium = 333,
-                            PeriodShort = 3333
-                        });
                 });
 
             modelBuilder.Entity("BL.Entities.Property", b =>
                 {
                     b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -395,46 +376,17 @@ namespace BL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("type");
 
+                    b.Property<byte>("TypeId")
+                        .HasColumnType("smallint")
+                        .HasColumnName("type_id");
+
                     b.HasKey("Id")
                         .HasName("pk_properties");
 
                     b.HasIndex("OwnerId")
                         .HasDatabaseName("ix_properties_owner_id");
 
-                    b.HasIndex("PriceListId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_properties_price_list_id");
-
                     b.ToTable("properties", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Address = "Flat property address",
-                            Description = "Flat property description",
-                            OwnerId = 1L,
-                            PriceListId = 1L,
-                            Type = 2
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Address = "Hostel property address",
-                            Description = "Hostel property description",
-                            OwnerId = 1L,
-                            PriceListId = 2L,
-                            Type = 0
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Address = "Villa property address",
-                            Description = "Villa property description",
-                            OwnerId = 2L,
-                            PriceListId = 3L,
-                            Type = 3
-                        });
                 });
 
             modelBuilder.Entity("BL.Entities.PropertyOption", b =>
@@ -460,26 +412,6 @@ namespace BL.Migrations
                         .HasName("pk_property_options");
 
                     b.ToTable("property_options", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Name = "Option1",
-                            Value = "Value1"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Name = "Option2",
-                            Value = "Value2"
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Name = "Option3",
-                            Value = "Value3"
-                        });
                 });
 
             modelBuilder.Entity("BL.Entities.Reservation", b =>
@@ -840,19 +772,19 @@ namespace BL.Migrations
 
             modelBuilder.Entity("BL.Entities.Property", b =>
                 {
+                    b.HasOne("BL.Entities.PriceList", "PriceList")
+                        .WithOne("Property")
+                        .HasForeignKey("BL.Entities.Property", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_properties_prices_id");
+
                     b.HasOne("BL.Entities.Landlord", "Owner")
                         .WithMany("Properties")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_properties_landlords_owner_id");
-
-                    b.HasOne("BL.Entities.PriceList", "PriceList")
-                        .WithMany()
-                        .HasForeignKey("PriceListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_properties_prices_price_list_id");
 
                     b.Navigation("Owner");
 
@@ -958,6 +890,12 @@ namespace BL.Migrations
                     b.Navigation("Properties");
 
                     b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("BL.Entities.PriceList", b =>
+                {
+                    b.Navigation("Property")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BL.Entities.Property", b =>

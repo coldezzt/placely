@@ -3,6 +3,7 @@ using System;
 using BL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240318172605_seeding_started_propertyOptions")]
+    partial class seeding_started_propertyOptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -395,6 +398,10 @@ namespace BL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("type");
 
+                    b.Property<byte>("TypeId")
+                        .HasColumnType("smallint")
+                        .HasColumnName("type_id");
+
                     b.HasKey("Id")
                         .HasName("pk_properties");
 
@@ -402,39 +409,9 @@ namespace BL.Migrations
                         .HasDatabaseName("ix_properties_owner_id");
 
                     b.HasIndex("PriceListId")
-                        .IsUnique()
                         .HasDatabaseName("ix_properties_price_list_id");
 
                     b.ToTable("properties", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Address = "Flat property address",
-                            Description = "Flat property description",
-                            OwnerId = 1L,
-                            PriceListId = 1L,
-                            Type = 2
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Address = "Hostel property address",
-                            Description = "Hostel property description",
-                            OwnerId = 1L,
-                            PriceListId = 2L,
-                            Type = 0
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Address = "Villa property address",
-                            Description = "Villa property description",
-                            OwnerId = 2L,
-                            PriceListId = 3L,
-                            Type = 3
-                        });
                 });
 
             modelBuilder.Entity("BL.Entities.PropertyOption", b =>

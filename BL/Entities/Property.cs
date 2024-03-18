@@ -7,7 +7,6 @@ public class Property
     public long OwnerId { get; set; }
     public Landlord Owner { get; set; }
     
-    public byte TypeId { get; set; }
     public PropertyType Type { get; set; }
 
     public long PriceListId { get; set; }
