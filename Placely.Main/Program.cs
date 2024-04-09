@@ -6,13 +6,28 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
 
-builder.Services.AddDbContext(builder.Configuration);
-builder.AddDependencies();
+builder.Services
+    .AddRepositories()
+    .AddServices()
+    .AddDbContext(builder.Configuration)
+    .AddRouting(opt => opt.LowercaseUrls = true)
+    .AddEndpointsApiExplorer()
+    .AddSwaggerGen()
+    .AddControllers();
 
-var app = builder.Build();
+var application = builder.Build();
 
-app.UseStaticFiles();
+if (application.Environment.IsDevelopment())
+{
+    application
+        .UseSwagger()
+        .UseSwaggerUI();
+}
 
-app.UseHttpsRedirection();
+application
+    .UseStaticFiles()
+    .UseHttpsRedirection();
 
-app.Run();
+application.MapControllers();
+
+application.Run();

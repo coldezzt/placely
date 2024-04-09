@@ -1,6 +1,8 @@
-﻿namespace Placely.Data.Entities;
+﻿using Placely.Data.Abstractions;
 
-public class Tenant
+namespace Placely.Data.Entities;
+
+public class Tenant : IEntity
 {
     public long Id { get; set; }
     public string Name { get; set; }

@@ -1,6 +1,8 @@
+using Placely.Data.Abstractions;
+
 namespace Placely.Data.Entities;
 
-public class Review
+public class Review : IEntity
 {
     public long Id { get; set; }
     

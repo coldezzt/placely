@@ -1,6 +1,8 @@
+using Placely.Data.Abstractions;
+
 namespace Placely.Data.Entities;
 
-public class PriceList
+public class PriceList : IEntity
 {
     public long Id { get; set; }
     public ushort PeriodShort { get; set; }
