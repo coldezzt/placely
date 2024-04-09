@@ -1,6 +1,8 @@
+using Placely.Data.Abstractions;
+
 namespace Placely.Data.Entities;
 
-public class Notification
+public class Notification : IEntity
 {
     public long Id { get; set; }
     

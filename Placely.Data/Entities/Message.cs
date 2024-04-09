@@ -1,6 +1,8 @@
+using Placely.Data.Abstractions;
+
 namespace Placely.Data.Entities;
 
-public class Message
+public class Message : IEntity
 {
     public long Id { get; set; }
     

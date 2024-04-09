@@ -1,6 +1,8 @@
-﻿namespace Placely.Data.Entities;
+﻿using Placely.Data.Abstractions;
 
-public class Contract
+namespace Placely.Data.Entities;
+
+public class Contract : IEntity
 {
     public long Id { get; set; }
     
@@ -13,7 +15,7 @@ public class Contract
     public long PropertyId { get; set; }
     public Property Property { get; set; }
 
-    public string TenantPaidUtilies { get; set; }
+    public string? TenantPaidUtilies { get; set; }
     public DateTime LeaseStartDate { get; set; }
     public DateTime LeaseEndDate { get; set; }
 }
