@@ -1,4 +1,5 @@
 using Placely.Data.Abstractions;
+using Placely.Data.Models;
 
 namespace Placely.Data.Entities;
 

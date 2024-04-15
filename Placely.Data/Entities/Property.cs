@@ -1,4 +1,5 @@
 ﻿using Placely.Data.Abstractions;
+using Placely.Data.Models;
 
 namespace Placely.Data.Entities;
 
@@ -16,8 +17,9 @@ public class Property : IEntity
     
     public string Address { get; set; }
     public string Description { get; set; }
+    public DateTime PublicationDate { get; set; }
+    public double Rating { get; set; }
     
-    public List<PropertyOption> Options { get; set; }
     public List<Review> Reviews { get; set; }
     public List<Reservation> Reservations { get; set; }
     public List<Contract> Contracts { get; set; }

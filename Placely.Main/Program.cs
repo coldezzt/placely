@@ -1,3 +1,4 @@
+using Placely.Data.Configurations.Mapper;
 using Placely.Main.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,8 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
 
+builder.Services.ConfigureJwtAuth(builder.Configuration);
+
 builder.Services
     .AddRepositories()
     .AddServices()
@@ -13,7 +16,15 @@ builder.Services
     .AddRouting(opt => opt.LowercaseUrls = true)
     .AddEndpointsApiExplorer()
     .AddSwaggerGen()
-    .AddControllers();
+    .AddAutoMapper(cfg =>
+    {
+        cfg.AddProfiles(new[]
+        {
+            new ContractMapperProfile()
+        });
+    });
+
+builder.Services.AddControllers();
 
 var application = builder.Build();
 
@@ -25,7 +36,8 @@ if (application.Environment.IsDevelopment())
 }
 
 application
-    .UseStaticFiles()
+    .UseAuthentication()
+    .UseAuthorization()
     .UseHttpsRedirection();
 
 application.MapControllers();

@@ -14,8 +14,11 @@ public class Contract : IEntity
     
     public long PropertyId { get; set; }
     public Property Property { get; set; }
-
-    public string? TenantPaidUtilies { get; set; }
+    
+    public string TemplatePath { get; set; }
+    public string TemplateFieldsPath { get; set; }
+    public string? FinalizedPathDocx { get; set; }
+    public string? FinalizedPathPdf { get; set; }
     public DateTime LeaseStartDate { get; set; }
     public DateTime LeaseEndDate { get; set; }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Placely.Data.Configurations.EntityConfigurations;
 using Placely.Data.Entities;
+using Placely.Data.Models;
 
 namespace Placely.Data.Configurations;
 
@@ -13,7 +14,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<Property> Properties => Set<Property>();
     public DbSet<PriceList> Prices => Set<PriceList>();
-    public DbSet<PropertyOption> PropertyOptions => Set<PropertyOption>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<Landlord> Landlords => Set<Landlord>();
@@ -38,7 +38,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         SeedingStartedLandlords(modelBuilder);
         SeedingStartedChats(modelBuilder);
         SeedingStartedPriceLists(modelBuilder);
-        SeedingStartedPropertyOptions(modelBuilder);
         SeedingStartedProperties(modelBuilder);
         /* TODO: not implemented cause of m-t-m (i just don't know how)
         SeedingStartedPropertyPropertyOption(modelBuilder);
@@ -270,31 +269,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<PriceList>().HasData(l);
     }
-
-    private static void SeedingStartedPropertyOptions(ModelBuilder modelBuilder)
-    {
-        var l = new List<PropertyOption>
-        {
-            new()
-            {
-                Id = 1,
-                Name = "Option1",
-                Value = "Value1"
-            }, new()
-            {
-                Id = 2,
-                Name = "Option2",
-                Value = "Value2"
-            }, new()
-            {
-                Id = 3,
-                Name = "Option3",
-                Value = "Value3"
-            }
-        };
-        
-        modelBuilder.Entity<PropertyOption>().HasData(l);
-    }
     
     private static void SeedingStartedProperties(ModelBuilder modelBuilder)
     {
@@ -350,7 +324,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 TenantId = 1,
                 LandlordId = 1,
                 PropertyId = 1,
-                TenantPaidUtilies = "some paid utils in contract between tenant1 and landlord1 in flat property",
                 LeaseStartDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(7)).ToUniversalTime(),
                 LeaseEndDate = DateTime.UtcNow.Add(TimeSpan.FromDays(30)).ToUniversalTime()
             }, new ()
@@ -359,7 +332,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 TenantId = 2,
                 LandlordId = 1,
                 PropertyId = 2,
-                TenantPaidUtilies = "some paid utils in contract between tenant2 and landlord2 in hostel property",
                 LeaseStartDate = DateTime.UtcNow,
                 LeaseEndDate = DateTime.UtcNow.Add(TimeSpan.FromDays(14)).ToUniversalTime()
             }, new ()
@@ -368,7 +340,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 TenantId = 3,
                 LandlordId = 2,
                 PropertyId = 3,
-                TenantPaidUtilies = "some paid utils in contract between tenant1 and landlord3 in villa property",
                 LeaseStartDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2)).ToUniversalTime(),
                 LeaseEndDate = DateTime.UtcNow.Add(TimeSpan.FromDays(1)).ToUniversalTime()
             }
