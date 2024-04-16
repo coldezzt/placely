@@ -2,13 +2,12 @@ using LinqKit;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Entities;
-using Placely.Data.Entities.Validators;
 using Placely.Data.Models;
 
 namespace Placely.Main.Services;
 
 public class PropertyService(IPropertyRepository propertyRepo) 
-    : Validatable<Property>(new PropertyValidator()), IPropertyService
+    : IPropertyService
 {
     public async Task<Property> GetByIdAsync(long propertyId)
     {
@@ -17,7 +16,6 @@ public class PropertyService(IPropertyRepository propertyRepo)
     
     public async Task<Property> AddAsync(Property property)
     {
-        await ValidateUnsafeAsync(property);
         var dbEntity = await propertyRepo.AddAsync(property);
         await propertyRepo.SaveChangesAsync();
         return dbEntity;
@@ -25,7 +23,6 @@ public class PropertyService(IPropertyRepository propertyRepo)
 
     public async Task<Property> UpdateAsync(Property property)
     {
-        await ValidateUnsafeAsync(property);
         var dbEntity = await propertyRepo.UpdateAsync(property);
         await propertyRepo.SaveChangesAsync();
         return dbEntity;
@@ -39,7 +36,7 @@ public class PropertyService(IPropertyRepository propertyRepo)
         return dbEntity;
     }
 
-    public Task<List<Property>> GetChunkByFilter(
+    public Task<List<Property>> GetChunkByFilterAsync(
         Dictionary<SearchParameter, string> searchParameters,
         int extraLoadNumber,
         int amount)

@@ -14,10 +14,10 @@ public class Tenant : IEntity
     public string About { get; set; }
     public string Work { get; set; }
     
-    public List<Property> Favourite { get; set; }
-    public List<Chat> Chats { get; set; }
-    public List<Contract> Contracts { get; set; }
-    public List<Notification> Notifications { get; set; }
-    public List<Reservation> Reservations { get; set; }
-    public List<Review> Reviews { get; set; }
+    public virtual List<Property> Favourite { get; set; }
+    public virtual List<Chat> Chats { get; set; }
+    public virtual List<Contract> Contracts { get; set; }
+    public virtual List<Notification> Notifications { get; set; }
+    public virtual List<Reservation> Reservations { get; set; }
+    public virtual List<Review> Reviews { get; set; }
 }

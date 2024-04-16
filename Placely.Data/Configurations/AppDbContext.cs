@@ -21,7 +21,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Chat> Chats => Set<Chat>();
     
     #endregion
-    
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseLazyLoadingProxies();
+        base.OnConfiguring(optionsBuilder);
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         #region Entities configuration
@@ -281,7 +287,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Type = PropertyType.Flat,
                 PriceListId = 1,
                 Address = "Flat property address",
-                Description = "Flat property description"
+                Description = "Flat property description",
+                PublicationDate = (DateTime.Now - TimeSpan.FromDays(1)).ToUniversalTime()
             }, new()
             {
                 Id = 2,
@@ -289,7 +296,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Type = PropertyType.Hostel,
                 PriceListId = 2,
                 Address = "Hostel property address",
-                Description = "Hostel property description"
+                Description = "Hostel property description",
+                PublicationDate = (DateTime.Now - TimeSpan.FromDays(30)).ToUniversalTime()
             }, new()
             {
                 Id = 3,
@@ -297,7 +305,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Type = PropertyType.Villa,
                 PriceListId = 3,
                 Address = "Villa property address",
-                Description = "Villa property description"
+                Description = "Villa property description",
+                PublicationDate = (DateTime.Now - TimeSpan.FromDays(60)).ToUniversalTime()
             }
         };
 

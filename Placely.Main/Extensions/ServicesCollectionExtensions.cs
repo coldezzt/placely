@@ -1,10 +1,13 @@
 using System.Text;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Configurations;
+using Placely.Data.Dtos;
+using Placely.Data.Entities.Validators;
 using Placely.Data.Repositories;
 using Placely.Main.Services;
 
@@ -31,6 +34,13 @@ public static class ServicesCollectionExtensions
     {
         services.AddScoped<IContractService, ContractService>();
         services.AddScoped<IPropertyService, PropertyService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddValidators(this IServiceCollection services)
+    {
+        services.AddScoped<IValidator<PropertyDto>, PropertyDtoValidator>();
 
         return services;
     }

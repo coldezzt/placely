@@ -6,7 +6,7 @@ using Placely.Data.Exceptions;
 
 namespace Placely.Data.Repositories;
 
-public abstract class Repository<TEntity>(AppDbContext appDbContext) 
+public abstract class Repository<TEntity>(AppDbContext appDbContext)
     : IRepository<TEntity> where TEntity : class, IEntity
 {
     public virtual async Task<TEntity> AddAsync(TEntity entity)

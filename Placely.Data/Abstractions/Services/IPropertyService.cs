@@ -9,6 +9,6 @@ public interface IPropertyService
     public Task<Property> AddAsync(Property property);
     public Task<Property> UpdateAsync(Property property);
     public Task<Property> DeleteAsync(long propertyId);
-    public Task<List<Property>> GetChunkByFilter(Dictionary<SearchParameter, string> searchParameters,
+    public Task<List<Property>> GetChunkByFilterAsync(Dictionary<SearchParameter, string> searchParameters,
         int extraLoadNumber, int amount);
 }

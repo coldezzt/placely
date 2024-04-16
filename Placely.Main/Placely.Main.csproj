@@ -15,6 +15,7 @@
         <PackageReference Include="LinqKit" Version="1.2.5" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3">
           <PrivateAssets>all</PrivateAssets>
@@ -28,13 +29,15 @@
     <ItemGroup>
       <ProjectReference Include="..\Placely.Data\Placely.Data.csproj" />
     </ItemGroup>
-
     
-
     <ItemGroup>
       <None Update="Data\**">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
     </ItemGroup>
 
 </Project>

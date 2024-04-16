@@ -7,10 +7,10 @@ public class Review : IEntity
     public long Id { get; set; }
     
     public long AuthorId { get; set; }
-    public Tenant Author { get; set; }
+    public virtual Tenant Author { get; set; }
 
     public long PropertyId { get; set; }
-    public Property Property { get; set; }
+    public virtual Property Property { get; set; }
     
     public long Rating { get; set; }
     public string Content { get; set; }

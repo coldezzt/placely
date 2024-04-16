@@ -1,3 +1,5 @@
+using System.Reflection;
+using AutoMapper;
 using Placely.Data.Configurations.Mapper;
 using Placely.Main.Extensions;
 
@@ -12,15 +14,17 @@ builder.Services.ConfigureJwtAuth(builder.Configuration);
 builder.Services
     .AddRepositories()
     .AddServices()
+    .AddValidators()
     .AddDbContext(builder.Configuration)
     .AddRouting(opt => opt.LowercaseUrls = true)
     .AddEndpointsApiExplorer()
     .AddSwaggerGen()
     .AddAutoMapper(cfg =>
     {
-        cfg.AddProfiles(new[]
+        cfg.AddProfiles(new List<Profile>
         {
-            new ContractMapperProfile()
+            new ContractMapperProfile(),
+            new PropertyMapperProfile()
         });
     });
 
