@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;
@@ -8,20 +8,20 @@ using Placely.Data.Entities;
 namespace Placely.Main.Controllers;
 
 [Route("api/user")]
-public class AuthorizationController(
-    IAuthorizationService authService,
+public class RegistrationController(
+    IRegistrationService registrationService,
     IMapper mapper,
-    IValidator<LoginDto> validator) : ControllerBase
+    IValidator<RegistrationDto> validator) : ControllerBase
 {
     [HttpPost("[action]")]
-    public async Task<IActionResult> AuthorizeAsync([FromBody] LoginDto dto)
+    public async Task<IActionResult> Register([FromBody] RegistrationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
-
+        
         var tenant = mapper.Map<Tenant>(dto);
-        var token = authService.Authorize(tenant);
-        return Ok(token);
+        var result = await registrationService.RegisterUserAsync(tenant);
+        return result.Id == tenant.Id ? Ok(result) : BadRequest(result);
     }
 }

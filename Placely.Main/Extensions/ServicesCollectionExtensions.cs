@@ -7,7 +7,7 @@ using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Configurations;
 using Placely.Data.Dtos;
-using Placely.Data.Entities.Validators;
+using Placely.Data.Dtos.Validators;
 using Placely.Data.Repositories;
 using Placely.Main.Services;
 
@@ -32,15 +32,23 @@ public static class ServicesCollectionExtensions
     
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
+        services.AddScoped<IAuthorizationService, AuthorizationService>();
         services.AddScoped<IContractService, ContractService>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<ILandlordService, LandlordService>();
         services.AddScoped<IPropertyService, PropertyService>();
-
+        services.AddScoped<IRegistrationService, RegistrationService>();
+        services.AddScoped<IReviewService, ReviewService>();
+        services.AddScoped<ITenantService, TenantService>();
+        
         return services;
     }
 
     public static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddScoped<IValidator<PropertyDto>, PropertyDtoValidator>();
+        services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
+        services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
 
         return services;
     }
@@ -63,13 +71,15 @@ public static class ServicesCollectionExtensions
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
                     ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["JwtAuth:Issuer"],
+                    ValidAudience = configuration["JwtAuth:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(configuration["JwtSecurityKey"]!)
-                    ),
-                    ValidateIssuerSigningKey = true,
+                    )
                 };
             });
         return services;

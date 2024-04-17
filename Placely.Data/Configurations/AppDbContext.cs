@@ -73,7 +73,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Email = "test.tenant.1@email.domen",
                 Password = "test.tenant.1@email.domen",
                 AvatarPath = "",
-                CreationYear = 2024,
                 About = "I'm test tenant 1",
                 Work = "I'm working nowhere"
             }, new()
@@ -84,7 +83,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Email = "test.tenant.2@email.domen",
                 Password = "test.tenant.2@email.domen",
                 AvatarPath = "",
-                CreationYear = 2024,
                 About = "I'm test tenant 2",
                 Work = "I'm working nowhere"
             }, new()
@@ -95,7 +93,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Email = "test.tenant.3@email.domen",
                 Password = "test.tenant.3@email.domen",
                 AvatarPath = "",
-                CreationYear = 2024,
                 About = "I'm test tenant 3",
                 Work = "I'm working nowhere"
             }, new()
@@ -106,7 +103,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Email = "test.landlord.1@email.domen",
                 Password = "test.landlord.1@email.domen",
                 AvatarPath = "",
-                CreationYear = 2024,
                 About = "I'm test landlord 1",
                 Work = "I'm working here"
             }, new()
@@ -117,7 +113,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Email = "test.landlord.2@email.domen",
                 Password = "test.landlord.2@email.domen",
                 AvatarPath = "",
-                CreationYear = 2024,
                 About = "I'm test landlord 2",
                 Work = "I'm working here"
             }, new()
@@ -128,7 +123,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Email = "test.landlord.3@email.domen",
                 Password = "test.landlord.3@email.domen",
                 AvatarPath = "",
-                CreationYear = 2024,
                 About = "I'm test landlord 3",
                 Work = "I'm working here"
             }

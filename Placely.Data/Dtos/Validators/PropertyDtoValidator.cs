@@ -1,10 +1,9 @@
 using System.Globalization;
 using FluentValidation;
-using Placely.Data.Dtos;
 using Placely.Data.Models;
-using static Placely.Data.Entities.Validators.ValidatorErrorMessages;
+using static Placely.Data.Dtos.Validators.ValidatorErrorMessages;
 
-namespace Placely.Data.Entities.Validators;
+namespace Placely.Data.Dtos.Validators;
 
 public class PropertyDtoValidator : AbstractValidator<PropertyDto>
 {
@@ -22,10 +21,10 @@ public class PropertyDtoValidator : AbstractValidator<PropertyDto>
             .NotEmpty().WithMessage(StringNullOrEmpty());
         RuleFor(p => p.Description)
             .NotEmpty().WithMessage(StringNullOrEmpty())
-            .MinimumLength(100).WithMessage(StringLengthBiggerThan(100))
-            .MaximumLength(2048).WithMessage(StringLengthLessThan(2048))
+            .MinimumLength(100).WithMessage(StringLengthShouldBeBiggerThan(100))
+            .MaximumLength(2048).WithMessage(StringLengthShouldBeLessThan(2048))
             .Must(s => s.Any(c => char.IsLetter(c) || char.IsPunctuation(c)))
-            .WithMessage(StringContainOnly("letters and punctuation"));
+            .WithMessage(StringContainOnly("буквы и символы пунктуации"));
         RuleFor(p => p.PublicationDate)
             .NotEmpty().WithMessage(StringNullOrEmpty())
             .Must(pd => DateTime.TryParse(pd, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out _))
