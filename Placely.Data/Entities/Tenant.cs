@@ -1,16 +1,17 @@
 ﻿using Placely.Data.Abstractions;
+using Placely.Data.Models;
 
 namespace Placely.Data.Entities;
 
 public class Tenant : IEntity
 {
     public long Id { get; set; }
+    public UserRole UserRole { get; set; }
     public string Name { get; set; }
     public string PhoneNumber { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
     public string AvatarPath { get; set; }
-    public long CreationYear { get; set; }
     public string About { get; set; }
     public string Work { get; set; }
     
