@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Placely.Data.Abstractions;
 
 namespace Placely.Data.Entities;
 
+[Owned]
 public class PriceList : IEntity
 {
     public long Id { get; set; }

@@ -7,10 +7,10 @@ public class Message : IEntity
     public long Id { get; set; }
     
     public long ChatId { get; set; }
-    public Chat Chat { get; set; }
+    public virtual Chat Chat { get; set; }
         
     public long AuthorId { get; set; }
-    public Tenant Author { get; set; }
+    public virtual Tenant Author { get; set; }
     
     public string Content { get; set; }
     public DateTime Date { get; set; }

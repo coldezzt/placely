@@ -9,28 +9,34 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="EasyDox" Version="2.0.39" />
         <PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+        <PackageReference Include="LinqKit" Version="1.2.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
+        <PackageReference Include="sautinsoft.document" Version="2024.3.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="wwwroot\public\chats\" />
-      <Folder Include="wwwroot\public\contracts\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Placely.Data\Placely.Data.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <ProjectReference Include="..\Placely.Data\Placely.Data.csproj" />
+      <None Update="Data\**">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
-
+    
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
 </Project>

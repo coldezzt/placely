@@ -1,0 +1,19 @@
+{
+  "CONTRACT-DATE":"---------",
+  "LANDLORD-FULLNAME":"---------",
+  "LANDLORD-PHONE-NUMBER":"---------",
+  "LANDLORD-EMAIL":"---------",
+  "LANDLORD-CONTACT-ADDRESS":"---------",
+  
+  "TENANT-FULLNAME":"---------",
+  "TENANT-PHONE-NUMBER":"---------",
+  "TENANT-EMAIL":"---------",
+  
+  "PROPERTY-ADDRESS":"---------",
+
+  "LEASE-START-DATE-TIME": "---------",
+  "LEASE-END-DATE-TIME":"---------",
+  
+  "PAYMENT-AMOUNT":"---------",
+  "PAYMENT-FREQUENCY":"---------"
+}

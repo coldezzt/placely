@@ -1,4 +1,4 @@
-namespace Placely.Data.Entities;
+namespace Placely.Data.Models;
 
 public enum ReservationStatus
 {
