@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
-using Placely.Main.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Placely.Data.Exceptions;
+using Placely.Main.Exceptions;
 
-namespace Litres.Main.Middlewares;
+namespace Placely.Main.Middlewares;
 
 public class ExceptionMiddleware(IWebHostEnvironment webHostEnvironment) : IMiddleware
 {
