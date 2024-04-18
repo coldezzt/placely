@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     #region Database sets
     
     public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<PreviousPassword> PreviousPasswords => Set<PreviousPassword>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<Property> Properties => Set<Property>();

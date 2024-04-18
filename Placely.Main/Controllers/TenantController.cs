@@ -57,9 +57,7 @@ public class TenantController(
     public async Task<IActionResult> UpdateSettings([FromBody] TenantDto dto)
     {
         var claimId = GetClaim(CustomClaimTypes.UserId);
-        var claimEmail = GetClaim(CustomClaimTypes.Email);
-
-        if (claimId is null || claimEmail is null)
+        if (claimId is null)
             return Unauthorized();
         
         if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var tenantId))
@@ -71,7 +69,6 @@ public class TenantController(
 
         var tenant = mapper.Map<Tenant>(dto);
         tenant.Id = tenantId;
-        tenant.Email = claimEmail;
         var result = await service.ChangeSettingsAsync(tenant);
         var response = mapper.Map<TenantDto>(result);
         return Ok(response);

@@ -13,9 +13,9 @@ builder.Services
     .AddValidators()
     .AddDbContext(builder.Configuration)
     .AddEndpointsApiExplorer()
-    .AddConfiguredJwtAuth(builder.Configuration)
     .AddConfiguredSwaggerGen()
     .AddConfiguredAutoMapper()
+    .AddConfiguredJwtAuth(builder.Configuration)
     .AddControllers();
 
 var application = builder.Build();

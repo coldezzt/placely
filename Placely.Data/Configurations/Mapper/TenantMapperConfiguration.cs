@@ -10,5 +10,8 @@ public class TenantMapperConfiguration : Profile
     {
         CreateMap<TenantDto, Tenant>();
         CreateMap<Tenant, TenantDto>();
+        CreateMap<SensitiveTenantDto, Tenant>();
+        CreateMap<Tenant, SensitiveTenantDto>()
+            .ForMember(dto => dto.Password, opt => opt.MapFrom(_ => ""));
     }
 }

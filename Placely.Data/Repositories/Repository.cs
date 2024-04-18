@@ -15,24 +15,26 @@ public abstract class Repository<TEntity>(AppDbContext appDbContext)
         return result.Entity;
     }
 
-    public virtual async Task<TEntity> UpdateAsync(TEntity entity)
+    public virtual Task<TEntity> UpdateAsync(TEntity entity)
     {
         var set = appDbContext.Set<TEntity>();
-        if (await set.FindAsync(entity) is null)
+        var found = set.FirstOrDefault(e => e.Id == entity.Id);
+        if (found is null)
             throw new EntityNotFoundException(typeof(TEntity), entity.Id.ToString());
         
         var result = set.Update(entity);
-        return result.Entity;
+        return Task.FromResult(result.Entity);
     }
 
-    public virtual async Task<TEntity> DeleteAsync(TEntity entity)
+    public virtual Task<TEntity> DeleteAsync(TEntity entity)
     {
         var set = appDbContext.Set<TEntity>();
-        if (await set.FindAsync(entity) is null)
+        var found = set.FirstOrDefault(e => e.Id == entity.Id);
+        if (found is null)
             throw new EntityNotFoundException(typeof(TEntity), entity.Id.ToString());
         
         var result = set.Remove(entity);
-        return result.Entity;
+        return Task.FromResult(result.Entity);
     }
 
     public virtual async Task<TEntity> GetByIdAsync(long entityId)

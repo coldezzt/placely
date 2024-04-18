@@ -1,4 +1,3 @@
-using LinqKit;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Entities;
@@ -37,14 +36,14 @@ public class TenantService(ITenantRepository tenantRepo) : ITenantService
     // TODO: Кажется что логика слишком простая
     public async Task<Tenant> ChangeSettingsAsync(Tenant tenant)
     {
-        var dbTenant = await GetByEmailAsync(tenant.Email);
+        var dbTenant = await tenantRepo.GetByIdAsync(tenant.Id);
 
         dbTenant.Name = tenant.Name;
         dbTenant.PhoneNumber = tenant.PhoneNumber;
         dbTenant.AvatarPath = tenant.AvatarPath;
         dbTenant.About = tenant.About;
         dbTenant.Work = tenant.Work;
-        
+
         var result = await tenantRepo.UpdateAsync(dbTenant);
         await tenantRepo.SaveChangesAsync();
         return result;
