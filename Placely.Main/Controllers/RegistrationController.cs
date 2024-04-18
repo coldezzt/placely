@@ -7,7 +7,7 @@ using Placely.Data.Entities;
 
 namespace Placely.Main.Controllers;
 
-[Route("api/user")]
+[Route("api/tenant")]
 public class RegistrationController(
     IRegistrationService registrationService,
     IMapper mapper,
@@ -21,7 +21,7 @@ public class RegistrationController(
             return BadRequest(validationResult.Errors);
         
         var tenant = mapper.Map<Tenant>(dto);
-        var result = await registrationService.RegisterUserAsync(tenant);
-        return result.Id == tenant.Id ? Ok(result) : BadRequest(result);
+        await registrationService.RegisterUserAsync(tenant);
+        return Ok();
     }
 }
