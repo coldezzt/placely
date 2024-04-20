@@ -1,6 +1,3 @@
-using AutoMapper;
-using Microsoft.OpenApi.Models;
-using Placely.Data.Configurations.Mapper;
 using Placely.Main.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,51 +6,17 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
 
-builder.Services.ConfigureJwtAuth(builder.Configuration);
-
 builder.Services
+    .AddRouting(opt => opt.LowercaseUrls = true)
     .AddRepositories()
     .AddServices()
     .AddValidators()
     .AddDbContext(builder.Configuration)
-    .AddRouting(opt => opt.LowercaseUrls = true)
     .AddEndpointsApiExplorer()
-    .AddSwaggerGen(option =>
-    {
-        option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-        {
-            In = ParameterLocation.Header,
-            Description = "Please enter a valid token",
-            Name = "Authorization",
-            Type = SecuritySchemeType.Http,
-            BearerFormat = "JWT",
-            Scheme = "Bearer"
-        });
-        option.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                },
-                Array.Empty<string>()
-            }
-        });
-    })
-    .AddAutoMapper(cfg =>
-    {
-        cfg.AddProfiles(new List<Profile>
-        {
-            new ContractMapperProfile(),
-            new PropertyMapperProfile()
-        });
-    });
-
-builder.Services.AddControllers();
+    .AddConfiguredSwaggerGen()
+    .AddConfiguredAutoMapper()
+    .AddConfiguredJwtAuth(builder.Configuration)
+    .AddControllers();
 
 var application = builder.Build();
 

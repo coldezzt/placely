@@ -14,7 +14,7 @@ public class JwtTokenService(IConfiguration configuration) : IJwtTokenService
             claims: claims,
             expires: DateTime.UtcNow.Add(TimeSpan.FromDays(1)),
             signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSecurityKey"]!)),
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)),
                 SecurityAlgorithms.HmacSha256
             )
         );

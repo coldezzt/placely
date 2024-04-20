@@ -11,7 +11,7 @@ public class AuthorizationService(
     ITenantRepository tenantRepo,
     IJwtTokenService jwtTokenService) : IAuthorizationService
 {
-    public async Task<string> Authorize(Tenant tenant)
+    public async Task<string> AuthorizeAsync(Tenant tenant)
     {
         var dbTenant = await tenantRepo.GetByEmailAsync(tenant.Email);
         if (!PasswordHasher.Validate(dbTenant.Password, tenant.Password))
@@ -20,7 +20,8 @@ public class AuthorizationService(
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.UserId, dbTenant.Id.ToString()),
-            new(CustomClaimTypes.UserRole, dbTenant.UserRole.ToString())
+            new(CustomClaimTypes.UserRole, dbTenant.UserRole.ToString()),
+            new(CustomClaimTypes.Email, dbTenant.Email)
         };
 
         return jwtTokenService.CreateJwtToken(claims);

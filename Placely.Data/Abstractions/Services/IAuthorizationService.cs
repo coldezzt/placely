@@ -4,5 +4,5 @@ namespace Placely.Data.Abstractions.Services;
 
 public interface IAuthorizationService
 {
-    public Task<string> Authorize(Tenant tenant);
+    public Task<string> AuthorizeAsync(Tenant tenant);
 }
