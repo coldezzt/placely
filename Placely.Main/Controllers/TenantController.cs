@@ -9,6 +9,8 @@ using Placely.Data.Models;
 
 namespace Placely.Main.Controllers;
 
+// TODO: добавить аналогичные методы /my только для админов
+// (чтобы они могли удалять и получать доступ к любому аккаунту)
 [Route("api/[controller]")]
 public class TenantController(
     ITenantService service,

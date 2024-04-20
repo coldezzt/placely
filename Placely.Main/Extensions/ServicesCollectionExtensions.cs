@@ -13,7 +13,6 @@ using Placely.Data.Dtos;
 using Placely.Data.Dtos.Validators;
 using Placely.Data.Repositories;
 using Placely.Main.Services;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Placely.Main.Extensions;
 
