@@ -222,20 +222,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             new()
             {
                 Id = 1,
-                TenantId = 1,
-                LandlordId = 1,
+                FirstUserId = 1,
+                SecondUserId = 1,
                 DirectoryPath = "/chat-t-1-l-1"
             }, new()
             {
                 Id = 2,
-                TenantId = 2,
-                LandlordId = 1,
+                FirstUserId = 2,
+                SecondUserId = 1,
                 DirectoryPath = "/chat-t-2-l-1"
             }, new()
             {
                 Id = 3,
-                TenantId = 2,
-                LandlordId = 2,
+                FirstUserId = 2,
+                SecondUserId = 2,
                 DirectoryPath = "/chat-t-2-l-2"
             }
         };

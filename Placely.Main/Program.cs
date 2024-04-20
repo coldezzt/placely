@@ -1,3 +1,4 @@
+using Placely.Main.Controllers.Hubs;
 using Placely.Main.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
+
+builder.Services.AddSignalR();
 
 builder.Services
     .AddRouting(opt => opt.LowercaseUrls = true)
@@ -33,5 +36,6 @@ application
     .UseHttpsRedirection();
 
 application.MapControllers();
+application.MapHub<ChatHub>("api/hubs/chat");
 
 application.Run();

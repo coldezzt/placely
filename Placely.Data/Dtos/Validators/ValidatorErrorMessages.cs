@@ -14,5 +14,7 @@ public static class ValidatorErrorMessages
 
     public static string StringUnparsableValue() => "Невозможное значение";
 
-    public static string StringWrongFormat() => "Неверный формат.";
+    public static string StringWrongFormat() => "Неверный формат";
+
+    public static string DateTimeShouldBeNotFromFuture() => "Дата не может быть в будущем";
 }
