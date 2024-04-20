@@ -56,6 +56,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
         services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
         services.AddScoped<IValidator<MessageDto>, MessageDtoValidator>();
+        services.AddScoped<IValidator<ChatDto>, ChatDtoValidator>();
 
         return services;
     }

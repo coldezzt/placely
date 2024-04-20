@@ -10,7 +10,7 @@ public class Chat : IEntity
     public virtual Tenant FirstUser { get; set; }
     
     public long SecondUserId { get; set; }
-    public virtual Landlord SecondUser { get; set; }
+    public virtual Tenant SecondUser { get; set; }
     
     public string DirectoryPath { get; set; }
     

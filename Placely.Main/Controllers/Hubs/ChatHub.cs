@@ -74,7 +74,7 @@ public class ChatHub(
         
         var message = mapper.Map<Message>(dto);
         await messageService.AddMessageAsync(message);
-        await Clients.All.SendAsync("ReceiveMessage", dto);
+        await Clients.All.SendAsync("ReceiveMessage", message);
     }
     
     private string? GetClaim(string type)

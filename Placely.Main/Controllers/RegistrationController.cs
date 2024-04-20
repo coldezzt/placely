@@ -21,7 +21,7 @@ public class RegistrationController(
             return BadRequest(validationResult.Errors);
         
         var tenant = mapper.Map<Tenant>(dto);
-        await registrationService.RegisterUserAsync(tenant);
-        return Ok();
+        var result = await registrationService.RegisterUserAsync(tenant);
+        return result.Email == dto.Email ? Conflict() : Ok();
     }
 }

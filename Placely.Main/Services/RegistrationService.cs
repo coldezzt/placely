@@ -13,8 +13,8 @@ public class RegistrationService(
     {
         try
         {
-            var foundedTenant = await tenantRepo.GetByEmailAsync(tenant.Email);
-            return new Tenant {Id = foundedTenant.Id};
+            await tenantRepo.GetByEmailAsync(tenant.Email);
+            return new Tenant {Email = tenant.Email};
         }
         catch (EntityNotFoundException ex)
         {

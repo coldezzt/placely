@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Placely.Data.Configurations;
@@ -11,9 +12,11 @@ using Placely.Data.Configurations;
 namespace Placely.Main.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240420173158_fix_chat_and_message")]
+    partial class fix_chat_and_message
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,17 +46,9 @@ namespace Placely.Main.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("first_user_id");
 
-                    b.Property<long?>("LandlordId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("landlord_id");
-
                     b.Property<long>("SecondUserId")
                         .HasColumnType("bigint")
                         .HasColumnName("second_user_id");
-
-                    b.Property<long?>("TenantId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tenant_id");
 
                     b.HasKey("Id")
                         .HasName("pk_chats");
@@ -61,14 +56,8 @@ namespace Placely.Main.Migrations
                     b.HasIndex("FirstUserId")
                         .HasDatabaseName("ix_chats_first_user_id");
 
-                    b.HasIndex("LandlordId")
-                        .HasDatabaseName("ix_chats_landlord_id");
-
                     b.HasIndex("SecondUserId")
                         .HasDatabaseName("ix_chats_second_user_id");
-
-                    b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_chats_tenant_id");
 
                     b.ToTable("chats", (string)null);
 
@@ -166,8 +155,8 @@ namespace Placely.Main.Migrations
                         {
                             Id = 1L,
                             LandlordId = 1L,
-                            LeaseEndDate = new DateTime(2024, 5, 20, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6852),
-                            LeaseStartDate = new DateTime(2024, 4, 13, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6849),
+                            LeaseEndDate = new DateTime(2024, 5, 20, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(7982),
+                            LeaseStartDate = new DateTime(2024, 4, 13, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(7980),
                             PropertyId = 1L,
                             TenantId = 1L
                         },
@@ -175,8 +164,8 @@ namespace Placely.Main.Migrations
                         {
                             Id = 2L,
                             LandlordId = 1L,
-                            LeaseEndDate = new DateTime(2024, 5, 4, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6859),
-                            LeaseStartDate = new DateTime(2024, 4, 20, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6859),
+                            LeaseEndDate = new DateTime(2024, 5, 4, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(7990),
+                            LeaseStartDate = new DateTime(2024, 4, 20, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(7989),
                             PropertyId = 2L,
                             TenantId = 2L
                         },
@@ -184,8 +173,8 @@ namespace Placely.Main.Migrations
                         {
                             Id = 3L,
                             LandlordId = 2L,
-                            LeaseEndDate = new DateTime(2024, 4, 21, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6862),
-                            LeaseStartDate = new DateTime(2024, 4, 18, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6861),
+                            LeaseEndDate = new DateTime(2024, 4, 21, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(7992),
+                            LeaseStartDate = new DateTime(2024, 4, 18, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(7991),
                             PropertyId = 3L,
                             TenantId = 3L
                         });
@@ -286,7 +275,7 @@ namespace Placely.Main.Migrations
                             AuthorId = 1L,
                             ChatId = 1L,
                             Content = "message 1",
-                            Date = new DateTime(2024, 4, 18, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6968)
+                            Date = new DateTime(2024, 4, 18, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8091)
                         },
                         new
                         {
@@ -294,7 +283,7 @@ namespace Placely.Main.Migrations
                             AuthorId = 4L,
                             ChatId = 1L,
                             Content = "message 2",
-                            Date = new DateTime(2024, 4, 19, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(7011)
+                            Date = new DateTime(2024, 4, 19, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8094)
                         },
                         new
                         {
@@ -302,7 +291,7 @@ namespace Placely.Main.Migrations
                             AuthorId = 2L,
                             ChatId = 2L,
                             Content = "message with file",
-                            Date = new DateTime(2024, 4, 14, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(7013),
+                            Date = new DateTime(2024, 4, 14, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8096),
                             FilePath = "smt"
                         });
                 });
@@ -539,7 +528,7 @@ namespace Placely.Main.Migrations
                             Description = "Flat property description",
                             OwnerId = 1L,
                             PriceListId = 1L,
-                            PublicationDate = new DateTime(2024, 4, 19, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6739),
+                            PublicationDate = new DateTime(2024, 4, 19, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(7902),
                             Rating = 0.0,
                             Type = 2
                         },
@@ -550,7 +539,7 @@ namespace Placely.Main.Migrations
                             Description = "Hostel property description",
                             OwnerId = 1L,
                             PriceListId = 2L,
-                            PublicationDate = new DateTime(2024, 3, 21, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6783),
+                            PublicationDate = new DateTime(2024, 3, 21, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(7947),
                             Rating = 0.0,
                             Type = 0
                         },
@@ -561,7 +550,7 @@ namespace Placely.Main.Migrations
                             Description = "Villa property description",
                             OwnerId = 2L,
                             PriceListId = 3L,
-                            PublicationDate = new DateTime(2024, 2, 20, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6786),
+                            PublicationDate = new DateTime(2024, 2, 20, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(7949),
                             Rating = 0.0,
                             Type = 3
                         });
@@ -630,9 +619,9 @@ namespace Placely.Main.Migrations
                         new
                         {
                             Id = 1L,
-                            CreationDateTime = new DateTime(2024, 3, 31, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6890),
+                            CreationDateTime = new DateTime(2024, 3, 31, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8014),
                             Duration = new TimeSpan(37, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 4, 13, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6892),
+                            EntryDate = new DateTime(2024, 4, 13, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8016),
                             GuestsAmount = (byte)3,
                             LandlordId = 1L,
                             PropertyId = 1L,
@@ -642,9 +631,9 @@ namespace Placely.Main.Migrations
                         new
                         {
                             Id = 2L,
-                            CreationDateTime = new DateTime(2024, 4, 17, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6894),
+                            CreationDateTime = new DateTime(2024, 4, 17, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8019),
                             Duration = new TimeSpan(14, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 4, 20, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6895),
+                            EntryDate = new DateTime(2024, 4, 20, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8020),
                             GuestsAmount = (byte)1,
                             LandlordId = 1L,
                             PropertyId = 2L,
@@ -654,9 +643,9 @@ namespace Placely.Main.Migrations
                         new
                         {
                             Id = 3L,
-                            CreationDateTime = new DateTime(2024, 4, 17, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6896),
+                            CreationDateTime = new DateTime(2024, 4, 17, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8021),
                             Duration = new TimeSpan(3, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 4, 18, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6897),
+                            EntryDate = new DateTime(2024, 4, 18, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8022),
                             GuestsAmount = (byte)2,
                             LandlordId = 2L,
                             PropertyId = 3L,
@@ -666,9 +655,9 @@ namespace Placely.Main.Migrations
                         new
                         {
                             Id = 4L,
-                            CreationDateTime = new DateTime(2024, 4, 20, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6899),
+                            CreationDateTime = new DateTime(2024, 4, 20, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8023),
                             Duration = new TimeSpan(10, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 4, 24, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6899),
+                            EntryDate = new DateTime(2024, 4, 24, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8024),
                             GuestsAmount = (byte)3,
                             LandlordId = 1L,
                             PropertyId = 2L,
@@ -678,10 +667,10 @@ namespace Placely.Main.Migrations
                         new
                         {
                             Id = 5L,
-                            CreationDateTime = new DateTime(2024, 4, 10, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6901),
+                            CreationDateTime = new DateTime(2024, 4, 10, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8026),
                             DeclineReason = "too many guests",
                             Duration = new TimeSpan(10, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 4, 24, 18, 0, 42, 906, DateTimeKind.Utc).AddTicks(6902),
+                            EntryDate = new DateTime(2024, 4, 24, 17, 31, 57, 891, DateTimeKind.Utc).AddTicks(8026),
                             GuestsAmount = (byte)34,
                             LandlordId = 2L,
                             PropertyId = 3L,
@@ -808,9 +797,7 @@ namespace Placely.Main.Migrations
                         .HasColumnName("phone_number");
 
                     b.Property<int>("UserRole")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(1)
                         .HasColumnName("user_role");
 
                     b.Property<string>("Work")
@@ -919,28 +906,18 @@ namespace Placely.Main.Migrations
             modelBuilder.Entity("Placely.Data.Entities.Chat", b =>
                 {
                     b.HasOne("Placely.Data.Entities.Tenant", "FirstUser")
-                        .WithMany()
+                        .WithMany("Chats")
                         .HasForeignKey("FirstUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_chats_tenants_first_user_id");
 
-                    b.HasOne("Placely.Data.Entities.Landlord", null)
+                    b.HasOne("Placely.Data.Entities.Landlord", "SecondUser")
                         .WithMany("Chats")
-                        .HasForeignKey("LandlordId")
-                        .HasConstraintName("fk_chats_landlords_landlord_id");
-
-                    b.HasOne("Placely.Data.Entities.Tenant", "SecondUser")
-                        .WithMany()
                         .HasForeignKey("SecondUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_chats_tenants_second_user_id");
-
-                    b.HasOne("Placely.Data.Entities.Tenant", null)
-                        .WithMany("Chats")
-                        .HasForeignKey("TenantId")
-                        .HasConstraintName("fk_chats_tenants_tenant_id");
+                        .HasConstraintName("fk_chats_landlords_second_user_id");
 
                     b.Navigation("FirstUser");
 

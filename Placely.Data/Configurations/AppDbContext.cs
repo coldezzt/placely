@@ -32,9 +32,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         #region Entities configuration
-
+        
         modelBuilder.ApplyConfiguration(new PropertyEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ContractEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new TenantEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ChatEntityConfiguration());
 
         #endregion
 

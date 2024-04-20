@@ -23,8 +23,9 @@ public class ChatController(
         if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
             return BadRequest();
 
-        var chats = await service.GetListByUserIdAsync(id);
-        return Ok(chats);
+        var result = await service.GetListByUserIdAsync(id);
+        var dtos = result.Select(mapper.Map<ChatDto>);
+        return Ok(dtos);
     }
 
     [HttpGet("{chatId}")]
@@ -54,13 +55,11 @@ public class ChatController(
         if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
             return BadRequest();
 
-        // 1) Нельзя создать чат с самим собой
+        // Нельзя создать чат с самим собой
         if (dto.FirstUserId == dto.SecondUserId)
             return Conflict();
-        
-        // 2) Можно создать чат только чат в котором ты состоишь
-        if (dto.FirstUserId != id && dto.SecondUserId != id)
-            return Forbid();
+
+        dto.FirstUserId = id;
 
         var chat = mapper.Map<Chat>(dto);
         var result = await service.CreateAsync(chat);
