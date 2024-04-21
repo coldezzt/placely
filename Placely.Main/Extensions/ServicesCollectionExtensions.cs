@@ -1,6 +1,8 @@
 using System.Text;
 using AutoMapper;
 using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -142,6 +144,21 @@ public static class ServicesCollectionExtensions
                 new ReviewMapperProfile(),
             });
         });
+        return services;
+    }
+
+    public static IServiceCollection AddConfiguredHangfire(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHangfire(opt =>
+        {
+            opt.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(c => 
+                    c.UseNpgsqlConnection(configuration["Database:HangfireConnectionString"]));
+        });
+        
+        services.AddHangfireServer();
         return services;
     }
 }
