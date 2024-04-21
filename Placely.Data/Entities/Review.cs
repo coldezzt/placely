@@ -12,6 +12,7 @@ public class Review : IEntity
     public long PropertyId { get; set; }
     public virtual Property Property { get; set; }
     
-    public long Rating { get; set; }
+    public double Rating { get; set; }
+    public DateTime Date { get; set; }
     public string Content { get; set; }
 }

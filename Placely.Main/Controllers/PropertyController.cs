@@ -1,3 +1,4 @@
+using System.Globalization;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;
 using Placely.Data.Entities;
+using Placely.Data.Models;
 
 namespace Placely.Main.Controllers;
 
@@ -14,10 +16,10 @@ public class PropertyController(
     IPropertyService propertyService, 
     IMapper mapper) : ControllerBase
 {
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(long id)
+    [HttpGet("{propertyId}")]
+    public async Task<IActionResult> GetById(long propertyId)
     {
-        var property = await propertyService.GetByIdAsync(id);
+        var property = await propertyService.GetByIdAsync(propertyId);
         var result = mapper.Map<PropertyDto>(property);
         return Ok(result);
     }
@@ -31,31 +33,52 @@ public class PropertyController(
             return BadRequest(validationResult.Errors);
         
         var property = mapper.Map<Property>(dto);
-        var dbProperty = await propertyService.AddAsync(property);
-        var result = mapper.Map<PropertyDto>(dbProperty);
+        var createdProperty = await propertyService.AddAsync(property);
+        var result = mapper.Map<PropertyDto>(createdProperty);
         return Ok(result);
     }
 
     [Authorize]
-    [HttpPatch("{id}")]
-    public async Task<IActionResult> Update(long id, [FromBody] PropertyDto dto)
+    [HttpPatch("my/{propertyId}")]
+    public async Task<IActionResult> Update(long propertyId, [FromBody] PropertyDto dto)
     {
-        dto.Id = id;
+        var claimId = GetClaim(CustomClaimTypes.UserId);
+        if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
+            return BadRequest();
+
+        var dbProperty = await propertyService.GetByIdAsync(propertyId);
+        if (dbProperty.OwnerId != id)
+            return Forbid();
+        
+        dto.Id = propertyId;
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
         
         var property = mapper.Map<Property>(dto);
-        var dbProperty = await propertyService.UpdateAsync(property);
-        var result = mapper.Map<PropertyDto>(dbProperty);
+        var updatedProperty = await propertyService.UpdateAsync(property);
+        var result = mapper.Map<PropertyDto>(updatedProperty);
         return Ok(result);
     }
 
     [Authorize]
-    [HttpDelete]
-    public async Task<IActionResult> Delete(long id)
+    [HttpDelete("my/{propertyId}")]
+    public async Task<IActionResult> Delete(long propertyId)
     {
-        await propertyService.DeleteAsync(id);
+        var claimId = GetClaim(CustomClaimTypes.UserId);
+        if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
+            return BadRequest();
+
+        var dbProperty = await propertyService.GetByIdAsync(propertyId);
+        if (dbProperty.OwnerId != id)
+            return Forbid();
+        
+        await propertyService.DeleteAsync(propertyId);
         return Ok();
+    }
+    
+    private string? GetClaim(string type)
+    {
+        return User.Claims.FirstOrDefault(c => c.Type == type)?.Value;
     }
 }

@@ -4,5 +4,5 @@ namespace Placely.Data.Abstractions.Repositories;
 
 public interface IChatRepository : IRepository<Chat>
 {
-    
+    public Task<List<Chat>> GetListByUserId(long userId);
 }

@@ -1,61 +1,46 @@
-using AutoMapper;
-using Microsoft.OpenApi.Models;
-using Placely.Data.Configurations.Mapper;
+using Hangfire;
+using Placely.Data.Abstractions.Services;
+using Placely.Main.Controllers.Hubs;
 using Placely.Main.Extensions;
+using Serilog;
+
+// Логирование на уровне приложения
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Конфигурация
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
 
-builder.Services.ConfigureJwtAuth(builder.Configuration);
-
+// Настройка сервисов. Всё что возвращает IServiceCollection
 builder.Services
+    .AddConfiguredSerilog(builder.Configuration)
+    .AddRouting(opt => opt.LowercaseUrls = true)
     .AddRepositories()
     .AddServices()
     .AddValidators()
+    .AddMiddlewares()
     .AddDbContext(builder.Configuration)
-    .AddRouting(opt => opt.LowercaseUrls = true)
     .AddEndpointsApiExplorer()
-    .AddSwaggerGen(option =>
-    {
-        option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-        {
-            In = ParameterLocation.Header,
-            Description = "Please enter a valid token",
-            Name = "Authorization",
-            Type = SecuritySchemeType.Http,
-            BearerFormat = "JWT",
-            Scheme = "Bearer"
-        });
-        option.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                },
-                Array.Empty<string>()
-            }
-        });
-    })
-    .AddAutoMapper(cfg =>
-    {
-        cfg.AddProfiles(new List<Profile>
-        {
-            new ContractMapperProfile(),
-            new PropertyMapperProfile()
-        });
-    });
+    .AddConfiguredSwaggerGen()
+    .AddConfiguredAutoMapper()
+    .AddConfiguredHangfire(builder.Configuration)
+    .AddConfiguredJwtAuth(builder.Configuration);
 
+// Настройка сервисов. Всё что НЕ возвращает IServiceCollection
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
+// Сборка приложения
 var application = builder.Build();
+
+application
+    .UseSerilogRequestLogging();
 
 if (application.Environment.IsDevelopment())
 {
@@ -64,11 +49,31 @@ if (application.Environment.IsDevelopment())
         .UseSwaggerUI();
 }
 
+// Различные using-и
 application
+    // .UseMiddleware<ExceptionMiddleware>()
     .UseAuthentication()
     .UseAuthorization()
-    .UseHttpsRedirection();
+    .UseHttpsRedirection()
+    .UseHangfireDashboard();
 
+// Маппинг
 application.MapControllers();
+application.MapHub<ChatHub>("api/hubs/chat");
 
+// Background задачи
+RecurringJob.AddOrUpdate<IRatingUpdaterService>("Update rating", service => service.UpdatePropertyRating(), "0 6 * * *");
+
+// Запуск
 application.Run();
+
+// TODO: вынести "api" из каждого контроллера сюда.
+// TODO: написать маппер под ошибки валидатора (там есть ненужная для фронта инфа)
+// TODO: пробежаться по роутам и навесить на параметры внутри ограничения на тип
+// TODO: убрать проверки форматирования (к пред. задаче) (для примера посмотреть на ReviewController)
+// TODO: добавить метод добавления в избранные property
+// TODO: добавить методы изменения чувствительных данных в TenantController
+// TODO: добавить методы загрузки файлов в чат и из него
+// TODO: добавить логирование в сами методы бл
+
+// TODO: [Вопрос] Узнать куда какие логи лучше записавыть. Пока предположение что все - в консоль, а важные - в файл 

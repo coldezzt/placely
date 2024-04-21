@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     #region Database sets
     
     public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<PreviousPassword> PreviousPasswords => Set<PreviousPassword>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<Property> Properties => Set<Property>();
@@ -31,9 +32,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         #region Entities configuration
-
+        
         modelBuilder.ApplyConfiguration(new PropertyEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ContractEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new TenantEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ChatEntityConfiguration());
 
         #endregion
 
@@ -221,20 +224,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             new()
             {
                 Id = 1,
-                TenantId = 1,
-                LandlordId = 1,
+                FirstUserId = 1,
+                SecondUserId = 1,
                 DirectoryPath = "/chat-t-1-l-1"
             }, new()
             {
                 Id = 2,
-                TenantId = 2,
-                LandlordId = 1,
+                FirstUserId = 2,
+                SecondUserId = 1,
                 DirectoryPath = "/chat-t-2-l-1"
             }, new()
             {
                 Id = 3,
-                TenantId = 2,
-                LandlordId = 2,
+                FirstUserId = 2,
+                SecondUserId = 2,
                 DirectoryPath = "/chat-t-2-l-2"
             }
         };

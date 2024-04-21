@@ -14,4 +14,9 @@ public class CustomClaimTypes
     /// Роль пользователя в системе
     /// </summary>
     public const string UserRole = "User role";
+
+    /// <summary>
+    /// Электронная почта пользователя
+    /// </summary>
+    public const string Email = "User email";
 }

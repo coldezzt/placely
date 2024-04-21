@@ -2,7 +2,7 @@ namespace Placely.Data.Dtos.Validators;
 
 public static class ValidatorErrorMessages
 {
-    public static string StringNullOrEmpty() => "Поле не может быть пусто";
+    public static string NullOrEmpty() => "Поле не может быть пусто";
 
     public static string StringLengthShouldBeLessThan(int value) => $"Должно быть меньше чем {value}";
 
@@ -14,5 +14,7 @@ public static class ValidatorErrorMessages
 
     public static string StringUnparsableValue() => "Невозможное значение";
 
-    public static string StringWrongFormat() => "Неверный формат.";
+    public static string StringWrongFormat() => "Неверный формат";
+
+    public static string DateTimeShouldBeNotFromFuture() => "Дата не может быть в будущем";
 }
