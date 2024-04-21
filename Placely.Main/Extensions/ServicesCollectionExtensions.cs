@@ -14,6 +14,7 @@ using Placely.Data.Configurations.Mapper;
 using Placely.Data.Dtos;
 using Placely.Data.Dtos.Validators;
 using Placely.Data.Repositories;
+using Placely.Main.Middlewares;
 using Placely.Main.Services;
 
 namespace Placely.Main.Extensions;
@@ -47,6 +48,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IRegistrationService, RegistrationService>();
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<ITenantService, TenantService>();
+        services.AddScoped<IRatingUpdaterService, RatingUpdaterService>();
         
         return services;
     }
@@ -61,6 +63,13 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IValidator<ChatDto>, ChatDtoValidator>();
         services.AddScoped<IValidator<ReviewDto>, ReviewDtoValidator>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddMiddlewares(this IServiceCollection services)
+    {
+        services.AddScoped<ExceptionMiddleware>();
+        
         return services;
     }
     

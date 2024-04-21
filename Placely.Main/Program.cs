@@ -1,4 +1,5 @@
 using Hangfire;
+using Placely.Data.Abstractions.Services;
 using Placely.Main.Controllers.Hubs;
 using Placely.Main.Extensions;
 
@@ -15,6 +16,7 @@ builder.Services
     .AddRepositories()
     .AddServices()
     .AddValidators()
+    .AddMiddlewares()
     .AddDbContext(builder.Configuration)
     .AddEndpointsApiExplorer()
     .AddConfiguredSwaggerGen()
@@ -37,6 +39,7 @@ if (application.Environment.IsDevelopment())
 
 // Различные using-и
 application
+    // .UseMiddleware<ExceptionMiddleware>()
     .UseAuthentication()
     .UseAuthorization()
     .UseHttpsRedirection()
@@ -45,6 +48,9 @@ application
 // Маппинг
 application.MapControllers();
 application.MapHub<ChatHub>("api/hubs/chat");
+
+// Background задачи
+RecurringJob.AddOrUpdate<IRatingUpdaterService>("Update rating", service => service.UpdatePropertyRating(), "0 6 * * *");
 
 application.Run();
 

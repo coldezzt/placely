@@ -12,6 +12,8 @@ public class ReviewService(
         return await reviewRepo.GetByIdAsync(reviewId);
     }
 
+    // TODO: добавить проверку на то что один и тот же пользователь не может оставить несколько отзывов
+    // TODO: пробежаться по другим сервисам/контроллерам на наличие такого же недочёта
     public async Task<Review> AddAsync(Review review)
     {
         var result = await reviewRepo.AddAsync(review);
