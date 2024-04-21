@@ -2,13 +2,6 @@ using Hangfire;
 using Placely.Data.Abstractions.Services;
 using Placely.Main.Controllers.Hubs;
 using Placely.Main.Extensions;
-using Serilog;
-
-// Логирование на уровне приложения
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +12,6 @@ builder.Configuration
 
 // Настройка сервисов. Всё что возвращает IServiceCollection
 builder.Services
-    .AddConfiguredSerilog(builder.Configuration)
     .AddRouting(opt => opt.LowercaseUrls = true)
     .AddRepositories()
     .AddServices()
@@ -36,11 +28,7 @@ builder.Services
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 
-// Сборка приложения
 var application = builder.Build();
-
-application
-    .UseSerilogRequestLogging();
 
 if (application.Environment.IsDevelopment())
 {
@@ -64,14 +52,9 @@ application.MapHub<ChatHub>("api/hubs/chat");
 // Background задачи
 RecurringJob.AddOrUpdate<IRatingUpdaterService>("Update rating", service => service.UpdatePropertyRating(), "0 6 * * *");
 
-// Запуск
 application.Run();
 
 // TODO: вынести "api" из каждого контроллера сюда.
 // TODO: написать маппер под ошибки валидатора (там есть ненужная для фронта инфа)
 // TODO: пробежаться по роутам и навесить на параметры внутри ограничения на тип
-// TODO: убрать проверки форматирования (к пред. задаче) (для примера посмотреть на ReviewController)
 // TODO: добавить метод добавления в избранные property
-// TODO: добавить методы изменения чувствительных данных в TenantController
-// TODO: добавить методы загрузки файлов в чат и из него
-// TODO: [Вопрос] Узнать куда какие логи лучше записавыть. Пока предположение что все - в консоль, а важные - в файл 
