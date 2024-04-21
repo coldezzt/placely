@@ -16,6 +16,8 @@ using Placely.Data.Dtos.Validators;
 using Placely.Data.Repositories;
 using Placely.Main.Middlewares;
 using Placely.Main.Services;
+using Serilog;
+using Serilog.Events;
 
 namespace Placely.Main.Extensions;
 
@@ -168,6 +170,21 @@ public static class ServicesCollectionExtensions
         });
         
         services.AddHangfireServer();
+        return services;
+    }
+
+    public static IServiceCollection AddConfiguredSerilog(this IServiceCollection services, IConfiguration configuration)
+    { 
+        services.AddSerilog((servs, lc) => 
+            lc.MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+                .ReadFrom.Configuration(configuration)
+                .ReadFrom.Services(servs)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+            );
         return services;
     }
 }
