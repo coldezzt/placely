@@ -1,25 +1,32 @@
+using Hangfire;
+using Placely.Data.Abstractions.Services;
 using Placely.Main.Controllers.Hubs;
 using Placely.Main.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Конфигурация
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
 
-builder.Services.AddSignalR();
-
+// Настройка сервисов. Всё что возвращает IServiceCollection
 builder.Services
     .AddRouting(opt => opt.LowercaseUrls = true)
     .AddRepositories()
     .AddServices()
     .AddValidators()
+    .AddMiddlewares()
     .AddDbContext(builder.Configuration)
     .AddEndpointsApiExplorer()
     .AddConfiguredSwaggerGen()
     .AddConfiguredAutoMapper()
-    .AddConfiguredJwtAuth(builder.Configuration)
-    .AddControllers();
+    .AddConfiguredHangfire(builder.Configuration)
+    .AddConfiguredJwtAuth(builder.Configuration);
+
+// Настройка сервисов. Всё что НЕ возвращает IServiceCollection
+builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 var application = builder.Build();
 
@@ -30,13 +37,20 @@ if (application.Environment.IsDevelopment())
         .UseSwaggerUI();
 }
 
+// Различные using-и
 application
+    // .UseMiddleware<ExceptionMiddleware>()
     .UseAuthentication()
     .UseAuthorization()
-    .UseHttpsRedirection();
+    .UseHttpsRedirection()
+    .UseHangfireDashboard();
 
+// Маппинг
 application.MapControllers();
 application.MapHub<ChatHub>("api/hubs/chat");
+
+// Background задачи
+RecurringJob.AddOrUpdate<IRatingUpdaterService>("Update rating", service => service.UpdatePropertyRating(), "0 6 * * *");
 
 application.Run();
 

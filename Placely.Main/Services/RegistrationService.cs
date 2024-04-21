@@ -9,6 +9,7 @@ namespace Placely.Main.Services;
 public class RegistrationService(
     ITenantRepository tenantRepo) : IRegistrationService
 {
+    // TODO: добавить проверку на номер телефона
     public async Task<Tenant> RegisterUserAsync(Tenant tenant)
     {
         try

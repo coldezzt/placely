@@ -16,7 +16,7 @@ public class ContractService(
     IHostEnvironment environment,
     IMapper mapper) : IContractService
 {
-    // TODO: для быстроты работы можно создать задачу на создание документа
+    // TODO: для быстроты работы можно создать задачу на создание документа (hangfire уже подключён)
     // и присвоение его пути в сущности в базе данных, для этого нужно будет создать состояние документа (его готовность)
     // также нужно добавить в сущности ссылки на документ
     public async Task<Contract> GenerateContractAsync(ContractCreateRequestDto dto)
