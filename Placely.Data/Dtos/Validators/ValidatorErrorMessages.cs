@@ -2,7 +2,7 @@ namespace Placely.Data.Dtos.Validators;
 
 public static class ValidatorErrorMessages
 {
-    public static string StringNullOrEmpty() => "Поле не может быть пусто";
+    public static string NullOrEmpty() => "Поле не может быть пусто";
 
     public static string StringLengthShouldBeLessThan(int value) => $"Должно быть меньше чем {value}";
 

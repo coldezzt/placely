@@ -9,12 +9,12 @@ public class TenantDtoValidator : AbstractValidator<TenantDto>
     public TenantDtoValidator()
     {
         RuleFor(dto => dto.Name)
-            .NotEmpty().WithMessage(StringNullOrEmpty());
+            .NotEmpty().WithMessage(NullOrEmpty());
         RuleFor(dto => dto.PhoneNumber)
-            .NotEmpty().WithMessage(StringNullOrEmpty())
+            .NotEmpty().WithMessage(NullOrEmpty())
             .Must(IsPhoneNumber).WithMessage(StringWrongFormat());
         RuleFor(dto => dto.AvatarPath)
-            .NotEmpty().WithMessage(StringNullOrEmpty())
+            .NotEmpty().WithMessage(NullOrEmpty())
             .Must(s => Uri.IsWellFormedUriString(s, UriKind.Absolute))
             .WithMessage(StringWrongFormat());
     }

@@ -9,10 +9,10 @@ public class LoginDtoValidator : AbstractValidator<LoginDto>
     public LoginDtoValidator()
     {
         RuleFor(dto => dto.Email)
-            .NotEmpty().WithMessage(StringNullOrEmpty())
+            .NotEmpty().WithMessage(NullOrEmpty())
             .Must(IsEmail).WithMessage(StringWrongFormat());
         RuleFor(dto => dto.Password)
-            .NotEmpty().WithMessage(StringNullOrEmpty())
+            .NotEmpty().WithMessage(NullOrEmpty())
             .Must(IsPassword).WithMessage(StringWrongFormat());
     }
 }
