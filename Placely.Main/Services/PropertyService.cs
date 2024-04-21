@@ -44,7 +44,7 @@ public class PropertyService(IPropertyRepository propertyRepo)
         // Сборка предиката
         var builder = PredicateBuilder.New<Property>();
 
-        if (searchParameters.TryGetValue(SearchParameter.Category, out var value) == true
+        if (searchParameters.TryGetValue(SearchParameter.Category, out var value)
             && Enum.TryParse<PropertyType>(value, out var propertyType))
             builder = builder.And(b => b.Type.Equals(propertyType));
 

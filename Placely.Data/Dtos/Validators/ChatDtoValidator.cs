@@ -8,8 +8,8 @@ public class ChatDtoValidator : AbstractValidator<ChatDto>
     public ChatDtoValidator()
     {
         RuleFor(c => c.FirstUserId)
-            .NotEmpty().WithMessage(StringNullOrEmpty());
+            .NotEmpty().WithMessage(NullOrEmpty());
         RuleFor(c => c.SecondUserId)
-            .NotEmpty().WithMessage(StringNullOrEmpty());
+            .NotEmpty().WithMessage(NullOrEmpty());
     }
 }

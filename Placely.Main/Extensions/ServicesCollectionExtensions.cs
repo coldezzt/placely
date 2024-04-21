@@ -57,6 +57,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
         services.AddScoped<IValidator<MessageDto>, MessageDtoValidator>();
         services.AddScoped<IValidator<ChatDto>, ChatDtoValidator>();
+        services.AddScoped<IValidator<ReviewDto>, ReviewDtoValidator>();
 
         return services;
     }
@@ -138,6 +139,7 @@ public static class ServicesCollectionExtensions
                 new TenantMapperConfiguration(),
                 new MessageMapperProfile(),
                 new ChatMapperProfile(),
+                new ReviewMapperProfile(),
             });
         });
         return services;
