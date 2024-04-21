@@ -36,9 +36,11 @@ public static class ServicesCollectionExtensions
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<IAuthorizationService, AuthorizationService>();
+        services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IContractService, ContractService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<ILandlordService, LandlordService>();
+        services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<IPropertyService, PropertyService>();
         services.AddScoped<IRegistrationService, RegistrationService>();
         services.AddScoped<IReviewService, ReviewService>();
@@ -53,6 +55,8 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
         services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
         services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
+        services.AddScoped<IValidator<MessageDto>, MessageDtoValidator>();
+        services.AddScoped<IValidator<ChatDto>, ChatDtoValidator>();
 
         return services;
     }
@@ -91,9 +95,10 @@ public static class ServicesCollectionExtensions
 
     public static IServiceCollection AddConfiguredSwaggerGen(this IServiceCollection services)
     {
-        services.AddSwaggerGen(options =>
+        services.AddSwaggerGen(opt =>
         {
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            opt.AddSignalRSwaggerGen();
+            opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
                 Description = "Please enter a valid token",
@@ -102,7 +107,7 @@ public static class ServicesCollectionExtensions
                 BearerFormat = "JWT",
                 Scheme = "Bearer"
             });
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            opt.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
                     new OpenApiSecurityScheme
@@ -130,7 +135,9 @@ public static class ServicesCollectionExtensions
                 new PropertyMapperProfile(),
                 new AuthorizationMapperProfile(),
                 new RegistrationMapperProfile(),
-                new TenantMapperConfiguration()
+                new TenantMapperConfiguration(),
+                new MessageMapperProfile(),
+                new ChatMapperProfile(),
             });
         });
         return services;

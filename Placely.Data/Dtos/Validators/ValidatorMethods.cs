@@ -11,4 +11,5 @@ public static class ValidatorMethods
     public static bool IsEmail(string str) => EmailPattern.IsMatch(str);
     public static bool IsPassword(string str) => PasswordPattern.IsMatch(str);
     public static bool IsPhoneNumber(string str) => PhoneNumberPattern.IsMatch(str);
+    public static bool IsFuture(DateTime dt) => DateTime.Now < dt;
 }
