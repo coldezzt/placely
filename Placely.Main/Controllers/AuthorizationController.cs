@@ -1,10 +1,12 @@
-using System.Globalization;
+using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Dtos;
 using Placely.Data.Entities;
-using Placely.Data.Models;
 using IAuthorizationService = Placely.Data.Abstractions.Services.IAuthorizationService;
 
 namespace Placely.Main.Controllers;
@@ -27,6 +29,26 @@ public class AuthorizationController(
         var tokenModel = await service.AuthorizeAsync(tenant);
         
         return Ok(tokenModel);
+    }
+
+    [HttpGet("google")]
+    public async Task<IActionResult> AuthorizeWithGoogle()
+    {
+        var authenticationProperties = new AuthenticationProperties {RedirectUri = Url.Action("GoogleCallback")};
+        return Challenge(authenticationProperties, GoogleDefaults.AuthenticationScheme);
+    }
+
+    [HttpGet("callback-google")]
+    public async Task<IActionResult> GoogleCallback()
+    {
+        var authResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        if (!authResult.Succeeded)
+            return BadRequest();
+
+        var email = authResult.Principal.FindFirstValue(ClaimTypes.Email);
+
+        var token = await service.AuthorizeUserFromExternalService(email, authResult.Principal.Claims);
+        return Ok(token);
     }
     
     /*

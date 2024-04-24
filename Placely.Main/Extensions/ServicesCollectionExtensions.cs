@@ -4,6 +4,8 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -88,7 +90,12 @@ public static class ServicesCollectionExtensions
     public static IServiceCollection AddConfiguredJwtAuth(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthorization();
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
@@ -100,7 +107,15 @@ public static class ServicesCollectionExtensions
                         Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)),
                     ValidateLifetime = false
                 };
+            })
+            .AddCookie(options => options.LoginPath = "/api/tenant/authorize")
+            .AddGoogle(options =>
+            {
+                var googleConfig = configuration.GetSection("Authentication:Google");
+                options.ClientId = googleConfig["ClientId"]!;
+                options.ClientSecret = googleConfig["ClientSecret"]!;
             });
+        
         return services;
     }
 

@@ -31,7 +31,7 @@ public class AuthorizationService(
     {
         var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
 
-        var email = principal.Claims.FirstOrDefault(c => c.Type == CustomClaimTypes.Email)?.Value;
+        var email = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
         var tenant = await tenantRepo.GetByEmailAsync(email);
 
         if (tenant.RefreshToken != tokenDto.RefreshToken
@@ -40,12 +40,46 @@ public class AuthorizationService(
 
         return await CreateTokenAsync(tenant, populateExp: false);
     }
-    
+
+    public async Task<TokenDto> AuthorizeUserFromExternalService(
+        string email,
+        IEnumerable<Claim>? externalClaims = null)
+    {
+        // Ищем пользователя в бд
+        var tenant = await tenantRepo.TryGetByEmailAsync(email) 
+                     ?? new Tenant // не нашли - создаём нового, с незаполненными полями (заполняем в другом ендпоинте)
+        {
+            UserRole = UserRole.Tenant,
+            Name = externalClaims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "",
+            Email = email,
+            PhoneNumber = "",
+            Password = "",
+            IsAdditionalRegistrationRequired = true
+        };
+
+        var claims = GenerateClaims(tenant).ToList();
+        claims.AddRange(externalClaims ?? Array.Empty<Claim>());
+
+        var tokenDto = new TokenDto
+        {
+            AccessToken = GenerateJwtToken(claims),
+            RefreshToken = GenerateRefreshToken()
+        };
+
+        tenant.RefreshToken = tokenDto.RefreshToken;
+        tenant.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
+
+        await tenantRepo.SaveChangesAsync();
+        
+        return tokenDto;
+    }
+
     private async Task<TokenDto> CreateTokenAsync(Tenant tenant, bool populateExp)
     {
-        var jwtToken = await GenerateJwtTokenAsync(tenant);
+        var jwtToken = GenerateJwtToken(GenerateClaims(tenant));
         var refreshToken = GenerateRefreshToken();
         tenant.RefreshToken = refreshToken;
+        
         if (populateExp)
             tenant.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
 
@@ -58,15 +92,8 @@ public class AuthorizationService(
         };
     }
     
-    private Task<string> GenerateJwtTokenAsync(Tenant tenant)
+    private string GenerateJwtToken(IEnumerable<Claim> claims)
     {
-        var claims = new List<Claim>
-        {
-            new(CustomClaimTypes.UserId, tenant.Id.ToString()),
-            new(CustomClaimTypes.UserRole, tenant.UserRole.ToString()),
-            new(CustomClaimTypes.Email, tenant.Email)
-        };
-        
         var jwt = new JwtSecurityToken(
             claims: claims,
             expires: DateTime.UtcNow.Add(TimeSpan.FromHours(1)),
@@ -75,10 +102,19 @@ public class AuthorizationService(
                 SecurityAlgorithms.HmacSha256
             )
         );
-        
-        return Task.FromResult(new JwtSecurityTokenHandler().WriteToken(jwt));
+
+        return new JwtSecurityTokenHandler().WriteToken(jwt);
     }
 
+    private static IEnumerable<Claim> GenerateClaims(Tenant tenant)
+    {
+        return new List<Claim>
+        {
+            new(CustomClaimTypes.UserId, tenant.Id.ToString()),
+            new(ClaimTypes.Email, tenant.Email),
+            new(CustomClaimTypes.UserRole, tenant.UserRole.ToString()),
+        };
+    }
     private static string GenerateRefreshToken()
     {
         var randomNumber = new byte[32];

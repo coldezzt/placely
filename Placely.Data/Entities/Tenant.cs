@@ -20,6 +20,8 @@ public class Tenant : IEntity
 
     public string? RefreshToken { get; set; }
     public DateTime RefreshTokenExpirationDate { get; set; }
+
+    public bool IsAdditionalRegistrationRequired { get; set; }
     
     public virtual List<Property> Favourite { get; set; }
     public virtual List<Chat> Chats { get; set; }

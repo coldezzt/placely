@@ -11,5 +11,8 @@ public class TenantEntityConfiguration : IEntityTypeConfiguration<Tenant>
     {
         builder.Property(t => t.UserRole)
             .HasDefaultValue(UserRole.Tenant);
+
+        builder.Property(t => t.IsAdditionalRegistrationRequired)
+            .HasDefaultValue(false);
     }
 }
