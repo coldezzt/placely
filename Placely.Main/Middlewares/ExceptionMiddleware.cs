@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Placely.Data.Exceptions;
 using Placely.Main.Exceptions;
@@ -20,11 +21,13 @@ public class ExceptionMiddleware(IWebHostEnvironment webHostEnvironment) : IMidd
 
             var statusCode = e switch
             {
-                EntityNotFoundException => 404,
+                AutoMapperMappingException      => 400,
+                PasswordNotMatchException       => 400,
+                RefreshTokenBadRequestException => 400,
+                EntityNotFoundException         => 404,
                 EntityValidationFailedException => 422,
-                PasswordNotMatchException => 400,
-                DbUpdateException => 503,
-                PermissionDeniedException => 403,
+                DbUpdateException               => 503,
+                PermissionDeniedException       => 403,
                 _ => 500
             };
 

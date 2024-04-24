@@ -6,7 +6,7 @@ namespace Placely.Data.Entities;
 public class Tenant : IEntity
 {
     public long Id { get; set; }
-    public UserRole UserRole { get; set; }
+    public UserRole? UserRole { get; set; }
     public string Name { get; set; }
     public string PhoneNumber { get; set; }
     public string Email { get; set; }
@@ -17,6 +17,9 @@ public class Tenant : IEntity
     public string? AvatarPath { get; set; }
     public string? About { get; set; }
     public string? Work { get; set; }
+
+    public string? RefreshToken { get; set; }
+    public DateTime RefreshTokenExpirationDate { get; set; }
     
     public virtual List<Property> Favourite { get; set; }
     public virtual List<Chat> Chats { get; set; }

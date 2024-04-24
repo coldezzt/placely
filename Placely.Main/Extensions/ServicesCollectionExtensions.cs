@@ -1,6 +1,7 @@
 using System.Text;
 using AutoMapper;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,7 +44,6 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IAuthorizationService, AuthorizationService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IContractService, ContractService>();
-        services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<ILandlordService, LandlordService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<IPropertyService, PropertyService>();
@@ -64,7 +64,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IValidator<MessageDto>, MessageDtoValidator>();
         services.AddScoped<IValidator<ChatDto>, ChatDtoValidator>();
         services.AddScoped<IValidator<ReviewDto>, ReviewDtoValidator>();
-
+        
         return services;
     }
 
@@ -93,15 +93,12 @@ public static class ServicesCollectionExtensions
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = false,
+                    ValidateIssuer = false,
                     ValidateIssuerSigningKey = false,
-                    ValidIssuer = configuration["JwtAuth:Issuer"],
-                    ValidAudience = configuration["JwtAuth:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)
-                    )
+                        Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)),
+                    ValidateLifetime = false
                 };
             });
         return services;
@@ -183,7 +180,6 @@ public static class ServicesCollectionExtensions
                 .ReadFrom.Configuration(configuration)
                 .ReadFrom.Services(servs)
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
             );
         return services;
     }

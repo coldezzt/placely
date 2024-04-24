@@ -1,6 +1,7 @@
 using System.Globalization;
 using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;
@@ -9,14 +10,14 @@ using Placely.Data.Models;
 
 namespace Placely.Main.Controllers;
 
-// TODO: добавить аналогичные методы /my только для админов
-// (чтобы они могли удалять и получать доступ к любому аккаунту)
+[Authorize]
 [Route("api/[controller]")]
 public class TenantController(
     ITenantService service,
     IMapper mapper,
     IValidator<TenantDto> validator) : ControllerBase
 {
+    [AllowAnonymous]
     [HttpGet("{tenantId}")]
     public async Task<IActionResult> Get(long tenantId)
     {
@@ -39,7 +40,7 @@ public class TenantController(
         var response = result.Select(mapper.Map<PropertyDto>);
         return Ok(response);
     }
-
+    
     [HttpGet("my/settings")]
     public async Task<IActionResult> GetSettings()
     {

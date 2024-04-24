@@ -51,9 +51,9 @@ public class PropertyController(
             return Forbid();
         
         dto.Id = propertyId;
-        var validationResult = await validator.ValidateAsync(dto);
+        /*var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
+            return BadRequest(validationResult.Errors);*/
         
         var property = mapper.Map<Property>(dto);
         var updatedProperty = await propertyService.UpdateAsync(property);
