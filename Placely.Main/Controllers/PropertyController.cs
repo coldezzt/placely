@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -42,7 +43,7 @@ public class PropertyController(
     [HttpPatch("my/{propertyId}")]
     public async Task<IActionResult> Update(long propertyId, [FromBody] PropertyDto dto)
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
             return BadRequest();
 
@@ -51,9 +52,9 @@ public class PropertyController(
             return Forbid();
         
         dto.Id = propertyId;
-        /*var validationResult = await validator.ValidateAsync(dto);
+        var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);*/
+            return BadRequest(validationResult.Errors);
         
         var property = mapper.Map<Property>(dto);
         var updatedProperty = await propertyService.UpdateAsync(property);
@@ -65,7 +66,7 @@ public class PropertyController(
     [HttpDelete("my/{propertyId}")]
     public async Task<IActionResult> Delete(long propertyId)
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
             return BadRequest();
 
@@ -75,10 +76,5 @@ public class PropertyController(
         
         await propertyService.DeleteAsync(propertyId);
         return Ok();
-    }
-    
-    private string? GetClaim(string type)
-    {
-        return User.Claims.FirstOrDefault(c => c.Type == type)?.Value;
     }
 }

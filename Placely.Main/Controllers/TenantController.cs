@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +30,7 @@ public class TenantController(
     [HttpGet("my/favourite")]
     public async Task<IActionResult> GetFavouriteProperties()
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (claimId is null)
             return Unauthorized();
 
@@ -44,7 +45,7 @@ public class TenantController(
     [HttpGet("my/settings")]
     public async Task<IActionResult> GetSettings()
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (claimId is null)
             return Unauthorized();
         
@@ -59,7 +60,7 @@ public class TenantController(
     [HttpPatch("my/settings")]
     public async Task<IActionResult> UpdateSettings([FromBody] TenantDto dto)
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (claimId is null)
             return Unauthorized();
         
@@ -80,7 +81,7 @@ public class TenantController(
     [HttpDelete("my")]
     public async Task<IActionResult> Delete()
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (claimId is null)
             return Unauthorized();
         
@@ -90,10 +91,5 @@ public class TenantController(
         var result = await service.DeleteAsync(tenantId);
         var response = mapper.Map<TenantDto>(result);
         return Ok(response);
-    }
-    
-    private string? GetClaim(string type)
-    {
-        return User.Claims.FirstOrDefault(c => c.Type == type)?.Value;
     }
 }

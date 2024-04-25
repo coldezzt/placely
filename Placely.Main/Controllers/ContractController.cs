@@ -7,8 +7,7 @@ namespace Placely.Main.Controllers;
 
 [Route("api/[controller]")]
 public class ContractController(
-    IContractService contractService,
-    IMapper mapper) : ControllerBase
+    IContractService contractService) : ControllerBase
 {
     [HttpPost("[action]")]
     public IActionResult Generate([FromBody] ContractCreateRequestDto dto)

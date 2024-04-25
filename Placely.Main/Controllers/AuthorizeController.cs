@@ -3,7 +3,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Dtos;
 using IAuthorizationService = Placely.Data.Abstractions.Services.IAuthorizationService;
