@@ -46,7 +46,10 @@ if (application.Environment.IsDevelopment())
 {
     application
         .UseSwagger()
-        .UseSwaggerUI();
+        .UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "MyAPI v1");
+        });
 }
 
 // Различные using-и

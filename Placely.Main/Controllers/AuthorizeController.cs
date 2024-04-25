@@ -9,12 +9,33 @@ using IAuthorizationService = Placely.Data.Abstractions.Services.IAuthorizationS
 
 namespace Placely.Main.Controllers;
 
+[ApiController]
 [Route("api")]
 public class AuthorizeController(
     IAuthorizationService service,
     IValidator<AuthorizationDto> validator) : ControllerBase
 {
+    
+    /// <summary>
+    /// Авторизует пользователя.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     POST api/authorize
+    ///     {
+    ///       "Email": "r1@example.com",
+    ///       "Password": "r1",
+    ///       "TwoFactorKey": "string"
+    ///     }
+    /// </remarks>
+    /// <param name="dto">Параметры авторизации</param>
+    /// <returns>Набор из refresh и access токенов.</returns>
+    /// <response code="200">Возвращает сгенерированные токены для текущего пользователя</response>
+    /// <response code="400">Неверный формат входных данных. -ИЛИ- Авторизация не завершилась успехом.</response>
     [HttpPost("[action]")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
     public async Task<IActionResult> Authorize([FromBody] AuthorizationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
