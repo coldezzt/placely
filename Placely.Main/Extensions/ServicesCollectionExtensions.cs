@@ -60,7 +60,7 @@ public static class ServicesCollectionExtensions
     public static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddScoped<IValidator<PropertyDto>, PropertyDtoValidator>();
-        services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
+        services.AddScoped<IValidator<AuthorizationDto>, LoginDtoValidator>();
         services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
         services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
         services.AddScoped<IValidator<MessageDto>, MessageDtoValidator>();
@@ -89,11 +89,9 @@ public static class ServicesCollectionExtensions
 
     public static IServiceCollection AddConfiguredJwtAuth(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthorization();
         services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                opt.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
                 opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(opt =>
@@ -108,13 +106,14 @@ public static class ServicesCollectionExtensions
                     ValidateLifetime = false
                 };
             })
-            .AddCookie(options => options.LoginPath = "/api/tenant/authorize")
+            .AddCookie(options =>options.LoginPath = "/api/authorize")
             .AddGoogle(options =>
             {
                 var googleConfig = configuration.GetSection("Authentication:Google");
                 options.ClientId = googleConfig["ClientId"]!;
                 options.ClientSecret = googleConfig["ClientSecret"]!;
             });
+        services.AddAuthorization();
         
         return services;
     }

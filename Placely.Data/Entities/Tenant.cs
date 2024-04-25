@@ -22,6 +22,10 @@ public class Tenant : IEntity
     public DateTime RefreshTokenExpirationDate { get; set; }
 
     public bool IsAdditionalRegistrationRequired { get; set; }
+    public bool IsTwoFactorEnabled { get; set; }
+    public string? ManualEntryKey { get; set; }
+    public string? QrImageUrl { get; set; }
+    public string? TwoFactorAccountSecretKey { get; set; }
     
     public virtual List<Property> Favourite { get; set; }
     public virtual List<Chat> Chats { get; set; }

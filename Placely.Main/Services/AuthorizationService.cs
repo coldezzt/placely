@@ -2,9 +2,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Google.Authenticator;
 using Microsoft.IdentityModel.Tokens;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
+using Placely.Data.Dtos;
 using Placely.Data.Entities;
 using Placely.Data.Models;
 using Placely.Main.Exceptions;
@@ -16,15 +18,22 @@ public class AuthorizationService(
     ITenantRepository tenantRepo,
     IConfiguration configuration) : IAuthorizationService
 {
-    public async Task<TokenDto> AuthorizeAsync(Tenant tenant)
+    public async Task<AuthorizationResult> AuthorizeAsync(AuthorizationDto dto)
     {
-        var dbTenant = await tenantRepo.GetByEmailAsync(tenant.Email);
-        if (!PasswordHasher.Validate(dbTenant.Password, tenant.Password))
-            return new TokenDto();
+        var dbTenant = await tenantRepo.GetByEmailAsync(dto.Email);
+        if (!PasswordHasher.Validate(dbTenant.Password, dto.Password))
+            return new AuthorizationResult { IsSuccess = false, Error = "Неверный пароль!" };
+
+        if (dbTenant.IsTwoFactorEnabled)
+        {
+            var tfa = new TwoFactorAuthenticator();
+            if (!tfa.ValidateTwoFactorPIN(dbTenant.TwoFactorAccountSecretKey, dto.TwoFactorKey))
+                return new AuthorizationResult { IsSuccess = false, Error = "Неверный двухфакторный ключ!" };
+        }
 
         var tokenDto = await CreateTokenAsync(dbTenant, populateExp: true);
-        
-        return tokenDto;
+    
+        return new AuthorizationResult { IsSuccess = true, TokenDto = tokenDto };
     }
     
     public async Task<TokenDto> RefreshTokenAsync(TokenDto tokenDto)
@@ -41,20 +50,18 @@ public class AuthorizationService(
         return await CreateTokenAsync(tenant, populateExp: false);
     }
 
-    public async Task<TokenDto> AuthorizeUserFromExternalService(
-        string email,
+    public async Task<TokenDto> AuthorizeUserFromExternalService(string email,
         IEnumerable<Claim>? externalClaims = null)
     {
-        // Ищем пользователя в бд
-        var tenant = await tenantRepo.TryGetByEmailAsync(email) 
-                     ?? new Tenant // не нашли - создаём нового, с незаполненными полями (заполняем в другом ендпоинте)
+        // Ищем пользователя в бд - если нет создаём нового
+        var tenant = await tenantRepo.TryGetByEmailAsync(email) ?? new Tenant
         {
             UserRole = UserRole.Tenant,
-            Name = externalClaims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "",
             Email = email,
+            Name = externalClaims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "",
+            IsAdditionalRegistrationRequired = true,
             PhoneNumber = "",
-            Password = "",
-            IsAdditionalRegistrationRequired = true
+            Password = ""
         };
 
         var claims = GenerateClaims(tenant).ToList();
@@ -69,11 +76,50 @@ public class AuthorizationService(
         tenant.RefreshToken = tokenDto.RefreshToken;
         tenant.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
 
+        await tenantRepo.AddOrUpdateAsync(tenant);
         await tenantRepo.SaveChangesAsync();
         
         return tokenDto;
     }
 
+    public async Task<TwoFactorAuthenticationModel> ApplyGoogleTwoFactorAuthenticationAsync(string email)
+    {
+        var key = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(key);
+        var accountSecretKey = Convert.ToBase64String(key);
+
+        var tenant = await tenantRepo.GetByEmailAsync(email);
+
+        var tfa = new TwoFactorAuthenticator();
+        var setupInfo = tfa.GenerateSetupCode("Placely & You", email, accountSecretKey, false);
+
+        tenant.IsTwoFactorEnabled = true;
+        tenant.QrImageUrl = setupInfo.QrCodeSetupImageUrl;
+        tenant.ManualEntryKey = setupInfo.ManualEntryKey;
+        tenant.TwoFactorAccountSecretKey = accountSecretKey;
+
+        await tenantRepo.AddOrUpdateAsync(tenant);
+        await tenantRepo.SaveChangesAsync();
+
+        return new TwoFactorAuthenticationModel
+        {
+            ManualEntryKey = tenant.ManualEntryKey,
+            QrImageUrl = tenant.QrImageUrl
+        };
+    }
+
+    public async Task<TwoFactorAuthenticationModel> GetTwoFactorAuthenticationKeys(string email)
+    {
+        var dbTenant = await tenantRepo.GetByEmailAsync(email);
+
+        return new TwoFactorAuthenticationModel
+        {
+            ManualEntryKey = dbTenant.ManualEntryKey ?? "",
+            QrImageUrl = dbTenant.QrImageUrl ?? ""
+        };
+    }
+    
     private async Task<TokenDto> CreateTokenAsync(Tenant tenant, bool populateExp)
     {
         var jwtToken = GenerateJwtToken(GenerateClaims(tenant));
