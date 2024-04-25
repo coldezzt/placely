@@ -285,7 +285,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 PriceListId = 1,
                 Address = "Flat property address",
                 Description = "Flat property description",
-                PublicationDate = (DateTime.Now - TimeSpan.FromDays(1)).ToUniversalTime()
+                PublicationDate = (DateTime.UtcNow - TimeSpan.FromDays(1)).ToUniversalTime()
             }, new()
             {
                 Id = 2,
@@ -294,7 +294,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 PriceListId = 2,
                 Address = "Hostel property address",
                 Description = "Hostel property description",
-                PublicationDate = (DateTime.Now - TimeSpan.FromDays(30)).ToUniversalTime()
+                PublicationDate = (DateTime.UtcNow - TimeSpan.FromDays(30)).ToUniversalTime()
             }, new()
             {
                 Id = 3,
@@ -303,7 +303,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 PriceListId = 3,
                 Address = "Villa property address",
                 Description = "Villa property description",
-                PublicationDate = (DateTime.Now - TimeSpan.FromDays(60)).ToUniversalTime()
+                PublicationDate = (DateTime.UtcNow - TimeSpan.FromDays(60)).ToUniversalTime()
             }
         };
 

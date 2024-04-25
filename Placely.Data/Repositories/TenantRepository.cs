@@ -17,4 +17,20 @@ public class TenantRepository(AppDbContext appDbContext)
         
         return result;
     }
+
+    public async Task<Tenant?> TryGetByEmailAsync(string email)
+    {
+        var result = await appDbContext.Tenants.FirstOrDefaultAsync(t => t.Email == email);
+        return result;
+    }
+
+    public async Task<Tenant> AddOrUpdateAsync(Tenant tenant)
+    {
+        var dbTenant = await appDbContext.Tenants.FirstOrDefaultAsync(t => t.Email == tenant.Email);
+        var resultTenant = dbTenant is null 
+            ? await appDbContext.Tenants.AddAsync(tenant)
+            : appDbContext.Tenants.Update(tenant);
+
+        return resultTenant.Entity;
+    }
 }

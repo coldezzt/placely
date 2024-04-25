@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;
@@ -16,7 +17,7 @@ public class ChatController(
     [HttpGet("my/list")]
     public async Task<IActionResult> GetList()
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (claimId is null)
             return Unauthorized();
 
@@ -31,7 +32,7 @@ public class ChatController(
     [HttpGet("{chatId}")]
     public async Task<IActionResult> Get(long chatId)
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (claimId is null)
             return Unauthorized();
 
@@ -48,7 +49,7 @@ public class ChatController(
     [HttpPost("my")]
     public async Task<IActionResult> Create([FromBody] ChatDto dto)
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (claimId is null)
             return Unauthorized();
 
@@ -69,7 +70,7 @@ public class ChatController(
     [HttpDelete("my/{chatId}")]
     public async Task<IActionResult> Delete(long chatId)
     {
-        var claimId = GetClaim(CustomClaimTypes.UserId);
+        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
         if (claimId is null)
             return Unauthorized();
 
@@ -82,10 +83,5 @@ public class ChatController(
 
         var chat = await service.DeleteByIdAsync(chatId);
         return Ok(chat);
-    }
-    
-    private string? GetClaim(string type)
-    {
-        return User.Claims.FirstOrDefault(c => c.Type == type)?.Value;
     }
 }

@@ -8,6 +8,6 @@ public class AuthorizationMapperProfile : Profile
 {
     public AuthorizationMapperProfile()
     {
-        CreateMap<LoginDto, Tenant>();
+        CreateMap<AuthorizationDto, Tenant>();
     }
 }

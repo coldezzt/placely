@@ -4,7 +4,7 @@ using static Placely.Data.Dtos.Validators.ValidatorMethods;
 
 namespace Placely.Data.Dtos.Validators;
 
-public class LoginDtoValidator : AbstractValidator<LoginDto>
+public class LoginDtoValidator : AbstractValidator<AuthorizationDto>
 {
     public LoginDtoValidator()
     {

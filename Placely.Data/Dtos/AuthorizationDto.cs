@@ -1,7 +1,8 @@
 namespace Placely.Data.Dtos;
 
-public class LoginDto
+public class AuthorizationDto
 {
     public string Email { get; set; }
     public string Password { get; set; }
+    public string? TwoFactorKey { get; set; }
 }

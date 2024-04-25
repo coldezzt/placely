@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -40,7 +41,7 @@ public class ReviewController(
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
 
-        dto.AuthorId = long.Parse(GetClaim(CustomClaimTypes.UserId)!);
+        dto.AuthorId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!);
         var review = mapper.Map<Review>(dto);
         var result = await service.AddAsync(review);
         var responseDto = mapper.Map<ReviewDto>(result);
@@ -51,7 +52,7 @@ public class ReviewController(
     [HttpDelete("[controller]/{reviewId:long}")]
     public async Task<IActionResult> Delete(long reviewId)
     {
-        var id = long.Parse(GetClaim(CustomClaimTypes.UserId)!);
+        var id = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!);
         var dbReview = await service.GetById(reviewId);
         if (dbReview.AuthorId != id)
             return Forbid();
@@ -59,10 +60,5 @@ public class ReviewController(
         var result = await service.DeleteAsync(reviewId);
         var responseDto = mapper.Map<ReviewDto>(result);
         return Ok(responseDto);
-    }
-    
-    private string? GetClaim(string type)
-    {
-        return User.Claims.FirstOrDefault(c => c.Type == type)?.Value;
     }
 }

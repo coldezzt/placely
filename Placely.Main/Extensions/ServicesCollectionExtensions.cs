@@ -1,8 +1,11 @@
 using System.Text;
 using AutoMapper;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -43,7 +46,6 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IAuthorizationService, AuthorizationService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IContractService, ContractService>();
-        services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<ILandlordService, LandlordService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<IPropertyService, PropertyService>();
@@ -58,13 +60,13 @@ public static class ServicesCollectionExtensions
     public static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddScoped<IValidator<PropertyDto>, PropertyDtoValidator>();
-        services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
+        services.AddScoped<IValidator<AuthorizationDto>, LoginDtoValidator>();
         services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
         services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
         services.AddScoped<IValidator<MessageDto>, MessageDtoValidator>();
         services.AddScoped<IValidator<ChatDto>, ChatDtoValidator>();
         services.AddScoped<IValidator<ReviewDto>, ReviewDtoValidator>();
-
+        
         return services;
     }
 
@@ -87,23 +89,32 @@ public static class ServicesCollectionExtensions
 
     public static IServiceCollection AddConfiguredJwtAuth(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthorization();
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = false,
+                    ValidateIssuer = false,
                     ValidateIssuerSigningKey = false,
-                    ValidIssuer = configuration["JwtAuth:Issuer"],
-                    ValidAudience = configuration["JwtAuth:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)
-                    )
+                        Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)),
+                    ValidateLifetime = false
                 };
+            })
+            .AddCookie(options =>options.LoginPath = "/api/authorize")
+            .AddGoogle(options =>
+            {
+                var googleConfig = configuration.GetSection("Authentication:Google");
+                options.ClientId = googleConfig["ClientId"]!;
+                options.ClientSecret = googleConfig["ClientSecret"]!;
             });
+        services.AddAuthorization();
+        
         return services;
     }
 
@@ -183,7 +194,6 @@ public static class ServicesCollectionExtensions
                 .ReadFrom.Configuration(configuration)
                 .ReadFrom.Services(servs)
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
             );
         return services;
     }

@@ -9,7 +9,7 @@ public class ContractModel(
     decimal paymentAmount, 
     string paymentFrequency)
 {
-    public DateTime ContractDate { get; } = DateTime.Now;
+    public DateTime ContractDate { get; } = DateTime.UtcNow;
     public Contract Contract { get; } = contractEntity;
     public decimal PaymentAmount { get; } = paymentAmount;
     public string PaymentFrequency { get; } = paymentFrequency;
