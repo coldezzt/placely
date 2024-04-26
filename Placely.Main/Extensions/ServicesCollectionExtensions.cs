@@ -124,6 +124,7 @@ public static class ServicesCollectionExtensions
         services.AddSwaggerGen(opt =>
         {
             opt.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+            opt.EnableAnnotations();
             opt.AddSignalRSwaggerGen();
             opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
@@ -148,10 +149,6 @@ public static class ServicesCollectionExtensions
                     Array.Empty<string>()
                 }
             });
-
-            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            opt.IncludeXmlComments(xmlPath);
         });
         
         
