@@ -22,12 +22,9 @@ public class ExceptionMiddleware(IWebHostEnvironment webHostEnvironment) : IMidd
             var statusCode = e switch
             {
                 AutoMapperMappingException      => 400,
-                PasswordNotMatchException       => 400,
                 RefreshTokenBadRequestException => 400,
                 EntityNotFoundException         => 404,
-                EntityValidationFailedException => 422,
                 DbUpdateException               => 503,
-                PermissionDeniedException       => 403,
                 _ => 500
             };
 

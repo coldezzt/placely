@@ -9,13 +9,13 @@ public class TenantEntityConfiguration : IEntityTypeConfiguration<Tenant>
 {
     public void Configure(EntityTypeBuilder<Tenant> builder)
     {
-        builder.Property(t => t.UserRole)
+        builder.Property(static t => t.UserRole)
             .HasDefaultValue(UserRole.Tenant);
 
-        builder.Property(t => t.IsAdditionalRegistrationRequired)
+        builder.Property(static t => t.IsAdditionalRegistrationRequired)
             .HasDefaultValue(false);
 
-        builder.Property(t => t.IsTwoFactorEnabled)
+        builder.Property(static t => t.IsTwoFactorEnabled)
             .HasDefaultValue(false);
     }
 }

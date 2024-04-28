@@ -49,7 +49,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         SeedingStartedPriceLists(modelBuilder);
         SeedingStartedProperties(modelBuilder);
         /* TODO: not implemented cause of m-t-m (i just don't know how)
-        SeedingStartedPropertyPropertyOption(modelBuilder);
         SeedingStartedPropertyTenant(modelBuilder); 
         */
         SeedingStartedContracts(modelBuilder);
@@ -330,24 +329,24 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 TenantId = 1,
                 LandlordId = 1,
                 PropertyId = 1,
-                LeaseStartDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(7)).ToUniversalTime(),
-                LeaseEndDate = DateTime.UtcNow.Add(TimeSpan.FromDays(30)).ToUniversalTime()
+                LeaseStartDateTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(7)).ToUniversalTime(),
+                LeaseEndDateTime = DateTime.UtcNow.Add(TimeSpan.FromDays(30)).ToUniversalTime()
             }, new ()
             {
                 Id = 2,
                 TenantId = 2,
                 LandlordId = 1,
                 PropertyId = 2,
-                LeaseStartDate = DateTime.UtcNow,
-                LeaseEndDate = DateTime.UtcNow.Add(TimeSpan.FromDays(14)).ToUniversalTime()
+                LeaseStartDateTime = DateTime.UtcNow,
+                LeaseEndDateTime = DateTime.UtcNow.Add(TimeSpan.FromDays(14)).ToUniversalTime()
             }, new ()
             {
                 Id = 3,
                 TenantId = 3,
                 LandlordId = 2,
                 PropertyId = 3,
-                LeaseStartDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2)).ToUniversalTime(),
-                LeaseEndDate = DateTime.UtcNow.Add(TimeSpan.FromDays(1)).ToUniversalTime()
+                LeaseStartDateTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2)).ToUniversalTime(),
+                LeaseEndDateTime = DateTime.UtcNow.Add(TimeSpan.FromDays(1)).ToUniversalTime()
             }
         };
 

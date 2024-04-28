@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Placely.Data.Entities;
 
 namespace Placely.Data.Dtos;

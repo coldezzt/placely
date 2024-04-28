@@ -19,6 +19,6 @@ public class Contract : IEntity
     public string TemplateFieldsPath { get; set; }
     public string? FinalizedPathDocx { get; set; }
     public string? FinalizedPathPdf { get; set; }
-    public DateTime LeaseStartDate { get; set; }
-    public DateTime LeaseEndDate { get; set; }
+    public DateTime LeaseStartDateTime { get; set; }
+    public DateTime LeaseEndDateTime { get; set; }
 }
