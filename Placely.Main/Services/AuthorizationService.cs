@@ -41,7 +41,7 @@ public class AuthorizationService(
         var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
 
         var email = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-        var tenant = await tenantRepo.GetByEmailAsync(email);
+        var tenant = await tenantRepo.GetByEmailAsync(email!);
 
         if (tenant.RefreshToken != tokenDto.RefreshToken
             || tenant.RefreshTokenExpirationDate <= DateTime.Now)

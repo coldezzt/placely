@@ -22,7 +22,7 @@ public class ReviewController(
 {
     [SwaggerOperation(
         summary: "Получает отзыв пользователя по идентификатору",
-        description: "Доступен каждому пользователю.")]
+        description: "Доступен всем.")]
     [SwaggerResponse(
         statusCode: 200,
         description: "Данные по отзыву.", 
