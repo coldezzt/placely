@@ -20,7 +20,7 @@ builder.Configuration
 // Настройка сервисов. Всё что возвращает IServiceCollection
 builder.Services
     .AddConfiguredSerilog(builder.Configuration)
-    .AddRouting(opt => opt.LowercaseUrls = true)
+    .AddRouting(static opt => opt.LowercaseUrls = true)
     .AddRepositories()
     .AddServices()
     .AddValidators()
@@ -46,7 +46,7 @@ if (application.Environment.IsDevelopment())
 {
     application
         .UseSwagger()
-        .UseSwaggerUI(options =>
+        .UseSwaggerUI(static options =>
         {
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "MyAPI v1");
         });
@@ -65,7 +65,7 @@ application.MapControllers();
 application.MapHub<ChatHub>("api/hubs/chat");
 
 // Background задачи
-RecurringJob.AddOrUpdate<IRatingUpdaterService>("Update rating", service => service.UpdatePropertyRating(), "0 6 * * *");
+RecurringJob.AddOrUpdate<IRatingUpdaterService>("Update rating", static service => service.UpdatePropertyRating(), "0 6 * * *");
 
 // Запуск
 application.Run();
@@ -81,6 +81,7 @@ application.Run();
 // TODO: добавить аналогичные методы /my только для админов (чтобы они могли удалять и получать доступ к любому аккаунту)
 // TODO: придумать каким образом мне показать qr код для пользователя (в целом можно просто использовать ManualEntryKey)
 // TODO: добавить метод проверки 2FA у пользователя (для того чтобы только полностью зарегистрированный пользователь мог её настроить)
+// TODO: добавить кастомный интерфейс для SwaggerUI
 
 // TODO: [Вопрос] 2FA должна быть обязательна или доступна на сайте? - если просто доступна - легче тестировать
 // TODO: [Вопрос] Узнать куда какие логи лучше записавыть. Пока предположение что все - в консоль, а важные - в файл - как считаешь правильным - объяснить

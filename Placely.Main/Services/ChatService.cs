@@ -19,7 +19,7 @@ public class ChatService(
 
     public async Task<Chat> CreateAsync(Chat chat)
     {
-        chat.DirectoryPath = $"/chat-{chat.FirstUserId}-{chat.SecondUserId}";
+        chat.DirectoryPath = "/chat-" + string.Join("-", new List<long> {chat.FirstUserId, chat.SecondUserId}.Order());
         
         var result = await chatRepo.AddAsync(chat);
         await chatRepo.SaveChangesAsync();

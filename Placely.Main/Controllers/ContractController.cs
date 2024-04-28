@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos.Requests;

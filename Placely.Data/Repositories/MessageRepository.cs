@@ -12,7 +12,7 @@ public class MessageRepository(AppDbContext appDbContext)
     public async Task<List<Message>> GetList(long chatId)
     {
         var dbChat = await appDbContext.Chats
-            .Include(chat => chat.Messages)
+            .Include(static chat => chat.Messages)
             .FirstOrDefaultAsync(c => c.Id == chatId);
         
         if (dbChat is null)

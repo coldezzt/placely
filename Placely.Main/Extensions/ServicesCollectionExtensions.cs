@@ -1,12 +1,9 @@
-using System.Reflection;
 using System.Text;
 using AutoMapper;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -121,9 +118,35 @@ public static class ServicesCollectionExtensions
 
     public static IServiceCollection AddConfiguredSwaggerGen(this IServiceCollection services)
     {
-        services.AddSwaggerGen(opt =>
+        services.AddSwaggerGen(static opt =>
         {
-            opt.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+            opt.SwaggerDoc(
+                name: "v1", 
+                info: new OpenApiInfo
+                    {
+                        Title = "Placely API", 
+                        Version = "v1",
+                        Description = 
+                            """
+                            Placely API предоставляет возможность полностью взаимодействовать с сайтом Placely.
+                            
+                            Все конечные точки, которые имеют в названии `/my` подразумевают авторизацию и достают 
+                            данные **только** для авторизованного пользователя. Например, путь: `/chat/my/list` - 
+                            подразумевает получение всех чатов **текущего авторизованного пользователя**.
+                            """,
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Placely",
+                            Url = new Uri("https://example.com/"),
+                            Email = "ruzan.valeeff@yandex.ru"
+                        },
+                        License = new OpenApiLicense
+                        {
+                            Name = "Placely_License_v1.4.2",
+                            Url = new Uri("https://example.com/")
+                        }
+                    }
+                );
             opt.EnableAnnotations();
             opt.AddSignalRSwaggerGen();
             opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
