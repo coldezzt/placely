@@ -58,18 +58,28 @@ public class PropertyService(IPropertyRepository propertyRepo)
         if (searchParameters.TryGetValue(SearchParameter.New, out value)
             && bool.TryParse(value, out var isNew))
             ordered = isNew
-                ? properties.OrderByDescending(p => p.PublicationDate)
-                : properties.OrderBy(p => p.PublicationDate);
+                ? properties.OrderByDescending(static p => p.PublicationDate)
+                : properties.OrderBy(static p => p.PublicationDate);
 
         if (searchParameters.TryGetValue(SearchParameter.HighRated, out value)
             && bool.TryParse(value, out var isHighRated))
             ordered = isHighRated
-                ? ordered.ThenByDescending(p => p.Rating)
-                : ordered.ThenBy(b => b.Rating);
+                ? ordered.ThenByDescending(static p => p.Rating)
+                : ordered.ThenBy(static b => b.Rating);
         
         // Пагинация
         var paginated = ordered.Skip((extraLoadNumber - 1) * amount).Take(amount);
         
         return Task.FromResult(paginated.ToList());
+    }
+    
+    public async Task<List<Review>> GetListByPropertyIdAsync(long propertyId, int extraLoadNumber = 0)
+    {
+        var reviews = await propertyRepo.GetListByPropertyIdAsync(propertyId);
+        return reviews
+            .OrderByDescending(static r => r.Date)
+            .Skip((extraLoadNumber - 1) * 10)
+            .Take(10)
+            .ToList();
     }
 }

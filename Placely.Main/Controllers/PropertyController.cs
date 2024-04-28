@@ -17,7 +17,7 @@ namespace Placely.Main.Controllers;
 [Route("api/[controller]")]
 public class PropertyController(
     IValidator<PropertyDto> validator,
-    IPropertyService propertyService, 
+    IPropertyService service, 
     IMapper mapper) : ControllerBase
 {
     [SwaggerOperation(
@@ -30,13 +30,12 @@ public class PropertyController(
         contentTypes: "application/json")]
     [AllowAnonymous, HttpGet("{propertyId:long}")]
     public async Task<IActionResult> GetById(
-        [SwaggerParameter(description: "Идентификатор контракта.", Required = true)] long propertyId)
+        [SwaggerParameter(description: "Идентификатор имущества.", Required = true)] long propertyId)
     {
-        var property = await propertyService.GetByIdAsync(propertyId);
+        var property = await service.GetByIdAsync(propertyId);
         var result = mapper.Map<PropertyDto>(property);
         return Ok(result);
     }
-
     
     [SwaggerOperation(
         summary: "Публикует имущество",
@@ -67,7 +66,7 @@ public class PropertyController(
             return UnprocessableEntity(validationResult.Errors);
         
         var property = mapper.Map<Property>(dto);
-        var createdProperty = await propertyService.AddAsync(property);
+        var createdProperty = await service.AddAsync(property);
         var result = mapper.Map<PropertyDto>(createdProperty);
         return Ok(result);
     }
@@ -106,7 +105,7 @@ public class PropertyController(
             NumberStyles.Any, 
             CultureInfo.InvariantCulture);
 
-        var dbProperty = await propertyService.GetByIdAsync(propertyId);
+        var dbProperty = await service.GetByIdAsync(propertyId);
         if (dbProperty.OwnerId != currentUserId)
             return Forbid();
         
@@ -116,7 +115,7 @@ public class PropertyController(
             return UnprocessableEntity(validationResult.Errors);
         
         var property = mapper.Map<Property>(dto);
-        var updatedProperty = await propertyService.UpdateAsync(property);
+        var updatedProperty = await service.UpdateAsync(property);
         var result = mapper.Map<PropertyDto>(updatedProperty);
         return Ok(result);
     }
@@ -145,12 +144,21 @@ public class PropertyController(
             NumberStyles.Any, 
             CultureInfo.InvariantCulture);
 
-        var dbProperty = await propertyService.GetByIdAsync(propertyId);
+        var dbProperty = await service.GetByIdAsync(propertyId);
         if (dbProperty.OwnerId != currentUserId)
             return Forbid();
         
-        var property = await propertyService.DeleteAsync(propertyId);
+        var property = await service.DeleteAsync(propertyId);
         var response = mapper.Map<PropertyDto>(property);
         return Ok(response);
+    }
+    
+    [SwaggerOperation]
+    [AllowAnonymous, HttpGet("{propertyId:long}/reviews/{page:int}")]
+    public async Task<IActionResult> GetListByPropertyId(long propertyId, int page)
+    {
+        var result = await service.GetListByPropertyIdAsync(propertyId, page);
+        var responseDtoList = result.Select(mapper.Map<ReviewDto>);
+        return Ok(responseDtoList);
     }
 }

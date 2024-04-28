@@ -3,7 +3,6 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;
 using Placely.Data.Entities;

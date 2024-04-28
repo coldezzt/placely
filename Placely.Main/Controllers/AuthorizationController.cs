@@ -20,12 +20,8 @@ public class AuthorizationController(
 {
     [SwaggerOperation(
         summary: "Авторизует пользователя", 
-        description:  """
-                      Используется для авторизации пользователя.
-                      
-                      **Если** на аккаунте подключена двухфакторная аутентификация необходимо передавать и одноразовый ключ.
-                      **Иначе** поле игнорируется.
-                      """)]
+        description:  "**Если** на аккаунте подключена двухфакторная аутентификация необходимо " +
+                      "передавать и одноразовый ключ. **Иначе** поле игнорируется.")]
     [SwaggerResponse(
         statusCode: 200, 
         description: "Cгенерированные токены для текущего пользователя.", 
@@ -38,12 +34,16 @@ public class AuthorizationController(
         contentTypes: "text/plain")]
     [SwaggerResponse(
         statusCode: 422,
-        description: "Неверный формат входных данных.",
+        description: "Данные не прошли валидацию. Возвращает список ошибок.",
         type: typeof(List<ValidationFailure>),
         contentTypes: "application/json")]
     [HttpPost]
     public async Task<IActionResult> Authorize(
-        [FromBody, SwaggerRequestBody(Description = "Объект для авторизации", Required = true)] AuthorizationDto dto)
+        [FromBody] 
+        [SwaggerRequestBody(
+            description: "Данные для авторизации", 
+            Required = true)] 
+        AuthorizationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)

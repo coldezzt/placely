@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Configurations;
 using Placely.Data.Entities;
@@ -12,5 +13,11 @@ public class PropertyRepository(AppDbContext appDbContext)
         return predicate is not null 
             ? appDbContext.Properties.Where(b => predicate(b)) 
             : appDbContext.Properties;
+    }
+    
+    public async Task<List<Review>> GetListByPropertyIdAsync(long propertyId)
+    {
+        var reviews = await appDbContext.Reviews.Where(r => r.PropertyId == propertyId).ToListAsync();
+        return reviews;
     }
 }
