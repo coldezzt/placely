@@ -84,12 +84,19 @@ public class AuthorizationService(
 
     public async Task<TwoFactorAuthenticationModel> ApplyGoogleTwoFactorAuthenticationAsync(string email)
     {
+        var tenant = await tenantRepo.GetByEmailAsync(email);
+
+        if (tenant.IsTwoFactorEnabled)
+            return new TwoFactorAuthenticationModel
+            {
+                ManualEntryKey = tenant.ManualEntryKey!,
+                QrImageUrl = tenant.QrImageUrl!
+            };
+        
         var key = new byte[32];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(key);
         var accountSecretKey = Convert.ToBase64String(key);
-
-        var tenant = await tenantRepo.GetByEmailAsync(email);
 
         var tfa = new TwoFactorAuthenticator();
         var setupInfo = tfa.GenerateSetupCode("Placely & You", email, accountSecretKey, false);
