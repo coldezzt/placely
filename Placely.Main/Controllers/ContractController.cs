@@ -33,7 +33,7 @@ public class ContractController(
         description: "Попытка получить контракт, в котором нет текущего авторизованного пользователя.")]
     [HttpGet("{contractId:long}")]
     public async Task<IActionResult> Get(
-        [SwaggerParameter(description: "Идентификатор контракта.")] long contractId)
+        [SwaggerParameter(description: "Идентификатор контракта.", Required = true)] long contractId)
     {
         var currentUserId = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!, 

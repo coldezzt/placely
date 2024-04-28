@@ -2,59 +2,118 @@ using System.Globalization;
 using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;
 using Placely.Data.Entities;
 using Placely.Data.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.Main.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 public class PropertyController(
     IValidator<PropertyDto> validator,
     IPropertyService propertyService, 
     IMapper mapper) : ControllerBase
 {
-    [HttpGet("{propertyId}")]
-    public async Task<IActionResult> GetById(long propertyId)
+    [SwaggerOperation(
+        summary: "Получает информацию по имуществу по его идентификатору",
+        description: "Доступен всем.")]
+    [SwaggerResponse(
+        statusCode: 200,
+        description: "Информация об имуществе.",
+        type: typeof(PropertyDto),
+        contentTypes: "application/json")]
+    [AllowAnonymous, HttpGet("{propertyId:long}")]
+    public async Task<IActionResult> GetById(
+        [SwaggerParameter(description: "Идентификатор контракта.", Required = true)] long propertyId)
     {
         var property = await propertyService.GetByIdAsync(propertyId);
         var result = mapper.Map<PropertyDto>(property);
         return Ok(result);
     }
 
-    [Authorize]
+    
+    [SwaggerOperation(
+        summary: "Публикует имущество",
+        description: "Если у пользователя нет контактного адреса, не добавляет имущество.")]
+    [SwaggerResponse(
+        statusCode: 200,
+        description: "Информация о созданном имуществе.",
+        type: typeof(PropertyDto),
+        contentTypes: "application/json")]
+    [SwaggerResponse(
+        statusCode: 401,
+        description: "Пользователь не авторизован.")]
+    [SwaggerResponse(
+        statusCode: 422,
+        description: "Данные не прошли валидацию. Возвращает список ошибок.",
+        type: typeof(ValidationResult),
+        contentTypes: "application/json")]
     [HttpPost]
-    public async Task<IActionResult> Publish([FromBody] PropertyDto dto)
+    public async Task<IActionResult> Publish(
+        [FromBody] 
+        [SwaggerRequestBody(
+            description: "Полная информация об имуществе, необходимая для его публикации.", 
+            Required = true)] 
+        PropertyDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors);
         
         var property = mapper.Map<Property>(dto);
         var createdProperty = await propertyService.AddAsync(property);
         var result = mapper.Map<PropertyDto>(createdProperty);
         return Ok(result);
     }
-
-    [Authorize]
-    [HttpPatch("my/{propertyId}")]
-    public async Task<IActionResult> Update(long propertyId, [FromBody] PropertyDto dto)
+    
+    [SwaggerOperation(
+        summary: "Обновляет имущество пользователя",
+        description: "Нельзя обновить чужое имущество.")]
+    [SwaggerResponse(
+        statusCode: 200,
+        description: "Обновлённая информация по имуществу.",
+        type: typeof(PropertyDto),
+        contentTypes: "application/json")]
+    [SwaggerResponse(
+        statusCode: 401,
+        description: "Пользователь не авторизован.")]
+    [SwaggerResponse(
+        statusCode: 403,
+        description: "Попытка обновить чужое имущество.")]
+    [SwaggerResponse(
+        statusCode: 422,
+        description: "Данные не прошли валидацию. Возвращает список ошибок.",
+        type: typeof(ValidationResult),
+        contentTypes: "application/json")]
+    [HttpPatch("my/{propertyId:long}")]
+    public async Task<IActionResult> Update(
+        [SwaggerParameter(description: "Идентификатор имущества.", Required = true)] 
+        long propertyId, 
+        [FromBody] 
+        [SwaggerRequestBody(
+            description: "Данные для обновления имущества.",
+            Required = true)]
+        PropertyDto dto)
     {
-        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
-        if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
-            return BadRequest();
+        var currentUserId = long.Parse(
+            User.FindFirstValue(CustomClaimTypes.UserId)!, 
+            NumberStyles.Any, 
+            CultureInfo.InvariantCulture);
 
         var dbProperty = await propertyService.GetByIdAsync(propertyId);
-        if (dbProperty.OwnerId != id)
+        if (dbProperty.OwnerId != currentUserId)
             return Forbid();
         
         dto.Id = propertyId;
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors);
         
         var property = mapper.Map<Property>(dto);
         var updatedProperty = await propertyService.UpdateAsync(property);
@@ -62,19 +121,36 @@ public class PropertyController(
         return Ok(result);
     }
 
-    [Authorize]
-    [HttpDelete("my/{propertyId}")]
-    public async Task<IActionResult> Delete(long propertyId)
+    [SwaggerOperation(
+        summary: "Удаляет имущество пользователя",
+        description: "Нельзя удалить чужое имущество.")]
+    [SwaggerResponse(
+        statusCode: 200,
+        description: "Данные удалённого имущества.", 
+        type: typeof(PropertyDto),
+        contentTypes: "application/json")]
+    [SwaggerResponse(
+        statusCode: 401,
+        description: "Пользователь не авторизован.")]
+    [SwaggerResponse(
+        statusCode: 403,
+        description: "Попытка удалить чужое имущество.")]
+    [HttpDelete("my/{propertyId:long}")]
+    public async Task<IActionResult> Delete(
+        [SwaggerParameter(description: "Идентификатор имущества.", Required = true)]
+        long propertyId)
     {
-        var claimId = User.FindFirstValue(CustomClaimTypes.UserId);
-        if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
-            return BadRequest();
+        var currentUserId = long.Parse(
+            User.FindFirstValue(CustomClaimTypes.UserId)!, 
+            NumberStyles.Any, 
+            CultureInfo.InvariantCulture);
 
         var dbProperty = await propertyService.GetByIdAsync(propertyId);
-        if (dbProperty.OwnerId != id)
+        if (dbProperty.OwnerId != currentUserId)
             return Forbid();
         
-        await propertyService.DeleteAsync(propertyId);
-        return Ok();
+        var property = await propertyService.DeleteAsync(propertyId);
+        var response = mapper.Map<PropertyDto>(property);
+        return Ok(response);
     }
 }

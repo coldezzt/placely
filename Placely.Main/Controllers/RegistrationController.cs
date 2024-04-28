@@ -15,7 +15,7 @@ public class RegistrationController(
     IValidator<RegistrationDto> validator) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Registration([FromBody] RegistrationDto dto)
+    public async Task<IActionResult> Register([FromBody] RegistrationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
@@ -28,7 +28,7 @@ public class RegistrationController(
 
     [Authorize]
     [HttpPost("[action]")]
-    public async Task<IActionResult> Finalize([FromBody] RegistrationDto dto)
+    public async Task<IActionResult> Final([FromBody] RegistrationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)

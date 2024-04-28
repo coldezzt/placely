@@ -56,8 +56,8 @@ public class ChatController(
     [SwaggerResponse(
         statusCode: 403,
         description: "Пользователь попытался получить чат, участником, которого он не является.")]
-    [HttpGet("{chatId}")]
-    public async Task<IActionResult> Get(long chatId)
+    [HttpGet("{chatId:long}")]
+    public async Task<IActionResult> Get([SwaggerParameter(description: "Идентификатор чата.", Required = true)] long chatId)
     {
         var id = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!, 
@@ -70,7 +70,7 @@ public class ChatController(
         
         return Ok(chat);
     }
-    
+
     [SwaggerOperation(
         summary: "Создаёт чат между пользователями",
         description: "Запрещено создавать чат с самим собой и нельзя создать чат " +
@@ -84,7 +84,12 @@ public class ChatController(
         statusCode: 409,
         description: "Попытка создать чат с самим собой или с уже существующим аккаунтом.")]
     [HttpPost("my")]
-    public async Task<IActionResult> Create([FromBody] ChatDto dto)
+    public async Task<IActionResult> Create(
+        [FromBody] 
+        [SwaggerRequestBody(
+            description: "Данные для создания чата.", 
+            Required = true)] 
+        ChatDto dto)
     {
         var id = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!, 
@@ -113,8 +118,8 @@ public class ChatController(
     [SwaggerResponse(
         statusCode: 403,
         description: "Попытка удалить чат, участником которого пользователь не является.")]
-    [HttpDelete("my/{chatId}")]
-    public async Task<IActionResult> Delete(long chatId)
+    [HttpDelete("my/{chatId:long}")]
+    public async Task<IActionResult> Delete([SwaggerParameter(description: "Идентификатор чата.", Required = true)] long chatId)
     {
         var id = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!, 
