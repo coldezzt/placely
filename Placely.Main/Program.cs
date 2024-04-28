@@ -2,6 +2,7 @@ using Hangfire;
 using Placely.Data.Abstractions.Services;
 using Placely.Main.Controllers.Hubs;
 using Placely.Main.Extensions;
+using Placely.Main.Middlewares;
 using Serilog;
 
 // Логирование на уровне приложения
@@ -48,13 +49,13 @@ if (application.Environment.IsDevelopment())
         .UseSwagger()
         .UseSwaggerUI(static options =>
         {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "MyAPI v1");
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "Placely API v1");
         });
 }
 
 // Различные using-и
 application
-    // .UseMiddleware<ExceptionMiddleware>()
+    .UseMiddleware<ExceptionMiddleware>()
     .UseAuthentication()
     .UseAuthorization()
     .UseHttpsRedirection()
@@ -76,11 +77,11 @@ application.Run();
 // TODO: добавить методы изменения чувствительных данных в TenantController
 // TODO: добавить методы загрузки файлов в чат и из него
 // TODO: добавить логирование в сами методы бл
-// TODO: добавить аналогичные методы /my только для админов (чтобы они могли удалять и получать доступ к любому аккаунту)
-// TODO: придумать каким образом мне показать qr код для пользователя (в целом можно просто использовать ManualEntryKey)
 // TODO: добавить метод проверки 2FA у пользователя (для того чтобы только полностью зарегистрированный пользователь мог её настроить)
-// TODO: добавить кастомный интерфейс для SwaggerUI
 // TODO: добавить проверку на контактный адрес в добавлении имущества (если у создателя нет контактного адреса, возвращает 422)
 // TODO: добавить проверку на то что один и тот же пользователь не может оставить несколько отзывов (пробежаться по другим сервисам/контроллерам на наличие такого же недочёта)
+//? TODO: добавить аналогичные методы /my только для админов (чтобы они могли удалять и получать доступ к любому аккаунту)
+//? TODO: придумать каким образом мне показать qr код для пользователя (в целом можно просто использовать ManualEntryKey)
+//? TODO: добавить кастомный интерфейс для SwaggerUI
 
 // TODO: [Вопрос] Узнать куда какие логи лучше записавыть. Пока предположение что все - в консоль, а важные - в файл - как считаешь правильным - объяснить
