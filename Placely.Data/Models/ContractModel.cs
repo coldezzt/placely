@@ -44,8 +44,8 @@ public class ContractModel(
             { ContractField.TenantPhoneNumber, Contract.Tenant.PhoneNumber},
             { ContractField.TenantEmail, Contract.Tenant.Email},
             { ContractField.PropertyAddress, Contract.Property.Address},
-            { ContractField.LeaseStartDateTime, Contract.LeaseStartDate.ToString(CultureInfo.InvariantCulture)},
-            { ContractField.LeaseEndDateTime, Contract.LeaseEndDate.ToString(CultureInfo.InvariantCulture)},
+            { ContractField.LeaseStartDateTime, Contract.LeaseStartDateTime.ToString(CultureInfo.InvariantCulture)},
+            { ContractField.LeaseEndDateTime, Contract.LeaseEndDateTime.ToString(CultureInfo.InvariantCulture)},
             { ContractField.PaymentAmount, PaymentAmount.ToString(CultureInfo.InvariantCulture)},
             { ContractField.PaymentFrequency, PaymentFrequency}
         };

@@ -180,18 +180,18 @@ public static class ServicesCollectionExtensions
 
     public static IServiceCollection AddConfiguredAutoMapper(this IServiceCollection services)
     {
-        services.AddAutoMapper(cfg =>
+        services.AddAutoMapper(static cfg =>
         {
             cfg.AddProfiles(new List<Profile>
             {
-                new ContractMapperProfile(),
-                new PropertyMapperProfile(),
                 new AuthorizationMapperProfile(),
-                new RegistrationMapperProfile(),
-                new TenantMapperConfiguration(),
-                new MessageMapperProfile(),
                 new ChatMapperProfile(),
+                new ContractMapperProfile(),
+                new MessageMapperProfile(),
+                new PropertyMapperProfile(),
+                new RegistrationMapperProfile(),
                 new ReviewMapperProfile(),
+                new TenantMapperConfiguration(),
             });
         });
         return services;

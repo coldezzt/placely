@@ -16,6 +16,16 @@ public class ContractService(
     IHostEnvironment environment,
     IMapper mapper) : IContractService
 {
+    public async Task<Reservation> GetReservationByIdAsync(long reservationId)
+    {
+        return await reservationRepository.GetByIdAsync(reservationId);
+    }
+    
+    public async Task<Contract> GetContractByIdAsync(long contractId)
+    {
+        return await contractRepository.GetByIdAsync(contractId);
+    }
+    
     // TODO: для быстроты работы можно создать задачу на создание документа (hangfire уже подключён)
     // и присвоение его пути в сущности в базе данных, для этого нужно будет создать состояние документа (его готовность)
     // также нужно добавить в сущности ссылки на документ
@@ -42,7 +52,7 @@ public class ContractService(
         // Заменяем значения в шаблоне
         var values = await contractModel.CreateFieldsAsync(dto.PathToTemplate);
         var errors = Docx.MergeInplace(new Engine(), pathToDoc, values)
-            .Select(e => e.ToString() ?? "").ToList();
+            .Select(static e => e.ToString() ?? "").ToList();
         
         if (errors.Any())
             throw new ContractServiceException(errors);
@@ -58,10 +68,5 @@ public class ContractService(
         await contractRepository.SaveChangesAsync();
         
         return result;
-    }
-
-    public async Task<Contract> GetContractById(long contractId)
-    {
-        return await contractRepository.GetByIdAsync(contractId);
     }
 }
