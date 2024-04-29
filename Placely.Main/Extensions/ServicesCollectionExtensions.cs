@@ -58,13 +58,14 @@ public static class ServicesCollectionExtensions
 
     public static IServiceCollection AddValidators(this IServiceCollection services)
     {
-        services.AddScoped<IValidator<PropertyDto>, PropertyDtoValidator>();
-        services.AddScoped<IValidator<AuthorizationDto>, LoginDtoValidator>();
-        services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
-        services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
-        services.AddScoped<IValidator<MessageDto>, MessageDtoValidator>();
+        services.AddScoped<IValidator<AuthorizationDto>, AuthorizationDtoValidator>();
         services.AddScoped<IValidator<ChatDto>, ChatDtoValidator>();
+        services.AddScoped<IValidator<MessageDto>, MessageDtoValidator>();
+        services.AddScoped<IValidator<PropertyDto>, PropertyDtoValidator>();
+        services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
+        services.AddScoped<IValidator<ReservationDto>, ReservationDtoValidator>();
         services.AddScoped<IValidator<ReviewDto>, ReviewDtoValidator>();
+        services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
         
         return services;
     }

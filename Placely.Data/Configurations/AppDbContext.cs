@@ -408,6 +408,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Duration = TimeSpan.FromDays(10),
                 EntryDate = DateTime.UtcNow.Add(TimeSpan.FromDays(4)),
                 GuestsAmount = 34
+            }, new()
+            {
+                Id = 6,
+                TenantId = 1,
+                LandlordId = 2,
+                PropertyId = 3,
+                ReservationStatus = ReservationStatus.InProgress,
+                CreationDateTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(10)),
+                Duration = TimeSpan.FromDays(10),
+                EntryDate = DateTime.UtcNow.Add(TimeSpan.FromDays(4)),
+                GuestsAmount = 2
             }
         };
 

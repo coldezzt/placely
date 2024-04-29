@@ -4,9 +4,9 @@ using static Placely.Data.Dtos.Validators.ValidatorMethods;
 
 namespace Placely.Data.Dtos.Validators;
 
-public class LoginDtoValidator : AbstractValidator<AuthorizationDto>
+public class AuthorizationDtoValidator : AbstractValidator<AuthorizationDto>
 {
-    public LoginDtoValidator()
+    public AuthorizationDtoValidator()
     {
         RuleFor(dto => dto.Email)
             .NotEmpty().WithMessage(NullOrEmpty())
