@@ -308,11 +308,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<Property>().HasData(l);
     }
-
-    private static void SeedingStartedPropertyPropertyOption(ModelBuilder modelBuilder)
-    {
-        throw new NotImplementedException();
-    }
     
     private static void SeedingStartedPropertyTenant(ModelBuilder modelBuilder)
     {

@@ -1,13 +1,16 @@
 using LinqKit;
+using Microsoft.EntityFrameworkCore;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Entities;
 using Placely.Data.Models;
+using Placely.Main.Exceptions;
 
 namespace Placely.Main.Services;
 
-public class PropertyService(IPropertyRepository propertyRepo) 
-    : IPropertyService
+public class PropertyService(
+    IPropertyRepository propertyRepo,
+    IDadataAddressService dadataAddressService) : IPropertyService
 {
     public async Task<Property> GetByIdAsync(long propertyId)
     {
@@ -16,6 +19,11 @@ public class PropertyService(IPropertyRepository propertyRepo)
     
     public async Task<Property> AddAsync(Property property)
     {
+        var address = property.Address;
+        var parsedAddress = await dadataAddressService.NormalizeAddressAsync(address);
+        if (parsedAddress.unparsed_parts != null)
+            throw new AddressException("Адрес содержит части, которые не могут быть нормализованы.");
+        
         var dbEntity = await propertyRepo.AddAsync(property);
         await propertyRepo.SaveChangesAsync();
         return dbEntity;
@@ -23,6 +31,11 @@ public class PropertyService(IPropertyRepository propertyRepo)
 
     public async Task<Property> UpdateAsync(Property property)
     {
+        var address = property.Address;
+        var parsedAddress = await dadataAddressService.NormalizeAddressAsync(address);
+        if (parsedAddress.unparsed_parts != null)
+            throw new AddressException("Адрес содержит части, которые не могут быть нормализованы.");
+        
         var dbEntity = await propertyRepo.UpdateAsync(property);
         await propertyRepo.SaveChangesAsync();
         return dbEntity;
@@ -68,9 +81,9 @@ public class PropertyService(IPropertyRepository propertyRepo)
                 : ordered.ThenBy(static b => b.Rating);
         
         // Пагинация
-        var paginated = ordered.Skip((extraLoadNumber - 1) * amount).Take(amount);
+        var paginated = ordered.Skip((extraLoadNumber - 1) * amount).Take(amount).ToListAsync();
         
-        return Task.FromResult(paginated.ToList());
+        return paginated;
     }
     
     public async Task<List<Review>> GetListByPropertyIdAsync(long propertyId, int extraLoadNumber = 0)
@@ -81,5 +94,12 @@ public class PropertyService(IPropertyRepository propertyRepo)
             .Skip((extraLoadNumber - 1) * 10)
             .Take(10)
             .ToList();
+    }
+
+    public async Task<List<string>> GetAddressSuggestionAsync(string address)
+    {
+        var response = await dadataAddressService.SuggestAddress(address);
+        var suggestions = response.suggestions.Select(static s => s.value).ToList();
+        return suggestions;
     }
 }

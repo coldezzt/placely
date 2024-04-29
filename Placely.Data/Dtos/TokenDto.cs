@@ -1,4 +1,4 @@
-namespace Placely.Data.Models;
+namespace Placely.Data.Dtos;
 
 public class TokenDto
 {

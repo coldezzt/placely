@@ -17,5 +17,8 @@ public class TenantDtoValidator : AbstractValidator<TenantDto>
             .NotEmpty().WithMessage(NullOrEmpty())
             .Must(s => Uri.IsWellFormedUriString(s, UriKind.Absolute))
             .WithMessage(StringWrongFormat());
+        RuleFor(dto => dto.ContactAddress)
+            .Must(s => s.Any(c => char.IsLetterOrDigit(c) || char.IsPunctuation(c) || c is '/'))
+            .WithMessage(StringWrongFormat());
     }
 }

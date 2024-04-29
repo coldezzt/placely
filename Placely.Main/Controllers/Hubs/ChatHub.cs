@@ -10,7 +10,6 @@ using Placely.Data.Entities;
 using Placely.Data.Models;
 using SignalRSwaggerGen.Attributes;
 using SignalRSwaggerGen.Enums;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.Main.Controllers.Hubs;
 

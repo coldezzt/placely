@@ -12,4 +12,5 @@ public interface IPropertyService
     public Task<List<Property>> GetChunkByFilterAsync(Dictionary<SearchParameter, string> searchParameters,
         int extraLoadNumber, int amount);
     public Task<List<Review>> GetListByPropertyIdAsync(long propertyId, int extraLoadNumber);
+    public Task<List<string>> GetAddressSuggestionAsync(string address);
 }

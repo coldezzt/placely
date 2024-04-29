@@ -36,6 +36,25 @@ public class PropertyController(
         var result = mapper.Map<PropertyDto>(property);
         return Ok(result);
     }
+
+    [HttpGet("suggestion")]
+    public async Task<IActionResult> GetAddressSuggestion(
+        [FromQuery] string address)
+    {
+        var result = await service.GetAddressSuggestionAsync(address);
+        return Ok(result);
+    }
+    
+    [AllowAnonymous, HttpGet("catalog/page/{pageNumber:int}/take/{amount:int}")]
+    public async Task<IActionResult> GetCatalog(
+        [FromQuery] Dictionary<SearchParameter, string> searchParameters,
+        [FromRoute] int pageNumber,
+        [FromRoute] int amount)
+    {
+        var result = await service.GetChunkByFilterAsync(searchParameters, pageNumber, amount);
+        var response = mapper.Map<List<PropertyDto>>(result);
+        return Ok(response);
+    }
     
     [SwaggerOperation(
         summary: "Публикует имущество",

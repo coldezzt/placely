@@ -18,13 +18,12 @@ public class ChatEntityConfiguration : IEntityTypeConfiguration<Chat>
             */
         
         builder
-            .HasOne(static c => c.FirstUser)
+            .HasOne(c => c.FirstUser)
             .WithMany()
-            .HasForeignKey(static c => c.FirstUserId);
-
+            .HasForeignKey(c => c.FirstUserId);
         builder
-            .HasOne(static c => c.SecondUser)
+            .HasOne(c => c.SecondUser)
             .WithMany()
-            .HasForeignKey(static c => c.SecondUserId);
+            .HasForeignKey(c => c.SecondUserId);
     }
 }

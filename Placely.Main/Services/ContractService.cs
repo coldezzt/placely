@@ -2,7 +2,7 @@ using AutoMapper;
 using EasyDox;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
-using Placely.Data.Dtos.Requests;
+using Placely.Data.Dtos;
 using Placely.Data.Entities;
 using Placely.Data.Models;
 using Placely.Main.Exceptions;
@@ -14,6 +14,7 @@ public class ContractService(
     IReservationRepository reservationRepository,
     IContractRepository contractRepository,
     IHostEnvironment environment,
+    IDadataAddressService dadataAddressService,
     IMapper mapper) : IContractService
 {
     public async Task<Reservation> GetReservationByIdAsync(long reservationId)
@@ -28,13 +29,15 @@ public class ContractService(
     
     // TODO: для быстроты работы можно создать задачу на создание документа (hangfire уже подключён)
     // и присвоение его пути в сущности в базе данных, для этого нужно будет создать состояние документа (его готовность)
-    // также нужно добавить в сущности ссылки на документ
-    public async Task<Contract> GenerateContractAsync(ContractCreateRequestDto dto)
+    public async Task<Contract> GenerateContractAsync(ContractCreationDto dto)
     {
         // Достаём данные
         var reservation = await reservationRepository.GetByIdAsync(dto.ReservationId);
         var contract = mapper.Map<Contract>(reservation);
 
+        if (!await dadataAddressService.IsAddressExistsAsync(contract.Landlord.ContactAddress))
+            throw new AddressException("Контактного адреса не существует или он содержит лишние части.");
+        
         // Создаём сущность-обёртку над контрактом
         var contractModel = new ContractModel(contract, dto.PaymentAmount, dto.PaymentFrequency);
         var contractDate = $"{contractModel.ContractDate:yy-MM-dd_HH-mm-ss}";
