@@ -1,4 +1,6 @@
-﻿namespace Placely.Data.Models;
+﻿using Placely.Data.Dtos;
+
+namespace Placely.Data.Models;
 
 public class AuthorizationResult
 {

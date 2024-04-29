@@ -36,6 +36,48 @@ public class PropertyController(
         var result = mapper.Map<PropertyDto>(property);
         return Ok(result);
     }
+
+    [SwaggerOperation(
+        summary: "Предлагает продолжение адреса",
+        description: """
+                     Доступен всем. 
+                     
+                     Получает на вход строку с адресом и пытается предположить какой адрес будет дальше.
+                     """)]
+    [SwaggerResponse(
+        statusCode: 200,
+        description: "Список предполагаемых адресов.",
+        type: typeof(List<string>),
+        contentTypes: "application/json")]
+    [AllowAnonymous, HttpGet("suggestion")]
+    public async Task<IActionResult> GetAddressSuggestion(
+        [FromQuery]
+        [SwaggerParameter(
+            description: "Адрес для предположения",
+            Required = true)]
+        string address)
+    {
+        var result = await service.GetAddressSuggestionAsync(address);
+        return Ok(result);
+    }
+    
+    [SwaggerOperation(
+        summary: "Получает список имуществ по фильтрам")]
+    [SwaggerResponse(
+        statusCode: 200,
+        description: "Список предполагаемых адресов.",
+        type: typeof(List<string>),
+        contentTypes: "application/json")]
+    [AllowAnonymous, HttpGet("catalog/page/{pageNumber:int}")]
+    public async Task<IActionResult> GetCatalog(
+        [FromQuery] [SwaggerParameter(description: "Фильтры.")] Dictionary<SearchParameter, string> searchParameters,
+        [FromQuery] [SwaggerParameter(description: "Количество элементов на странице.")] int amount,
+        [FromRoute] [SwaggerParameter(description: "Текущая страница каталога.")] int pageNumber)
+    {
+        var result = await service.GetChunkByFilterAsync(searchParameters, pageNumber, amount);
+        var response = mapper.Map<List<PropertyDto>>(result);
+        return Ok(response);
+    }
     
     [SwaggerOperation(
         summary: "Публикует имущество",

@@ -24,6 +24,7 @@ public class ExceptionMiddleware(IWebHostEnvironment webHostEnvironment) : IMidd
                 AutoMapperMappingException      => 400,
                 RefreshTokenBadRequestException => 400,
                 EntityNotFoundException         => 404,
+                AddressException                => 422,
                 DbUpdateException               => 503,
                 _ => 500
             };

@@ -1,6 +1,6 @@
-﻿namespace Placely.Data.Dtos.Requests;
+﻿namespace Placely.Data.Dtos;
 
-public class ContractCreateRequestDto
+public class ContractCreationDto
 {
     public long ReservationId { get; set; }
     public decimal PaymentAmount { get; set; }

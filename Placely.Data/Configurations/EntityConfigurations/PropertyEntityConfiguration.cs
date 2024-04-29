@@ -8,6 +8,13 @@ public class PropertyEntityConfiguration : IEntityTypeConfiguration<Property>
 {
     public void Configure(EntityTypeBuilder<Property> builder)
     {
-        builder.HasIndex(p => p.PriceListId).IsUnique();
+        builder
+            .HasIndex(p => p.PriceListId)
+            .IsUnique();
+
+        builder
+            .HasOne(p => p.Owner)
+            .WithMany()
+            .HasForeignKey(p => p.OwnerId);
     }
 }

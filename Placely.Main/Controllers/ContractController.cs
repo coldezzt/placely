@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;
-using Placely.Data.Dtos.Requests;
 using Placely.Data.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -72,7 +71,7 @@ public class ContractController(
         [SwaggerRequestBody(
             description: "Данные необходимые для завершения создания контракта.",
             Required = true)] 
-        ContractCreateRequestDto dto)
+        ContractCreationDto dto)
     {
         var currentUserId = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!, 

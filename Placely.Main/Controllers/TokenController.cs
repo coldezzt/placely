@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Data.Models;
+using Placely.Data.Dtos;
 using Swashbuckle.AspNetCore.Annotations;
 using IAuthorizationService = Placely.Data.Abstractions.Services.IAuthorizationService;
 

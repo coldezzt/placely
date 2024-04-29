@@ -51,6 +51,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<IRatingUpdaterService, RatingUpdaterService>();
+        services.AddScoped<IDadataAddressService, DadataAddressService>();
         
         return services;
     }
