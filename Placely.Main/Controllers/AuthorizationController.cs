@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using AutoMapper;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authentication;
@@ -16,6 +17,7 @@ namespace Placely.Main.Controllers;
 [Route("api/[controller]")]
 public class AuthorizationController(
     IAuthorizationService service,
+    IMapper mapper,
     IValidator<AuthorizationDto> validator) : ControllerBase
 {
     [SwaggerOperation(
@@ -35,7 +37,7 @@ public class AuthorizationController(
     [SwaggerResponse(
         statusCode: 422,
         description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(List<ValidationFailure>),
+        type: typeof(List<ValidationError>),
         contentTypes: "application/json")]
     [HttpPost]
     public async Task<IActionResult> Authorize(
@@ -47,7 +49,7 @@ public class AuthorizationController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
     
         var authResult = await service.AuthorizeAsync(dto);
     

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;
 using Placely.Data.Entities;
+using Placely.Data.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.Main.Controllers;
@@ -28,7 +29,7 @@ public class RegistrationController(
     [SwaggerResponse(
         statusCode: 422,
         description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(List<ValidationFailure>),
+        type: typeof(List<ValidationError>),
         contentTypes: "application/json")]
     [HttpPost]
     public async Task<IActionResult> Register(
@@ -40,7 +41,7 @@ public class RegistrationController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
         
         var tenant = mapper.Map<Tenant>(dto);
         var result = await registrationService.RegisterUserAsync(tenant);
@@ -68,7 +69,7 @@ public class RegistrationController(
     [SwaggerResponse(
         statusCode: 422,
         description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(List<ValidationFailure>),
+        type: typeof(List<ValidationError>),
         contentTypes: "application/json")]
     [Authorize, HttpPost("[action]")]
     public async Task<IActionResult> Final(
@@ -80,7 +81,7 @@ public class RegistrationController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
 
         var tenant = mapper.Map<Tenant>(dto);
         await registrationService.FinalizeUserAsync(tenant);

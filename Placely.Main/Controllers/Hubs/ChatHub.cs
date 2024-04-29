@@ -54,14 +54,6 @@ public class ChatHub(
                      Вызывает 'Forbidden' у клиента.
                      """,
         returnType: typeof(string))]
-    [return: SignalRReturn(
-        statusCode: 422,
-        description: """
-                     Данные не прошли валидацию.
-
-                     Вызывает 'UnprocessableEntity' у клиента. Передаёт список ошибок.
-                     """,
-        returnType: typeof(List<ValidationFailure>))]
     public async Task LoadHistory(
         [SignalRParam(
             description: "Идентификатор чата.",
@@ -69,15 +61,10 @@ public class ChatHub(
         long chatId)
     {
         var claimId = Context.User?.FindFirstValue(CustomClaimTypes.UserId);
-        if (claimId is null)
+        if (claimId is null
+            || !long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var clientId))
         {
             await Clients.Caller.SendAsync("Unauthorized");
-            return;
-        }
-
-        if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var clientId))
-        {
-            await Clients.Caller.SendAsync("UnprocessableEntity");
             return;
         }
 
@@ -133,7 +120,7 @@ public class ChatHub(
 
                      Вызывает 'UnprocessableEntity' у клиента. Передаёт список ошибок.
                      """,
-        returnType: typeof(List<ValidationFailure>))]
+        returnType: typeof(List<ValidationError>))]
     public async Task SendMessage(
         [SignalRParam(
             description: "Данные сообщения.",
@@ -141,15 +128,10 @@ public class ChatHub(
         MessageDto dto)
     {
         var claimId = Context.User?.FindFirstValue(CustomClaimTypes.UserId);
-        if (claimId is null)
+        if (claimId is null 
+            || !long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
         {
             await Clients.Caller.SendAsync("Unauthorized");
-            return;
-        }
-
-        if (!long.TryParse(claimId, NumberStyles.Any, CultureInfo.InvariantCulture, out var id))
-        {
-            await Clients.Caller.SendAsync("UnprocessableEntity");
             return;
         }
 
@@ -163,7 +145,7 @@ public class ChatHub(
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
         {
-            await Clients.Caller.SendAsync("UnprocessableEntity", validationResult.Errors);
+            await Clients.Caller.SendAsync("UnprocessableEntity", validationResult.Errors.Select(mapper.Map<ValidationError>));
             return;
         }
         

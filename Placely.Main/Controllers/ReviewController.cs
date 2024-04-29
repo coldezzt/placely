@@ -54,7 +54,7 @@ public class ReviewController(
     [SwaggerResponse(
         statusCode: 422,
         description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(List<ValidationFailure>),
+        type: typeof(List<ValidationError>),
         contentTypes: "application/json")]
     [HttpPost]
     public async Task<IActionResult> Add(
@@ -66,7 +66,7 @@ public class ReviewController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
 
         dto.AuthorId = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!,

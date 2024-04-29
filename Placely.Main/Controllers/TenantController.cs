@@ -87,6 +87,30 @@ public class TenantController(
     }
 
     [SwaggerOperation(
+        summary: "Добавляет имущество в избранное текущему пользователю")]
+    [SwaggerResponse(
+        statusCode: 200,
+        description: "Данные о добавленном в избранное имуществе.",
+        type: typeof(PropertyDto),
+        contentTypes: "application/json")]
+    [SwaggerResponse(
+        statusCode: 401,
+        description: "Пользователь не авторизован.")]
+    [HttpPatch("my/favourites")]
+    public async Task<IActionResult> AddPropertyToFavourite(
+        [FromQuery] [SwaggerParameter(description: "Идентификатор имущества.")] long propertyId)
+    {
+        var tenantId = long.Parse(
+            User.FindFirstValue(CustomClaimTypes.UserId)!,
+            NumberStyles.Any,
+            CultureInfo.InvariantCulture);
+
+        var property = await service.AddPropertyToFavouritesAsync(tenantId, propertyId);
+        var response = mapper.Map<PropertyDto>(property);
+        return Ok(response);
+    }
+
+    [SwaggerOperation(
         summary: "Обновляет настройки пользователя")]
     [SwaggerResponse(
         statusCode: 200,
@@ -99,7 +123,7 @@ public class TenantController(
     [SwaggerResponse(
         statusCode: 422,
         description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(List<ValidationFailure>),
+        type: typeof(List<ValidationError>),
         contentTypes: "application/json")]
     [HttpPatch("my/settings")]
     public async Task<IActionResult> UpdateSettings(
@@ -111,7 +135,7 @@ public class TenantController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
 
         var tenantId = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!,
@@ -145,6 +169,30 @@ public class TenantController(
         
         var result = await service.DeleteAsync(tenantId);
         var response = mapper.Map<TenantDto>(result);
+        return Ok(response);
+    }
+
+    [SwaggerOperation(
+        summary: "Удаляет имущество из избранного текущего пользователя")]
+    [SwaggerResponse(
+        statusCode: 200,
+        description: "Данные об удалённом из избранного имуществе.",
+        type: typeof(PropertyDto),
+        contentTypes: "application/json")]
+    [SwaggerResponse(
+        statusCode: 401,
+        description: "Пользователь не авторизован.")]
+    [HttpDelete("my/favourite")]
+    public async Task<IActionResult> DeletePropertyFromFavourite(
+        [FromQuery] long propertyId)
+    {
+        var tenantId = long.Parse(
+            User.FindFirstValue(CustomClaimTypes.UserId)!,
+            NumberStyles.Any,
+            CultureInfo.InvariantCulture);
+
+        var property = await service.RemovePropertyFromFavouritesAsync(tenantId, propertyId);
+        var response = mapper.Map<PropertyDto>(property);
         return Ok(response);
     }
 }

@@ -71,7 +71,7 @@ public class ReservationController(
     [SwaggerResponse(
         statusCode: 422,
         description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(List<ValidationFailure>),
+        type: typeof(List<ValidationError>),
         contentTypes: "application/json")]
     [HttpPost]
     public async Task<IActionResult> Create(
@@ -79,7 +79,7 @@ public class ReservationController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
         
         var currentUserId = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId) ?? "",
@@ -113,7 +113,7 @@ public class ReservationController(
     [SwaggerResponse(
         statusCode: 422,
         description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(List<ValidationFailure>),
+        type: typeof(List<ValidationError>),
         contentTypes: "application/json")]
     [HttpPatch]
     public async Task<IActionResult> Update(
@@ -122,7 +122,7 @@ public class ReservationController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
         
         var currentUserId = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId) ?? "",
