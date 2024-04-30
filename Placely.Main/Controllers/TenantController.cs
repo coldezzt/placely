@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;

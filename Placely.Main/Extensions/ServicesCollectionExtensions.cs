@@ -14,7 +14,6 @@ using Placely.Data.Configurations;
 using Placely.Data.Configurations.Mapper;
 using Placely.Data.Dtos;
 using Placely.Data.Dtos.Validators;
-using Placely.Data.Entities;
 using Placely.Data.Repositories;
 using Placely.Main.Middlewares;
 using Placely.Main.Policies.DestructingPolicies;

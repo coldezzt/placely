@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.SignalR;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;

@@ -1,5 +1,3 @@
-using Placely.Data.Models;
-
 namespace Placely.Data.Dtos;
 
 public class ReservationDto

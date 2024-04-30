@@ -1,3 +1,4 @@
+using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Configurations;
 
 namespace Placely.Data.Repositories;

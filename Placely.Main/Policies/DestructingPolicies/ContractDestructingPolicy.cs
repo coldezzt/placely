@@ -2,7 +2,7 @@ using Placely.Data.Entities;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace Placely.Main.Extensions;
+namespace Placely.Main.Policies.DestructingPolicies;
 
 public class ContractDestructingPolicy : IDestructuringPolicy
 {
