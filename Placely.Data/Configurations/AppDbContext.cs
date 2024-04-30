@@ -36,15 +36,15 @@ public class AppDbContext : DbContext
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        _logger.Log(LogLevel.Information, $"Begin configuring AppDbContext in context: {ContextId}");
+        _logger.Log(LogLevel.Trace, $"Begin configuring AppDbContext in context: {ContextId}");
         optionsBuilder.UseLazyLoadingProxies();
         base.OnConfiguring(optionsBuilder);
-        _logger.Log(LogLevel.Information, $"Successfully configured AppDbContext in context: {ContextId}");
+        _logger.Log(LogLevel.Trace, $"Successfully configured AppDbContext in context: {ContextId}");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        _logger.Log(LogLevel.Information, "Begin creating models for AppDbContext.");
+        _logger.Log(LogLevel.Trace, "Begin creating models for AppDbContext.");
         
         #region Entities configuration
         
@@ -54,7 +54,7 @@ public class AppDbContext : DbContext
         modelBuilder.ApplyConfiguration(new ChatEntityConfiguration());
 
         #endregion
-        _logger.Log(LogLevel.Information, "Applied configurations for AppDbContext.");
+        _logger.Log(LogLevel.Trace, "Applied configurations for AppDbContext.");
         
         #region Seeding
         
@@ -73,10 +73,10 @@ public class AppDbContext : DbContext
         SeedingStartedMessages(modelBuilder);
         
         #endregion
-        _logger.Log(LogLevel.Information, "Applied seeding for AppDbContext.");
+        _logger.Log(LogLevel.Trace, "Applied seeding for AppDbContext.");
 
         base.OnModelCreating(modelBuilder);
-        _logger.Log(LogLevel.Information, $"Successfully created models for AppDbContext.");
+        _logger.Log(LogLevel.Trace, "Successfully created models for AppDbContext.");
     }
 
     #region Seeding methods

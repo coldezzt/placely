@@ -44,6 +44,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IAuthorizationService, AuthorizationService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IContractService, ContractService>();
+        services.AddScoped<IDadataAddressService, DadataAddressService>();
         services.AddScoped<ILandlordService, LandlordService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<IPropertyService, PropertyService>();
@@ -51,7 +52,6 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<IRatingUpdaterService, RatingUpdaterService>();
-        services.AddScoped<IDadataAddressService, DadataAddressService>();
         
         return services;
     }
@@ -87,7 +87,7 @@ public static class ServicesCollectionExtensions
         });
     }
 
-    public static IServiceCollection AddConfiguredJwtAuth(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddConfiguredJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthentication(opt =>
             {
@@ -106,7 +106,7 @@ public static class ServicesCollectionExtensions
                     ValidateLifetime = false
                 };
             })
-            .AddCookie(options =>options.LoginPath = "/api/authorize")
+            .AddCookie()
             .AddGoogle(options =>
             {
                 var googleConfig = configuration.GetSection("Authentication:Google");
@@ -138,6 +138,8 @@ public static class ServicesCollectionExtensions
                             
                             Все конечные точки так или иначе взаимодействуют с базой данных. Исходя из этого
                             все конечные точки так же могут вернуть:
+                            - 302 статус. Сервер перенаправляет на страницу с авторизацией, 
+                            т.к. пользователь не авторизован. Либо перенаправляет на Google для авторизации.
                             - 404 статус. Сервер не смог найти какой-то объект из-запроса в базе данных.
                             - 503 статус. Какие-то проблемы с базой данных.
                             - 500 статус. Возвращается при незадокументированном исключении.
@@ -182,7 +184,6 @@ public static class ServicesCollectionExtensions
             });
         });
         
-        
         return services;
     }
 
@@ -224,6 +225,7 @@ public static class ServicesCollectionExtensions
     { 
         services.AddSerilog((servs, lc) => 
             lc
+                .MinimumLevel.Verbose()
                 .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)

@@ -127,8 +127,7 @@ public class AuthorizationController(
     [SwaggerResponse(
         statusCode: 401,
         description: "Пользователь не авторизован.")]
-    [Authorize]
-    [HttpPost("google/2fa")]
+    [Authorize, HttpPost("google/2fa")]
     public async Task<IActionResult> GoogleTwoFactorCreation()
     {
         var email = User.FindFirstValue(ClaimTypes.Email);

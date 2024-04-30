@@ -11,7 +11,7 @@ public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbCont
 {
     public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
-        logger.Log(LogLevel.Information, "Begin adding an entity: {@entity}.", entity);
+        logger.Log(LogLevel.Trace, "Begin adding an entity: {@entity}.", entity);
         var result = await appDbContext.Set<TEntity>().AddAsync(entity);
         logger.Log(LogLevel.Information, "Successfully added: {@entity}.", entity);
         return result.Entity;
@@ -19,7 +19,7 @@ public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbCont
 
     public virtual Task<TEntity> UpdateAsync(TEntity entity)
     {
-        logger.Log(LogLevel.Information, "Begin updating an entity: {@entity}.", entity);
+        logger.Log(LogLevel.Trace, "Begin updating an entity: {@entity}.", entity);
 
         var set = appDbContext.Set<TEntity>();
         var found = set.FirstOrDefault(e => e.Id == entity.Id);
@@ -33,7 +33,7 @@ public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbCont
 
     public virtual Task<TEntity> DeleteAsync(TEntity entity)
     {
-        logger.Log(LogLevel.Information, "Begin deleting an entity: {@entity}.", entity);
+        logger.Log(LogLevel.Trace, "Begin deleting an entity: {@entity}.", entity);
 
         var set = appDbContext.Set<TEntity>();
         var found = set.FirstOrDefault(e => e.Id == entity.Id);
@@ -47,14 +47,14 @@ public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbCont
 
     public virtual async Task<TEntity> GetByIdAsync(long entityId)
     {
-        logger.Log(LogLevel.Debug, "Begin getting an entity: {@1} with Id = {@2}.", typeof(TEntity).Name, entityId);
+        logger.Log(LogLevel.Trace, "Begin getting an entity: {@1} with Id = {@2}.", typeof(TEntity).Name, entityId);
         
         var set = appDbContext.Set<TEntity>();
         var result = await set.FirstOrDefaultAsync(e => e.Id == entityId);
         if (result is null)
             throw new EntityNotFoundException(typeof(TEntity), entityId.ToString());
         
-        logger.Log(LogLevel.Debug, "Successfully got: {@1} with Id = {@2}.", typeof(TEntity).Name, entityId);
+        logger.Log(LogLevel.Information, "Successfully got: {@1}. {@2}.", typeof(TEntity).Name, result);
         return result;
     }
 
