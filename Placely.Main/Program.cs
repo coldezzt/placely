@@ -7,69 +7,88 @@ using Serilog;
 
 // Логирование на уровне приложения
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
+    .MinimumLevel.Verbose()
     .WriteTo.Console()
     .CreateBootstrapLogger();
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Конфигурация
-builder.Configuration
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
-
-// Настройка сервисов. Всё что возвращает IServiceCollection
-builder.Services
-    .AddConfiguredSerilog(builder.Configuration)
-    .AddRouting(static opt => opt.LowercaseUrls = true)
-    .AddRepositories()
-    .AddServices()
-    .AddValidators()
-    .AddMiddlewares()
-    .AddDbContext(builder.Configuration)
-    .AddEndpointsApiExplorer()
-    .AddConfiguredSwaggerGen()
-    .AddConfiguredAutoMapper()
-    .AddConfiguredHangfire(builder.Configuration)
-    .AddConfiguredJwtAuth(builder.Configuration);
-
-// Настройка сервисов. Всё что НЕ возвращает IServiceCollection
-builder.Services.AddControllers();
-builder.Services.AddSignalR();
-
-// Сборка приложения
-var application = builder.Build();
-
-application
-    .UseSerilogRequestLogging();
-
-if (application.Environment.IsDevelopment())
+try
 {
+    var builder = WebApplication.CreateBuilder(args);
+    
+    Log.Logger.Information("Begin configuring application builder.");
+    
+    // Конфигурация
+    builder.Configuration
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
+    Log.Logger.Verbose("Added application configuration files.");
+    
+    // Настройка сервисов. Всё что возвращает IServiceCollection
+    builder.Services
+        .AddConfiguredSerilog(builder.Configuration)
+        .AddRouting(static opt => opt.LowercaseUrls = true)
+        .AddRepositories()
+        .AddServices()
+        .AddValidators()
+        .AddMiddlewares()
+        .AddDbContext(builder.Configuration)
+        .AddEndpointsApiExplorer()
+        .AddConfiguredSwaggerGen()
+        .AddConfiguredAutoMapper()
+        .AddConfiguredHangfire(builder.Configuration)
+        .AddConfiguredJwtAuth(builder.Configuration);
+
+    // Настройка сервисов. Всё что НЕ возвращает IServiceCollection
+    builder.Services.AddControllers();
+    builder.Services.AddSignalR();
+
+    Log.Logger.Verbose("Complete application services configuring.");
+
+    Log.Logger.Information("Successfully configured application builder.");
+
+    Log.Logger.Information("Begin building application.");
+    // Сборка приложения
+    var application = builder.Build();
+
     application
-        .UseSwagger()
-        .UseSwaggerUI(static options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "Placely API v1");
-        });
+        .UseSerilogRequestLogging();
+
+    if (application.Environment.IsDevelopment())
+    {
+        application
+            .UseSwagger()
+            .UseSwaggerUI(static options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "Placely API v1"); });
+        Log.Logger.Verbose("Added SwaggerUI to application pipeline.");
+    }
+
+    // Различные using-и
+    application
+        .UseMiddleware<ExceptionMiddleware>()
+        .UseAuthentication()
+        .UseAuthorization()
+        .UseHttpsRedirection()
+        .UseHangfireDashboard();
+    Log.Logger.Verbose("Added usings to application.");
+
+    // Маппинг
+    application.MapControllers();
+    application.MapHub<ChatHub>("api/hubs/chat");
+    Log.Logger.Verbose("Successfully mapped endpoints in application.");
+
+    // Background задачи
+    RecurringJob.AddOrUpdate<IRatingUpdaterService>("Update rating", static service => service.UpdatePropertyRating(),
+        "0 6 * * *");
+    Log.Logger.Verbose("Successfully create recurring jobs for application.");
+
+    Log.Logger.Information("Successfully built an application.");
+    Log.Logger.Information("Begin booting application.");
+    // Запуск
+    application.Run();
 }
-
-// Различные using-и
-application
-    .UseMiddleware<ExceptionMiddleware>()
-    .UseAuthentication()
-    .UseAuthorization()
-    .UseHttpsRedirection()
-    .UseHangfireDashboard();
-
-// Маппинг
-application.MapControllers();
-application.MapHub<ChatHub>("api/hubs/chat");
-
-// Background задачи
-RecurringJob.AddOrUpdate<IRatingUpdaterService>("Update rating", static service => service.UpdatePropertyRating(), "0 6 * * *");
-
-// Запуск
-application.Run();
+catch (Exception ex)
+{
+    Log.Logger.Error("Unhandled error. {@ex}", ex);
+}
 
 // DONE: НЕТ КОНТРОЛЛЕРА СОЗДАНИЯ ЗАЯВКИ (РЕЗЕРВАЦИИ)!!!
 // DONE: написать маппер под ошибки валидатора (там есть ненужная для фронта инфа)

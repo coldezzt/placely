@@ -6,32 +6,47 @@ namespace Placely.Main.Services;
 
 public class DadataAddressService : IDadataAddressService
 {
+    private ILogger<DadataAddressService> Logger { get; }
     private IConfigurationSection DadataConfig { get; }
     private string? DadataToken { get; }
     private string? DadataSecret { get; }
     
-    public DadataAddressService(IConfiguration configuration)
+    public DadataAddressService(ILogger<DadataAddressService> logger, IConfiguration configuration)
     {
+        Logger = logger;
         DadataConfig = configuration.GetSection("ExternalApi:Dadata");
         DadataToken = DadataConfig["Token"];
         DadataSecret = DadataConfig["Secret"];
     }
     
-    public Task<Address> NormalizeAddressAsync(string address)
+    public async Task<Address> NormalizeAddressAsync(string address)
     {
         var client = new CleanClientAsync(DadataToken, DadataSecret);
-        return client.Clean<Address>(address);
+        var clean = await client.Clean<Address>(address);
+
+        Logger.Log(LogLevel.Trace, "Successfully cleaned address: {address}", address);
+        return clean;
     }
 
-    public Task<SuggestResponse<Address>> SuggestAddress(string address)
+    public async Task<SuggestResponse<Address>> SuggestAddress(string address)
     {
         var client = new SuggestClientAsync(DadataToken);
-        return client.SuggestAddress(address);
+        var suggested = await client.SuggestAddress(address);
+        
+        Logger.Log(LogLevel.Trace, "Successfully suggested address: {address}", address);
+        return suggested;
     }
 
     public async Task<bool> IsAddressExistsAsync(string address)
     {
         var normalizeAddress = await NormalizeAddressAsync(address);
-        return normalizeAddress.unparsed_parts != null;
+        var isSuccess = normalizeAddress.unparsed_parts == null;
+        Logger.Log(
+            LogLevel.Trace,
+            isSuccess 
+                ? "Successfully find address: {address}" 
+                : "Address doesn't exist: {address}", 
+            address);
+        return isSuccess;
     }
 }

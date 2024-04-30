@@ -18,7 +18,8 @@ public class TenantDestructingPolicy : IDestructuringPolicy
         var structure = new StructureValue(
             new[]
             {
-                new LogEventProperty("Userrole", new ScalarValue(t.UserRole)),
+                new LogEventProperty("Id", new ScalarValue(t.Id)),
+                new LogEventProperty("UserRole", new ScalarValue(t.UserRole)),
                 new LogEventProperty("Email", new ScalarValue(t.Email)),
                 new LogEventProperty("IsAdditionalRegistrationRequired", 
                     new ScalarValue(t.IsAdditionalRegistrationRequired)),

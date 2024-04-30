@@ -19,6 +19,7 @@ public class PropertyDestructingPolicy : IDestructuringPolicy
         var structure = new StructureValue(
             new[]
             {
+                new LogEventProperty("Id", new ScalarValue(p.Id)),
                 new LogEventProperty("OwnerId", new ScalarValue(p.OwnerId)),
                 new LogEventProperty("Type", new ScalarValue(p.Type.ToString())),
                 new LogEventProperty("PriceListId", new ScalarValue(p.PriceListId)),

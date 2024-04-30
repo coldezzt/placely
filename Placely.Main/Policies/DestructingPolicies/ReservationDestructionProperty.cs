@@ -18,6 +18,7 @@ public class ReservationDestructionProperty : IDestructuringPolicy
         var structure = new StructureValue(
             new[]
             {
+                new LogEventProperty("Id", new ScalarValue(r.Id)),
                 new LogEventProperty("TenantId", new ScalarValue(r.TenantId)),
                 new LogEventProperty("LandlordId", new ScalarValue(r.LandlordId)),
                 new LogEventProperty("PropertyId", new ScalarValue(r.PropertyId)),

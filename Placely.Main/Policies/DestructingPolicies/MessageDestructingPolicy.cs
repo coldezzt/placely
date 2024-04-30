@@ -18,6 +18,7 @@ public class MessageDestructingPolicy : IDestructuringPolicy
         var structure = new StructureValue(
             new[]
             {
+                new LogEventProperty("Id", new ScalarValue(m.Id)),
                 new LogEventProperty("ChatId", new ScalarValue(m.ChatId)),
                 new LogEventProperty("AuthorId", new ScalarValue(m.AuthorId)),
                 new LogEventProperty("Content", new ScalarValue("[hidden]")),

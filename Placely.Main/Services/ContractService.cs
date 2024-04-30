@@ -11,6 +11,7 @@ using SautinSoft.Document;
 namespace Placely.Main.Services;
 
 public class ContractService(
+    ILogger<ContractService> logger,
     IReservationRepository reservationRepository,
     IContractRepository contractRepository,
     IHostEnvironment environment,
@@ -31,6 +32,7 @@ public class ContractService(
     // и присвоение его пути в сущности в базе данных, для этого нужно будет создать состояние документа (его готовность)
     public async Task<Contract> GenerateContractAsync(ContractCreationDto dto)
     {
+        logger.Log(LogLevel.Trace, "Begin creating contract based on reservation {reservationId}", dto.ReservationId);
         // Достаём данные
         var reservation = await reservationRepository.GetByIdAsync(dto.ReservationId);
         var contract = mapper.Map<Contract>(reservation);
@@ -47,15 +49,23 @@ public class ContractService(
             $"/contracts_{contract.LandlordId}");
         if (!Directory.Exists(workDir))
             Directory.CreateDirectory(workDir);
+        logger.Log(LogLevel.Trace, "Created directory for " +
+                                   "contract based on reservation {reservationId}", 
+            dto.ReservationId);
+
         // ... и копируем туда шаблон
         var pathToDoc = Path.Combine(dto.PathToTemplate, 
             $"/{workDir}/dated_{contractDate}_with_{contract.TenantId}.docx");
         File.Copy(dto.PathToTemplate, pathToDoc);
+        logger.Log(LogLevel.Trace, "Copied template to directory for " +
+                                   "contract based on reservation {reservationId}", dto.ReservationId);
         
         // Заменяем значения в шаблоне
         var values = await contractModel.CreateFieldsAsync(dto.PathToTemplate);
         var errors = Docx.MergeInplace(new Engine(), pathToDoc, values)
             .Select(static e => e.ToString() ?? "").ToList();
+        logger.Log(LogLevel.Trace, "Filled template to directory for " +
+                                   "contract based on reservation {reservationId}", dto.ReservationId);
         
         if (errors.Any())
             throw new ContractServiceException(errors);
@@ -64,12 +74,16 @@ public class ContractService(
         var pathToPdf = Path.Combine(workDir, $"/contract_{contractDate}.pdf");
         var dc = DocumentCore.Load(pathToDoc);
         dc.Save(pathToPdf);
+        logger.Log(LogLevel.Trace, "Converted doc to pdf into directory for " +
+                                   "contract based on reservation {reservationId}", dto.ReservationId);
         
         contract.FinalizedPathDocx = pathToDoc;
         contract.FinalizedPathPdf = pathToPdf;
         var result = await contractRepository.AddAsync(contract);
         await contractRepository.SaveChangesAsync();
         
+        logger.Log(LogLevel.Information, "Successfully created contract " +
+                                         "based on reservation {reservationId}", dto.ReservationId);
         return result;
     }
 }

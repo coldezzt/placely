@@ -14,6 +14,4 @@ public interface IAuthorizationService
         IEnumerable<Claim>? externalClaims);
 
     public Task<TwoFactorAuthenticationModel> ApplyGoogleTwoFactorAuthenticationAsync(string email);
-
-    public Task<TwoFactorAuthenticationModel> GetTwoFactorAuthenticationKeys(string email);
 }

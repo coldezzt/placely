@@ -5,6 +5,7 @@ using Placely.Data.Entities;
 namespace Placely.Main.Services;
 
 public class ChatService(
+    ILogger<ChatService> logger,
     IChatRepository chatRepo) : IChatService
 {
     public async Task<Chat> GetByIdAsync(long chatId)
@@ -19,10 +20,14 @@ public class ChatService(
 
     public async Task<Chat> CreateAsync(Chat chat)
     {
+        logger.Log(LogLevel.Trace, "Begin creating chat between: {user1} and {user2}", chat.FirstUserId, chat.SecondUserId);
+        
         chat.DirectoryPath = "/chat-" + string.Join("-", new List<long> {chat.FirstUserId, chat.SecondUserId}.Order());
         
         var result = await chatRepo.AddAsync(chat);
         await chatRepo.SaveChangesAsync();
+        
+        logger.Log(LogLevel.Trace, "Successfully created chat between: {user1} and {user2}", chat.FirstUserId, chat.SecondUserId);
         return result;
     }
 
@@ -32,5 +37,4 @@ public class ChatService(
         var chat = await chatRepo.DeleteAsync(dbChat);
         return chat;
     }
-    
 }

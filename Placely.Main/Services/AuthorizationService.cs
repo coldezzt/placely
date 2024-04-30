@@ -11,33 +11,43 @@ using Placely.Data.Entities;
 using Placely.Data.Models;
 using Placely.Main.Exceptions;
 using Placely.Main.Services.Utils;
+using Serilog;
 
 namespace Placely.Main.Services;
 
 public class AuthorizationService(
+    ILogger<AuthorizationService> logger,
     ITenantRepository tenantRepo,
     IConfiguration configuration) : IAuthorizationService
 {
     public async Task<AuthorizationResult> AuthorizeAsync(AuthorizationDto dto)
     {
+        logger.Log(LogLevel.Trace, "Begin authorize user with email {Email}", dto.Email);
         var dbTenant = await tenantRepo.GetByEmailAsync(dto.Email);
         if (!PasswordHasher.Validate(dbTenant.Password, dto.Password))
+        {
+            logger.Log(LogLevel.Information, "Authorization user with email {Email} failed due to: wrong password.", dto.Email);
             return new AuthorizationResult { IsSuccess = false, Error = "Неверный пароль!" };
+        }
 
         if (dbTenant.IsTwoFactorEnabled)
         {
             var tfa = new TwoFactorAuthenticator();
             if (!tfa.ValidateTwoFactorPIN(dbTenant.TwoFactorAccountSecretKey, dto.TwoFactorKey))
+            {
+                logger.Log(LogLevel.Information, "Authorization user with email {Email} failed due to: wrong 2FA TOTP key.", dto.Email);
                 return new AuthorizationResult { IsSuccess = false, Error = "Неверный двухфакторный ключ!" };
+            }
         }
 
         var tokenDto = await CreateTokenAsync(dbTenant, populateExp: true);
-    
+        logger.Log(LogLevel.Information, "Successfully authorized user with email {Email}.", dto.Email);
         return new AuthorizationResult { IsSuccess = true, TokenDto = tokenDto };
     }
     
     public async Task<TokenDto> RefreshTokenAsync(TokenDto tokenDto)
     {
+        logger.Log(LogLevel.Trace, "Begin refreshing user tokens with expired access token {accessToken}", tokenDto.AccessToken);
         var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
 
         var email = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
@@ -46,13 +56,18 @@ public class AuthorizationService(
         if (tenant.RefreshToken != tokenDto.RefreshToken
             || tenant.RefreshTokenExpirationDate <= DateTime.Now)
             throw new RefreshTokenBadRequestException();
-
-        return await CreateTokenAsync(tenant, populateExp: false);
+        
+        var newTokenPair = await CreateTokenAsync(tenant, populateExp: false);
+        logger.Log(LogLevel.Trace, "Successfully refresh user tokens with expired access token {accessToken}", tokenDto.AccessToken);
+        
+        return newTokenPair;
     }
 
     public async Task<TokenDto> AuthorizeUserFromExternalService(string email,
         IEnumerable<Claim>? externalClaims = null)
     {
+        logger.Log(LogLevel.Trace, "Begin authorizing user with {Email} using external service.", email);
+
         // Ищем пользователя в бд - если нет создаём нового
         var tenant = await tenantRepo.TryGetByEmailAsync(email) ?? new Tenant
         {
@@ -78,21 +93,28 @@ public class AuthorizationService(
 
         await tenantRepo.AddOrUpdateAsync(tenant);
         await tenantRepo.SaveChangesAsync();
-        
+        logger.Log(LogLevel.Information, "Successfully authorize user with {Email} using external service.", email);
+
         return tokenDto;
     }
 
     public async Task<TwoFactorAuthenticationModel> ApplyGoogleTwoFactorAuthenticationAsync(string email)
     {
+        logger.Log(LogLevel.Trace, "Begin applying 2FA to user with {Email}.", email);
+
         var tenant = await tenantRepo.GetByEmailAsync(email);
 
         if (tenant.IsTwoFactorEnabled)
+        {
+            logger.Log(LogLevel.Information, "Successfully apply 2FA to user with {Email}.", email);
             return new TwoFactorAuthenticationModel
             {
                 ManualEntryKey = tenant.ManualEntryKey!,
                 QrImageUrl = tenant.QrImageUrl!
             };
-        
+        }
+
+        logger.Log(LogLevel.Trace, "Begin setting up TOTP code generation tokens for user with {Email}.", email);
         var key = new byte[32];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(key);
@@ -100,6 +122,7 @@ public class AuthorizationService(
 
         var tfa = new TwoFactorAuthenticator();
         var setupInfo = tfa.GenerateSetupCode("Placely & You", email, accountSecretKey, false);
+        logger.Log(LogLevel.Trace, "Successfully setup TOTP code generation tokens for user with {Email}.", email);
 
         tenant.IsTwoFactorEnabled = true;
         tenant.QrImageUrl = setupInfo.QrCodeSetupImageUrl;
@@ -109,46 +132,41 @@ public class AuthorizationService(
         await tenantRepo.AddOrUpdateAsync(tenant);
         await tenantRepo.SaveChangesAsync();
 
+        logger.Log(LogLevel.Information, "Successfully apply 2FA to user with {Email}.", email);
         return new TwoFactorAuthenticationModel
         {
             ManualEntryKey = tenant.ManualEntryKey,
             QrImageUrl = tenant.QrImageUrl
         };
     }
-
-    public async Task<TwoFactorAuthenticationModel> GetTwoFactorAuthenticationKeys(string email)
-    {
-        var dbTenant = await tenantRepo.GetByEmailAsync(email);
-
-        return new TwoFactorAuthenticationModel
-        {
-            ManualEntryKey = dbTenant.ManualEntryKey ?? "",
-            QrImageUrl = dbTenant.QrImageUrl ?? ""
-        };
-    }
     
     private async Task<TokenDto> CreateTokenAsync(Tenant tenant, bool populateExp)
     {
+        logger.Log(LogLevel.Trace, "Begin creating tokens pair for user with email: {email}", tenant.Email);
+        
         var jwtToken = GenerateJwtToken(GenerateClaims(tenant));
         var refreshToken = GenerateRefreshToken();
-        tenant.RefreshToken = refreshToken;
         
-        if (populateExp)
-            tenant.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
+        tenant.RefreshToken = refreshToken;
+        if (populateExp) tenant.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
 
         await tenantRepo.SaveChangesAsync();
 
-        return new TokenDto
+        var tokenDto = new TokenDto
         {
             AccessToken = jwtToken,
             RefreshToken = refreshToken
         };
+        
+        logger.Log(LogLevel.Trace, "Successfully created tokens pair for user with email: {email}", tenant.Email);
+        return tokenDto;
     }
     
     private string GenerateJwtToken(IEnumerable<Claim> claims)
     {
+        var claimsList = claims.ToList();
         var jwt = new JwtSecurityToken(
-            claims: claims,
+            claims: claimsList,
             expires: DateTime.UtcNow.Add(TimeSpan.FromHours(1)),
             signingCredentials: new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)),
@@ -156,29 +174,29 @@ public class AuthorizationService(
             )
         );
 
-        return new JwtSecurityTokenHandler().WriteToken(jwt);
+        var token = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+        logger.Log(LogLevel.Trace, "Successfully created jwtToken by {claims}", claimsList);
+        return token;
     }
 
-    private static IEnumerable<Claim> GenerateClaims(Tenant tenant)
+    private IEnumerable<Claim> GenerateClaims(Tenant tenant)
     {
-        return new List<Claim>
+        var claims = new List<Claim>
         {
             new(CustomClaimTypes.UserId, tenant.Id.ToString()),
             new(ClaimTypes.Email, tenant.Email),
             new(CustomClaimTypes.UserRole, tenant.UserRole.ToString()),
         };
-    }
-    private static string GenerateRefreshToken()
-    {
-        var randomNumber = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
 
-        return Convert.ToBase64String(randomNumber);
+        logger.Log(LogLevel.Trace, "Successfully created server-side claims by user with {Email}", tenant.Email);
+        return claims;
     }
-
+    
     private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
+        logger.Log(LogLevel.Trace, "Begin extracting claims from expired token - {token}", token);
+
         var jwtSettings = configuration.GetSection("JwtAuth");
         var tokenValidationParameters = new TokenValidationParameters
         {
@@ -197,6 +215,17 @@ public class AuthorizationService(
                 StringComparison.InvariantCultureIgnoreCase))
             throw new SecurityTokenException("Invalid token");
 
+        logger.Log(LogLevel.Trace, "Successfully extracted claims from expired token - {token}", token);
         return principal;
+    }
+    
+    private static string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        var token = Convert.ToBase64String(randomNumber);
+        
+        return token;
     }
 }

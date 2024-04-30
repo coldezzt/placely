@@ -18,6 +18,7 @@ public class PreviousPasswordDestructingPolicy : IDestructuringPolicy
         var structure = new StructureValue(
             new[]
             {
+                new LogEventProperty("Id", new ScalarValue(pp.Id)),
                 new LogEventProperty("TenantId", new ScalarValue(pp.TenantId)),
                 new LogEventProperty("Password", new ScalarValue("[hidden]"))
             },

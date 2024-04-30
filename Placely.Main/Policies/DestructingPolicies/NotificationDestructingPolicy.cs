@@ -18,6 +18,7 @@ public class NotificationDestructingPolicy : IDestructuringPolicy
         var structure = new StructureValue(
             new[]
             {
+                new LogEventProperty("Id", new ScalarValue(n.Id)),
                 new LogEventProperty("ReceiverId", new ScalarValue(n.ReceiverId)),
                 new LogEventProperty("Title", new ScalarValue("[hidden]")),
                 new LogEventProperty("Content", new ScalarValue("[hidden]")),

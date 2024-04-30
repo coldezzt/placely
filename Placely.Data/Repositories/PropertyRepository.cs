@@ -5,7 +5,7 @@ using Placely.Data.Entities;
 
 namespace Placely.Data.Repositories;
 
-public class PropertyRepository(ILogger logger, AppDbContext appDbContext) 
+public class PropertyRepository(ILogger<PropertyRepository> logger, AppDbContext appDbContext) 
     : Repository<Property>(logger, appDbContext), IPropertyRepository
 {
     public IQueryable<Property> GetPropertiesByFilter(Func<Property, bool>? predicate)

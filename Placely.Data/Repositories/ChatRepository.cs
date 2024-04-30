@@ -5,7 +5,7 @@ using Placely.Data.Entities;
 
 namespace Placely.Data.Repositories;
 
-public class ChatRepository(ILogger logger, AppDbContext appDbContext) 
+public class ChatRepository(ILogger<ChatRepository> logger, AppDbContext appDbContext) 
     : Repository<Chat>(logger, appDbContext), IChatRepository
 {
     public async Task<List<Chat>> GetListByUserId(long userId)

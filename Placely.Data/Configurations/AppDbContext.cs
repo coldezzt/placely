@@ -7,7 +7,7 @@ namespace Placely.Data.Configurations;
 
 public class AppDbContext : DbContext
 {
-    private readonly ILogger _logger;
+    private readonly ILogger<AppDbContext> _logger;
     
     #region Database sets
     
@@ -25,7 +25,7 @@ public class AppDbContext : DbContext
     
     #endregion
     
-    public AppDbContext(ILogger logger, DbContextOptions<AppDbContext> options) : base(options)
+    public AppDbContext(ILogger<AppDbContext> logger, DbContextOptions<AppDbContext> options) : base(options)
     {
         _logger = logger;
         SavingChanges += (_, _) => 

@@ -7,7 +7,7 @@ using Placely.Data.Exceptions;
 
 namespace Placely.Data.Repositories;
 
-public class TenantRepository(ILogger logger, AppDbContext appDbContext) 
+public class TenantRepository(ILogger<TenantRepository> logger, AppDbContext appDbContext) 
     : Repository<Tenant>(logger, appDbContext), ITenantRepository
 {
     public async Task<Tenant> GetByEmailAsync(string email)

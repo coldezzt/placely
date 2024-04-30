@@ -138,18 +138,4 @@ public class AuthorizationController(
         var model = await service.ApplyGoogleTwoFactorAuthenticationAsync(email);
         return Ok(model);
     }
-
-    [SwaggerOperation(
-        summary: "Возвращает данные о 2FA пользователя в виде html кода (для отображения)")]
-    [Authorize]
-    [HttpGet("google/2fa/keys")]
-    public async Task<IActionResult> GoogleTwoFactorKeys()
-    {
-        var email = User.FindFirstValue(ClaimTypes.Email);
-
-        var keys = await service.GetTwoFactorAuthenticationKeys(email);
-
-        var html = $"<div><p>{keys.ManualEntryKey}</p><img src=\"{keys.QrImageUrl}\"></img></div>";
-        return Content(html, "text/html");
-    }
 }

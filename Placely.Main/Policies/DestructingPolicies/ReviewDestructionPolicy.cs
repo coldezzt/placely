@@ -18,6 +18,7 @@ public class ReviewDestructionPolicy : IDestructuringPolicy
         var structure = new StructureValue(
             new[]
             {
+                new LogEventProperty("Id", new ScalarValue(r.Id)),
                 new LogEventProperty("AuthorId", new ScalarValue(r.AuthorId)),
                 new LogEventProperty("PropertyId", new ScalarValue(r.PropertyId)),
                 new LogEventProperty("Rating", new ScalarValue(r.Rating)),

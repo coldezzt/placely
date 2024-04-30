@@ -9,6 +9,7 @@ using Placely.Main.Exceptions;
 namespace Placely.Main.Services;
 
 public class PropertyService(
+    ILogger<PropertyService> logger,
     IPropertyRepository propertyRepo,
     IDadataAddressService dadataAddressService) : IPropertyService
 {
@@ -19,6 +20,8 @@ public class PropertyService(
     
     public async Task<Property> AddAsync(Property property)
     {
+        logger.Log(LogLevel.Trace, "Begin adding a property: {@property}", property);
+
         var address = property.Address;
         var parsedAddress = await dadataAddressService.NormalizeAddressAsync(address);
         if (parsedAddress.unparsed_parts != null)
@@ -26,11 +29,15 @@ public class PropertyService(
         
         var dbEntity = await propertyRepo.AddAsync(property);
         await propertyRepo.SaveChangesAsync();
+
+        logger.Log(LogLevel.Information, "Successfully added a property: {@property}", property);
         return dbEntity;
     }
 
     public async Task<Property> UpdateAsync(Property property)
     {
+        logger.Log(LogLevel.Trace, "Begin updating a property: {@property}", property);
+
         var address = property.Address;
         var parsedAddress = await dadataAddressService.NormalizeAddressAsync(address);
         if (parsedAddress.unparsed_parts != null)
@@ -38,6 +45,8 @@ public class PropertyService(
         
         var dbEntity = await propertyRepo.UpdateAsync(property);
         await propertyRepo.SaveChangesAsync();
+        
+        logger.Log(LogLevel.Information, "Successfully updated a property: {@property}", property);
         return dbEntity;
     }
 
@@ -46,6 +55,8 @@ public class PropertyService(
         var property = await propertyRepo.GetByIdAsync(propertyId);
         var dbEntity = await propertyRepo.DeleteAsync(property);
         await propertyRepo.SaveChangesAsync();
+        
+        logger.Log(LogLevel.Information, "Successfully deleted property: {@property}", property);
         return dbEntity;
     }
 
@@ -86,14 +97,19 @@ public class PropertyService(
         return paginated;
     }
     
-    public async Task<List<Review>> GetListByPropertyIdAsync(long propertyId, int extraLoadNumber = 0)
+    public async Task<List<Review>> GetReviewsListByIdAsync(long propertyId, int extraLoadNumber = 0)
     {
+        logger.Log(LogLevel.Trace, "Begin getting review list of property with id: {propertyId}", propertyId);
+
         var reviews = await propertyRepo.GetReviewsListByIdAsync(propertyId);
-        return reviews
+        var result = reviews
             .OrderByDescending(static r => r.Date)
             .Skip((extraLoadNumber - 1) * 10)
             .Take(10)
             .ToList();
+
+        logger.Log(LogLevel.Information, "Successfully got review list of property with id: {propertyId}", propertyId);
+        return result;
     }
 
     public async Task<List<string>> GetAddressSuggestionAsync(string address)

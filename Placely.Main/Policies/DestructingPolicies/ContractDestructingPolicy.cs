@@ -18,6 +18,7 @@ public class ContractDestructingPolicy : IDestructuringPolicy
         var structure = new StructureValue(
             new[]
             {
+                new LogEventProperty("Id", new ScalarValue(c.Id)),
                 new LogEventProperty("TenantId", new ScalarValue(c.TenantId)),
                 new LogEventProperty("LandlordId", new ScalarValue(c.LandlordId)),
                 new LogEventProperty("PropertyId", new ScalarValue(c.PropertyId)),

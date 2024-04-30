@@ -25,6 +25,7 @@ public class ExceptionMiddleware(IWebHostEnvironment webHostEnvironment) : IMidd
                 RefreshTokenBadRequestException => 400,
                 EntityNotFoundException         => 404,
                 AddressException                => 422,
+                ContractServiceException        => 422,
                 DbUpdateException               => 503,
                 _ => 500
             };

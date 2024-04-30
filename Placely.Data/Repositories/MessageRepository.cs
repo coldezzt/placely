@@ -6,7 +6,7 @@ using Placely.Data.Exceptions;
 
 namespace Placely.Data.Repositories;
 
-public class MessageRepository(ILogger logger, AppDbContext appDbContext) 
+public class MessageRepository(ILogger<MessageRepository> logger, AppDbContext appDbContext) 
     : Repository<Message>(logger, appDbContext), IMessageRepository
 {
     public async Task<List<Message>> GetList(long chatId)

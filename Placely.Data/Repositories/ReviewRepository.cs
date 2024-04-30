@@ -4,7 +4,7 @@ using Placely.Data.Entities;
 
 namespace Placely.Data.Repositories;
 
-public class ReviewRepository(ILogger logger, AppDbContext appDbContext) 
+public class ReviewRepository(ILogger<ReviewRepository> logger, AppDbContext appDbContext) 
     : Repository<Review>(logger, appDbContext), IReviewRepository
 {
 }

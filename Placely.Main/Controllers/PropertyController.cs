@@ -199,7 +199,7 @@ public class PropertyController(
     [AllowAnonymous, HttpGet("{propertyId:long}/reviews/{page:int}")]
     public async Task<IActionResult> GetListByPropertyId(long propertyId, int page)
     {
-        var result = await service.GetListByPropertyIdAsync(propertyId, page);
+        var result = await service.GetReviewsListByIdAsync(propertyId, page);
         var responseDtoList = result.Select(mapper.Map<ReviewDto>);
         return Ok(responseDtoList);
     }
