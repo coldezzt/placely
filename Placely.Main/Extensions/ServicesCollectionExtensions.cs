@@ -225,7 +225,10 @@ public static class ServicesCollectionExtensions
     { 
         services.AddSerilog((servs, lc) => 
             lc
-                .MinimumLevel.Verbose()
+                .ReadFrom.Configuration(configuration)
+                .ReadFrom.Services(servs)
+
+                .MinimumLevel.Information()
                 .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
@@ -243,8 +246,6 @@ public static class ServicesCollectionExtensions
                     new TenantDestructingPolicy()
                     )
                 
-                .ReadFrom.Configuration(configuration)
-                .ReadFrom.Services(servs)
                 .Enrich.FromLogContext()
             );
         return services;
