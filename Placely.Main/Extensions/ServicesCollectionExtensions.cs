@@ -14,8 +14,10 @@ using Placely.Data.Configurations;
 using Placely.Data.Configurations.Mapper;
 using Placely.Data.Dtos;
 using Placely.Data.Dtos.Validators;
+using Placely.Data.Entities;
 using Placely.Data.Repositories;
 using Placely.Main.Middlewares;
+using Placely.Main.Policies.DestructingPolicies;
 using Placely.Main.Services;
 using Serilog;
 using Serilog.Events;
@@ -223,10 +225,24 @@ public static class ServicesCollectionExtensions
     public static IServiceCollection AddConfiguredSerilog(this IServiceCollection services, IConfiguration configuration)
     { 
         services.AddSerilog((servs, lc) => 
-            lc.MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+            lc
+                .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+                
+                .Destructure.ToMaximumStringLength(1024)
+                .Destructure.With(
+                    new ContractDestructingPolicy(),
+                    new MessageDestructingPolicy(),
+                    new NotificationDestructingPolicy(),
+                    new PreviousPasswordDestructingPolicy(),
+                    new PropertyDestructingPolicy(),
+                    new ReservationDestructionProperty(),
+                    new ReviewDestructionPolicy(),
+                    new TenantDestructingPolicy()
+                    )
+                
                 .ReadFrom.Configuration(configuration)
                 .ReadFrom.Services(servs)
                 .Enrich.FromLogContext()

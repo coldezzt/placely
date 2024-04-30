@@ -6,11 +6,12 @@ using Placely.Data.Exceptions;
 
 namespace Placely.Data.Repositories;
 
-public abstract class Repository<TEntity>(AppDbContext appDbContext)
+public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbContext)
     : IRepository<TEntity> where TEntity : class, IEntity
 {
     public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
+        logger.Log(LogLevel.Information, "Begin adding and entity: {@entity}", entity);
         var result = await appDbContext.Set<TEntity>().AddAsync(entity);
         return result.Entity;
     }
