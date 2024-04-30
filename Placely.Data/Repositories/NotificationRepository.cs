@@ -4,8 +4,8 @@ using Placely.Data.Entities;
 
 namespace Placely.Data.Repositories;
 
-public class NotificationRepository(AppDbContext appDbContext) 
-    : Repository<Notification>(appDbContext), INotificationRepository
+public class NotificationRepository(ILogger logger, AppDbContext appDbContext) 
+    : Repository<Notification>(logger, appDbContext), INotificationRepository
 {
     
 }

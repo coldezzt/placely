@@ -11,7 +11,7 @@ public class RatingUpdaterService(
         var properties = propertyRepo.GetPropertiesByFilter().ToList();
         foreach (var property in properties)
         {
-            var reviews = await propertyRepo.GetListByPropertyIdAsync(property.Id);
+            var reviews = await propertyRepo.GetReviewsListByIdAsync(property.Id);
             property.Rating = reviews.Sum(static review => review.Rating) / reviews.Count;
         }
 

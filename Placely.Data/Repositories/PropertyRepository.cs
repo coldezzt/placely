@@ -5,19 +5,28 @@ using Placely.Data.Entities;
 
 namespace Placely.Data.Repositories;
 
-public class PropertyRepository(AppDbContext appDbContext) 
-    : Repository<Property>(appDbContext), IPropertyRepository
+public class PropertyRepository(ILogger logger, AppDbContext appDbContext) 
+    : Repository<Property>(logger, appDbContext), IPropertyRepository
 {
     public IQueryable<Property> GetPropertiesByFilter(Func<Property, bool>? predicate)
     {
-        return predicate is not null 
+        logger.Log(LogLevel.Debug, "Begin getting properties list with predicate");
+
+        var result = predicate is not null 
             ? appDbContext.Properties.Where(b => predicate(b)) 
             : appDbContext.Properties;
+        
+        logger.Log(LogLevel.Debug, "Successfully got properties list with predicate");
+        return result;
     }
     
-    public async Task<List<Review>> GetListByPropertyIdAsync(long propertyId)
+    public async Task<List<Review>> GetReviewsListByIdAsync(long propertyId)
     {
+        logger.Log(LogLevel.Debug, $"Begin getting reviews list of property with Id: {propertyId}");
+        
         var reviews = await appDbContext.Reviews.Where(r => r.PropertyId == propertyId).ToListAsync();
+        
+        logger.Log(LogLevel.Debug, $"Successfully got reviews list of property with Id: {propertyId}");
         return reviews;
     }
 }

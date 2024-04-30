@@ -5,14 +5,18 @@ using Placely.Data.Entities;
 
 namespace Placely.Data.Repositories;
 
-public class ChatRepository(AppDbContext appDbContext) 
-    : Repository<Chat>(appDbContext), IChatRepository
+public class ChatRepository(ILogger logger, AppDbContext appDbContext) 
+    : Repository<Chat>(logger, appDbContext), IChatRepository
 {
     public async Task<List<Chat>> GetListByUserId(long userId)
     {
+        logger.Log(LogLevel.Debug, $"Begin getting chats list of user with Id: {userId}");
+
         var chats = await appDbContext.Chats
             .Where(c => c.FirstUserId == userId || c.SecondUserId == userId)
             .ToListAsync();
+        
+        logger.Log(LogLevel.Debug, $"Successfully got chats list of user with Id: {userId}");
         return chats;
     }
 }

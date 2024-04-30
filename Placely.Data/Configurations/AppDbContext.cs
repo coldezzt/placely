@@ -5,8 +5,10 @@ using Placely.Data.Models;
 
 namespace Placely.Data.Configurations;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext : DbContext
 {
+    private readonly ILogger _logger;
+    
     #region Database sets
     
     public DbSet<Tenant> Tenants => Set<Tenant>();
@@ -22,15 +24,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Chat> Chats => Set<Chat>();
     
     #endregion
-
+    
+    public AppDbContext(ILogger logger, DbContextOptions<AppDbContext> options) : base(options)
+    {
+        _logger = logger;
+        SavingChanges += (_, _) => 
+            _logger.Log(LogLevel.Information, $"Begin saving changes in context: {ContextId}");
+        SavedChanges += (_, _) =>
+            _logger.Log(LogLevel.Information, $"Successfully saved changes in context: {ContextId}");
+    }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        _logger.Log(LogLevel.Information, $"Begin configuring AppDbContext in context: {ContextId}");
         optionsBuilder.UseLazyLoadingProxies();
         base.OnConfiguring(optionsBuilder);
+        _logger.Log(LogLevel.Information, $"Successfully configured AppDbContext in context: {ContextId}");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        _logger.Log(LogLevel.Information, "Begin creating models for AppDbContext.");
+        
         #region Entities configuration
         
         modelBuilder.ApplyConfiguration(new PropertyEntityConfiguration());
@@ -39,7 +54,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.ApplyConfiguration(new ChatEntityConfiguration());
 
         #endregion
-
+        _logger.Log(LogLevel.Information, "Applied configurations for AppDbContext.");
+        
         #region Seeding
         
         SeedingStartedTenant(modelBuilder);
@@ -57,8 +73,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         SeedingStartedMessages(modelBuilder);
         
         #endregion
+        _logger.Log(LogLevel.Information, "Applied seeding for AppDbContext.");
 
         base.OnModelCreating(modelBuilder);
+        _logger.Log(LogLevel.Information, $"Successfully created models for AppDbContext.");
     }
 
     #region Seeding methods

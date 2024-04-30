@@ -4,8 +4,8 @@ using Placely.Data.Entities;
 
 namespace Placely.Data.Repositories;
 
-public class ReservationRepository(AppDbContext appDbContext) 
-    : Repository<Reservation>(appDbContext), IReservationRepository
+public class ReservationRepository(ILogger logger, AppDbContext appDbContext) 
+    : Repository<Reservation>(logger, appDbContext), IReservationRepository
 {
     
 }

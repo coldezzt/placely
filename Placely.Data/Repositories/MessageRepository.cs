@@ -6,11 +6,13 @@ using Placely.Data.Exceptions;
 
 namespace Placely.Data.Repositories;
 
-public class MessageRepository(AppDbContext appDbContext) 
-    : Repository<Message>(appDbContext), IMessageRepository
+public class MessageRepository(ILogger logger, AppDbContext appDbContext) 
+    : Repository<Message>(logger, appDbContext), IMessageRepository
 {
     public async Task<List<Message>> GetList(long chatId)
     {
+        logger.Log(LogLevel.Debug, $"Begin getting messages list of chat with Id: {chatId}");
+
         var dbChat = await appDbContext.Chats
             .Include(static chat => chat.Messages)
             .FirstOrDefaultAsync(c => c.Id == chatId);
@@ -18,6 +20,7 @@ public class MessageRepository(AppDbContext appDbContext)
         if (dbChat is null)
             throw new EntityNotFoundException(typeof(Chat), chatId.ToString());
 
+        logger.Log(LogLevel.Debug, $"Successfully got messages list of chat with Id: {chatId}");
         return dbChat.Messages;
     }
 }

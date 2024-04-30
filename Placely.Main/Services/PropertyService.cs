@@ -88,7 +88,7 @@ public class PropertyService(
     
     public async Task<List<Review>> GetListByPropertyIdAsync(long propertyId, int extraLoadNumber = 0)
     {
-        var reviews = await propertyRepo.GetListByPropertyIdAsync(propertyId);
+        var reviews = await propertyRepo.GetReviewsListByIdAsync(propertyId);
         return reviews
             .OrderByDescending(static r => r.Date)
             .Skip((extraLoadNumber - 1) * 10)

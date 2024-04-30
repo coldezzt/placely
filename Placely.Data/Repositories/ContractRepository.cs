@@ -4,8 +4,8 @@ using Placely.Data.Entities;
 
 namespace Placely.Data.Repositories;
 
-public class ContractRepository(AppDbContext appDbContext) 
-    : Repository<Contract>(appDbContext), IContractRepository
+public class ContractRepository(ILogger logger, AppDbContext appDbContext) 
+    : Repository<Contract>(logger, appDbContext), IContractRepository
 {
     
 }
