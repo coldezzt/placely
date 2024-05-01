@@ -24,7 +24,7 @@ public class AuthorizationService(
     {
         logger.Log(LogLevel.Trace, "Begin authorize user with email {Email}", dto.Email);
         var dbTenant = await tenantRepo.GetByEmailAsync(dto.Email);
-        if (!PasswordHasher.Validate(dbTenant.Password, dto.Password))
+        if (!PasswordHasher.IsValid(dbTenant.Password, dto.Password))
         {
             logger.Log(LogLevel.Information, "Authorization user with email {Email} failed due to: wrong password.", dto.Email);
             return new AuthorizationResult { IsSuccess = false, Error = "Неверный пароль!" };

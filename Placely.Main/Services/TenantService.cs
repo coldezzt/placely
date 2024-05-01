@@ -39,22 +39,39 @@ public class TenantService(
     }
     
     // TODO: Кажется что логика слишком простая
-    public async Task<Tenant> ChangeSettingsAsync(Tenant tenant)
+    public async Task<Tenant> PatchSettingsAsync(Tenant tenant)
     {
-        logger.Log(LogLevel.Trace, "Begin updating changes for user: {@tenant}", tenant);
+        logger.Log(LogLevel.Trace, "Begin updating settings for user: {@tenant}", tenant);
         var dbTenant = await tenantRepo.GetByIdAsync(tenant.Id);
 
-        dbTenant.Name = tenant.Name;
-        dbTenant.PhoneNumber = tenant.PhoneNumber;
         dbTenant.AvatarPath = tenant.AvatarPath;
         dbTenant.About = tenant.About;
         dbTenant.Work = tenant.Work;
-        logger.Log(LogLevel.Trace, "Updated changes for user: {@tenant}", tenant);
+        
+        logger.Log(LogLevel.Trace, "Updated settings for user: {@tenant}", tenant);
 
         var result = await tenantRepo.UpdateAsync(dbTenant);
         await tenantRepo.SaveChangesAsync();
         
-        logger.Log(LogLevel.Information, "Successfully updated and saved changes for user: {@tenant}", tenant);
+        logger.Log(LogLevel.Information, "Successfully updated and saved settings for user: {@tenant}", tenant);
+        return result;
+    }
+
+    public async Task<Tenant> PatchSensitiveSettingsAsync(Tenant tenant)
+    {
+        logger.Log(LogLevel.Trace, "Begin updating sensitive settings for user: {@tenant}", tenant);
+        var dbTenant = await tenantRepo.GetByIdAsync(tenant.Id);
+
+        dbTenant.Name = tenant.Name;
+        dbTenant.PhoneNumber = tenant.PhoneNumber;
+        dbTenant.Email = tenant.Email;
+        dbTenant.Password = tenant.Password;
+        logger.Log(LogLevel.Trace, "Updated sensitive settings for user: {@tenant}", tenant);
+
+        var result = await tenantRepo.UpdateAsync(dbTenant);
+        await tenantRepo.SaveChangesAsync();
+        
+        logger.Log(LogLevel.Information, "Successfully updated and saved sensitive settings for user: {@tenant}", tenant);
         return result;
     }
 
@@ -66,7 +83,7 @@ public class TenantService(
         return result;
     }
 
-    public async Task<Property> RemovePropertyFromFavouritesAsync(long tenantId, long propertyId)
+    public async Task<Property> DeletePropertyFromFavouritesAsync(long tenantId, long propertyId)
     {
         logger.Log(LogLevel.Trace, "Begin removing property from favourites." +
                                    "UserId: {userId}. PropertyId: {propertyId}.", tenantId, propertyId);

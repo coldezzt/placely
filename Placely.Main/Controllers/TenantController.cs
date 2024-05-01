@@ -8,6 +8,7 @@ using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;
 using Placely.Data.Entities;
 using Placely.Data.Models;
+using Placely.Main.Services.Utils;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.Main.Controllers;
@@ -17,7 +18,8 @@ namespace Placely.Main.Controllers;
 public class TenantController(
     ITenantService service,
     IMapper mapper,
-    IValidator<TenantDto> validator) : ControllerBase
+    IValidator<TenantDto> validator,
+    IValidator<SensitiveTenantDto> sensitiveDtoValidator) : ControllerBase
 {
     [SwaggerOperation(
         summary: "Получает публичные данные пользователя",
@@ -143,11 +145,38 @@ public class TenantController(
         
         var tenant = mapper.Map<Tenant>(dto);
         tenant.Id = tenantId;
-        var result = await service.ChangeSettingsAsync(tenant);
+        var result = await service.PatchSettingsAsync(tenant);
         var response = mapper.Map<TenantDto>(result);
         return Ok(response);
     }
 
+    [HttpPatch("my/sensitive/settings")]
+    public async Task<IActionResult> UpdateSensitiveSettings(
+        [FromBody] SensitiveTenantDto dto)
+    {
+        var validationResult = await sensitiveDtoValidator.ValidateAsync(dto);
+        if (!validationResult.IsValid)
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+
+        var tenantId = long.Parse(
+            User.FindFirstValue(CustomClaimTypes.UserId)!,
+            NumberStyles.Any,
+            CultureInfo.InvariantCulture);
+
+        var dbTenant = await service.GetByIdAsync(tenantId);
+        if (PasswordHasher.IsValid(dto.OldPassword, dbTenant.Password))
+            return Forbid();
+
+        if (dbTenant.PreviousPasswords?.Select(pp => pp.Password == dto.NewPassword).Any() ?? false)
+            return BadRequest();
+        
+        var tenant = mapper.Map<Tenant>(dto);
+        tenant.Id = tenantId;
+        var result = await service.PatchSensitiveSettingsAsync(tenant);
+        var response = mapper.Map<SensitiveTenantDto>(result);
+        return Ok(response);
+    }
+    
     [SwaggerOperation(
         summary: "Удаляет аккаунт пользователя")]
     [SwaggerResponse(
@@ -190,7 +219,7 @@ public class TenantController(
             NumberStyles.Any,
             CultureInfo.InvariantCulture);
 
-        var property = await service.RemovePropertyFromFavouritesAsync(tenantId, propertyId);
+        var property = await service.DeletePropertyFromFavouritesAsync(tenantId, propertyId);
         var response = mapper.Map<PropertyDto>(property);
         return Ok(response);
     }

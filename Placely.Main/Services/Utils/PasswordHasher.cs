@@ -17,7 +17,7 @@ public static class PasswordHasher
         return string.Join(SaltDelimiter, Convert.ToBase64String(salt), Convert.ToBase64String(hash));
     }
     
-    public static bool Validate(string passwordHash, string password)
+    public static bool IsValid(string passwordHash, string password)
     {
         var pwdElements = passwordHash.Split(SaltDelimiter);
         var salt = Convert.FromBase64String(pwdElements[0]);

@@ -65,6 +65,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
         services.AddScoped<IValidator<ReservationDto>, ReservationDtoValidator>();
         services.AddScoped<IValidator<ReviewDto>, ReviewDtoValidator>();
+        services.AddScoped<IValidator<SensitiveTenantDto>, SensitiveTenantDtoValidator>();
         services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
         
         return services;
