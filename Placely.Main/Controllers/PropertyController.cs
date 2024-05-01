@@ -16,145 +16,83 @@ namespace Placely.Main.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 public class PropertyController(
-    IPropertyService service,
-    IMapper mapper,
-    IValidator<PropertyDto> validator) : ControllerBase
+    IPropertyService service, IMapper mapper, IValidator<PropertyDto> validator) : ControllerBase
 {
-    [SwaggerOperation(
-        summary: "Получает информацию по имуществу по его идентификатору",
-        description: "Доступен всем.")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Информация об имуществе.",
-        type: typeof(PropertyDto),
-        contentTypes: "application/json")]
+    [SwaggerOperation("Получает информацию по имуществу по его идентификатору", "Доступен всем.")]
+    [SwaggerResponse(200, "Информация об имуществе.", typeof(PropertyDto), "application/json")]
     [AllowAnonymous, HttpGet("{propertyId:long}")]
     public async Task<IActionResult> GetById(
-        [SwaggerParameter(description: "Идентификатор имущества.", Required = true)] long propertyId)
+        [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId = 1)
     {
         var property = await service.GetByIdAsync(propertyId);
         var result = mapper.Map<PropertyDto>(property);
         return Ok(result);
     }
 
-    [SwaggerOperation(
-        summary: "Предлагает продолжение адреса",
-        description: """
-                     Доступен всем. 
-                     
-                     Получает на вход строку с адресом и пытается предположить какой адрес будет дальше.
-                     """)]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Список предполагаемых адресов.",
-        type: typeof(List<string>),
-        contentTypes: "application/json")]
+    [SwaggerOperation("Предлагает продолжение адреса", """
+                                                       Доступен всем.
+
+                                                       Получает на вход строку с адресом и пытается предположить какой адрес будет дальше.
+                                                       """)]
+    [SwaggerResponse(200, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
     [AllowAnonymous, HttpGet("suggestion")]
     public async Task<IActionResult> GetAddressSuggestion(
-        [FromQuery]
-        [SwaggerParameter(
-            description: "Адрес для предположения",
-            Required = true)]
-        string address)
+        [FromQuery] [SwaggerParameter("Адрес для предположения", Required = true)] string address)
     {
         var result = await service.GetAddressSuggestionAsync(address);
         return Ok(result);
     }
-    
-    [SwaggerOperation(
-        summary: "Получает список имуществ по фильтрам")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Список предполагаемых адресов.",
-        type: typeof(List<string>),
-        contentTypes: "application/json")]
+
+    [SwaggerOperation("Получает список имуществ по фильтрам")]
+    [SwaggerResponse(200, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
     [AllowAnonymous, HttpGet("catalog/page/{pageNumber:int}")]
     public async Task<IActionResult> GetCatalog(
-        [FromQuery] [SwaggerParameter(description: "Фильтры.")] Dictionary<SearchParameter, string> searchParameters,
-        [FromQuery] [SwaggerParameter(description: "Количество элементов на странице.")] int amount,
-        [FromRoute] [SwaggerParameter(description: "Текущая страница каталога.")] int pageNumber)
+        [FromQuery] [SwaggerParameter("Фильтры.")] Dictionary<SearchParameter, string> searchParameters,
+        [FromQuery] [SwaggerParameter("Количество элементов на странице.")] int amount,
+        [FromRoute] [SwaggerParameter("Текущая страница каталога.")] int pageNumber)
     {
         var result = await service.GetChunkByFilterAsync(searchParameters, pageNumber, amount);
         var response = mapper.Map<List<PropertyDto>>(result);
         return Ok(response);
     }
-    
-    [SwaggerOperation(
-        summary: "Публикует имущество",
-        description: "Если у пользователя нет контактного адреса, не добавляет имущество.")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Информация о созданном имуществе.",
-        type: typeof(PropertyDto),
-        contentTypes: "application/json")]
-    [SwaggerResponse(
-        statusCode: 401,
-        description: "Пользователь не авторизован.")]
-    [SwaggerResponse(
-        statusCode: 422,
-        description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(ValidationResult),
-        contentTypes: "application/json")]
+
+    [SwaggerOperation("Публикует имущество", "Если у пользователя нет контактного адреса, не добавляет имущество.")]
+    [SwaggerResponse(200, "Информация о созданном имуществе.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(ValidationResult),
+        "application/json")]
     [HttpPost]
     public async Task<IActionResult> Create(
-        [FromBody] 
-        [SwaggerRequestBody(
-            description: "Полная информация об имуществе, необходимая для его публикации.", 
-            Required = true)] 
+        [FromBody]
+        [SwaggerRequestBody("Полная информация об имуществе, необходимая для его публикации.", Required = true)]
         PropertyDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
-        if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
-        
+        if (!validationResult.IsValid) return UnprocessableEntity(validationResult.Errors);
         var property = mapper.Map<Property>(dto);
         var createdProperty = await service.AddAsync(property);
         var result = mapper.Map<PropertyDto>(createdProperty);
         return Ok(result);
     }
-    
-    [SwaggerOperation(
-        summary: "Обновляет имущество пользователя",
-        description: "Нельзя обновить чужое имущество.")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Обновлённая информация по имуществу.",
-        type: typeof(PropertyDto),
-        contentTypes: "application/json")]
-    [SwaggerResponse(
-        statusCode: 401,
-        description: "Пользователь не авторизован.")]
-    [SwaggerResponse(
-        statusCode: 403,
-        description: "Попытка обновить чужое имущество.")]
-    [SwaggerResponse(
-        statusCode: 422,
-        description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(ValidationResult),
-        contentTypes: "application/json")]
+
+    [SwaggerOperation("Обновляет имущество пользователя", "Нельзя обновить чужое имущество.")]
+    [SwaggerResponse(200, "Обновлённая информация по имуществу.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(403, "Попытка обновить чужое имущество.")]
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(ValidationResult),
+        "application/json")]
     [HttpPatch("my/{propertyId:long}")]
     public async Task<IActionResult> Patch(
-        [SwaggerParameter(description: "Идентификатор имущества.", Required = true)] 
-        long propertyId, 
-        [FromBody] 
-        [SwaggerRequestBody(
-            description: "Данные для обновления имущества.",
-            Required = true)]
-        PropertyDto dto)
+        [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId,
+        [FromBody] [SwaggerRequestBody("Данные для обновления имущества.", Required = true)] PropertyDto dto)
     {
-        var currentUserId = long.Parse(
-            User.FindFirstValue(CustomClaimTypes.UserId)!, 
-            NumberStyles.Any, 
+        var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-
         var dbProperty = await service.GetByIdAsync(propertyId);
-        if (dbProperty.OwnerId != currentUserId)
-            return Forbid();
-        
+        if (dbProperty.OwnerId != currentUserId) return Forbid();
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
-        
         dto.Id = propertyId;
         var property = mapper.Map<Property>(dto);
         var updatedProperty = await service.UpdateAsync(property);
@@ -162,39 +100,23 @@ public class PropertyController(
         return Ok(result);
     }
 
-    [SwaggerOperation(
-        summary: "Удаляет имущество пользователя",
-        description: "Нельзя удалить чужое имущество.")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Данные удалённого имущества.", 
-        type: typeof(PropertyDto),
-        contentTypes: "application/json")]
-    [SwaggerResponse(
-        statusCode: 401,
-        description: "Пользователь не авторизован.")]
-    [SwaggerResponse(
-        statusCode: 403,
-        description: "Попытка удалить чужое имущество.")]
+    [SwaggerOperation("Удаляет имущество пользователя", "Нельзя удалить чужое имущество.")]
+    [SwaggerResponse(200, "Данные удалённого имущества.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(403, "Попытка удалить чужое имущество.")]
     [HttpDelete("my/{propertyId:long}")]
     public async Task<IActionResult> Delete(
-        [SwaggerParameter(description: "Идентификатор имущества.", Required = true)]
-        long propertyId)
+        [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId)
     {
-        var currentUserId = long.Parse(
-            User.FindFirstValue(CustomClaimTypes.UserId)!, 
-            NumberStyles.Any, 
+        var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-
         var dbProperty = await service.GetByIdAsync(propertyId);
-        if (dbProperty.OwnerId != currentUserId)
-            return Forbid();
-        
+        if (dbProperty.OwnerId != currentUserId) return Forbid();
         var property = await service.DeleteAsync(propertyId);
         var response = mapper.Map<PropertyDto>(property);
         return Ok(response);
     }
-    
+
     [SwaggerOperation]
     [AllowAnonymous, HttpGet("{propertyId:long}/reviews/{page:int}")]
     public async Task<IActionResult> GetListByPropertyId(long propertyId, int page)

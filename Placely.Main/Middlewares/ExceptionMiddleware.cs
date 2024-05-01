@@ -3,7 +3,6 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Placely.Data.Exceptions;
 using Placely.Main.Exceptions;
-using Serilog;
 
 namespace Placely.Main.Middlewares;
 

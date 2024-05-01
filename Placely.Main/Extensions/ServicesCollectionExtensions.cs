@@ -29,6 +29,7 @@ public static class ServicesCollectionExtensions
     {
         services.AddScoped<IChatRepository, ChatRepository>();
         services.AddScoped<IContractRepository, ContractRepository>();
+        services.AddScoped<ILandlordRepository, LandlordRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IPropertyRepository, PropertyRepository>();

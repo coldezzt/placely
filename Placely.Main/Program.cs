@@ -14,15 +14,15 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-    
+
     Log.Logger.Information("Begin configuring application builder.");
-    
+
     // Конфигурация
     builder.Configuration
-        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile("appsettings.json", true, true)
         .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
     Log.Logger.Verbose("Added application configuration files.");
-    
+
     // Настройка сервисов. Всё что возвращает IServiceCollection
     builder.Services
         .AddConfiguredSerilog(builder.Configuration)
@@ -102,6 +102,10 @@ catch (Exception ex)
 // TODO: задать дефолтные значения для полей (чтобы в swagger круто выглядело)
 // TODO: починить чаты - скорее всего они неверно работают (отправляют сообщения не только участникам чата, а ВСЕМ участникам хаба)
 // TODO: добавить метод фильтрования имуществ, убрать сборку делегата - заменить хардкодом, по причине того что EF не умеет разбирать предикат в sql запрос. (нашёл библу (уже установлена), проверить её работу)
+// TODO: добавить метод загрузки собственного шаблона договора и полей к нему
+// TODO: разобраться с путями для хэндлинга файлов - там по-моему вообще всё неправильно работает
+
+// TODO: Перед тем чтобы приступить к нижним TODO нужно сначала всё протестить и написать юз кейсы, а затем выкатить релиз скорее всего
 
 //? TODO: заменить почти все логи в конце методов на тип Debug - они не подходят под инфу т.к. всё равно слишком подробные, но и под Trace не подходят - не достаточно подробны.
 //? TODO: разделить проект Placely.Data. реализация доступа к бд, абстракция доступа к бд, реализация сервисов, абстракции сервисов.

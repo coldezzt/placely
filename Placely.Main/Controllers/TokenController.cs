@@ -8,24 +8,13 @@ namespace Placely.Main.Controllers;
 
 [Authorize]
 [Route("api/[controller]")]
-public class TokenController(
-    IAuthorizationService service) : ControllerBase
+public class TokenController(IAuthorizationService service) : ControllerBase
 {
-    [SwaggerOperation(
-        summary: "Обновляет токены доступа пользователя",
-        description: "Для обновления необходимы старые токены.")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Обновлённые токены пользователя. ",
-        type: typeof(TokenDto),
-        contentTypes: "application/json")]
+    [SwaggerOperation("Обновляет токены доступа пользователя", "Для обновления необходимы старые токены.")]
+    [SwaggerResponse(200, "Обновлённые токены пользователя. ", typeof(TokenDto), "application/json")]
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh(
-        [FromBody] 
-        [SwaggerRequestBody(
-            description: "Старые токены доступа.",
-            Required = true)]
-        TokenDto tokenDto)
+        [FromBody] [SwaggerRequestBody("Старые токены доступа.", Required = true)] TokenDto tokenDto)
     {
         var result = await service.RefreshTokenAsync(tokenDto);
         return Ok(result);

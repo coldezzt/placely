@@ -11,7 +11,6 @@ using Placely.Data.Entities;
 using Placely.Data.Models;
 using Placely.Main.Exceptions;
 using Placely.Main.Services.Utils;
-using Serilog;
 
 namespace Placely.Main.Services;
 

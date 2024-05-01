@@ -92,7 +92,6 @@ public class AppDbContext : DbContext
                 PhoneNumber = "111 1111 11 11",
                 Email = "test.tenant.1@email.domen",
                 Password = "test.tenant.1@email.domen",
-                AvatarPath = "",
                 About = "I'm test tenant 1",
                 Work = "I'm working nowhere"
             }, new()
@@ -102,7 +101,6 @@ public class AppDbContext : DbContext
                 PhoneNumber = "222 2222 22 22",
                 Email = "test.tenant.2@email.domen",
                 Password = "test.tenant.2@email.domen",
-                AvatarPath = "",
                 About = "I'm test tenant 2",
                 Work = "I'm working nowhere"
             }, new()
@@ -112,7 +110,6 @@ public class AppDbContext : DbContext
                 PhoneNumber = "333 3333 33 33",
                 Email = "test.tenant.3@email.domen",
                 Password = "test.tenant.3@email.domen",
-                AvatarPath = "",
                 About = "I'm test tenant 3",
                 Work = "I'm working nowhere"
             }, new()
@@ -122,7 +119,6 @@ public class AppDbContext : DbContext
                 PhoneNumber = "111 1111 11 11",
                 Email = "test.landlord.1@email.domen",
                 Password = "test.landlord.1@email.domen",
-                AvatarPath = "",
                 About = "I'm test landlord 1",
                 Work = "I'm working here"
             }, new()
@@ -132,7 +128,6 @@ public class AppDbContext : DbContext
                 PhoneNumber = "222 2222 22 22",
                 Email = "test.landlord.2@email.domen",
                 Password = "test.landlord.2@email.domen",
-                AvatarPath = "",
                 About = "I'm test landlord 2",
                 Work = "I'm working here"
             }, new()
@@ -142,7 +137,6 @@ public class AppDbContext : DbContext
                 PhoneNumber = "333 3333 33 33",
                 Email = "test.landlord.3@email.domen",
                 Password = "test.landlord.3@email.domen",
-                AvatarPath = "",
                 About = "I'm test landlord 3",
                 Work = "I'm working here"
             }

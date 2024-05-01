@@ -43,7 +43,6 @@ public class TenantService(
         logger.Log(LogLevel.Trace, "Begin updating settings for user: {@tenant}", tenant);
         var dbTenant = await tenantRepo.GetByIdAsync(tenant.Id);
 
-        dbTenant.AvatarPath = tenant.AvatarPath;
         dbTenant.About = tenant.About;
         dbTenant.Work = tenant.Work;
         

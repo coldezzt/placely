@@ -50,7 +50,7 @@ public class MessageService(
     {
         var fullPath = Path.Combine(env.WebRootPath, filePath);
         if (!Path.Exists(fullPath))
-            return "";
+            return fullPath;
         
         File.Delete(fullPath);
         return fullPath;

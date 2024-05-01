@@ -25,6 +25,7 @@ public class ChatService(
         var dbChat = await chatRepo.TryGetByUsers(firstUser, secondUser);
         if (dbChat is not null)
         {
+            logger.Log(LogLevel.Debug, "Chat already exists. Between: {user1} and {user2}", firstUser, secondUser);
             return dbChat;
         }
         
