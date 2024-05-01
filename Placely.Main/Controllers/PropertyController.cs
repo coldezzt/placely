@@ -16,9 +16,9 @@ namespace Placely.Main.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 public class PropertyController(
-    IValidator<PropertyDto> validator,
-    IPropertyService service, 
-    IMapper mapper) : ControllerBase
+    IPropertyService service,
+    IMapper mapper,
+    IValidator<PropertyDto> validator) : ControllerBase
 {
     [SwaggerOperation(
         summary: "Получает информацию по имуществу по его идентификатору",
@@ -96,7 +96,7 @@ public class PropertyController(
         type: typeof(ValidationResult),
         contentTypes: "application/json")]
     [HttpPost]
-    public async Task<IActionResult> Publish(
+    public async Task<IActionResult> Create(
         [FromBody] 
         [SwaggerRequestBody(
             description: "Полная информация об имуществе, необходимая для его публикации.", 
@@ -133,7 +133,7 @@ public class PropertyController(
         type: typeof(ValidationResult),
         contentTypes: "application/json")]
     [HttpPatch("my/{propertyId:long}")]
-    public async Task<IActionResult> Update(
+    public async Task<IActionResult> Patch(
         [SwaggerParameter(description: "Идентификатор имущества.", Required = true)] 
         long propertyId, 
         [FromBody] 
@@ -151,11 +151,11 @@ public class PropertyController(
         if (dbProperty.OwnerId != currentUserId)
             return Forbid();
         
-        dto.Id = propertyId;
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
         
+        dto.Id = propertyId;
         var property = mapper.Map<Property>(dto);
         var updatedProperty = await service.UpdateAsync(property);
         var result = mapper.Map<PropertyDto>(updatedProperty);

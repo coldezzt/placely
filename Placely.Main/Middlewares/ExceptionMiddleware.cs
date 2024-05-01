@@ -25,13 +25,14 @@ public class ExceptionMiddleware(
             
             var statusCode = e switch
             {
-                AutoMapperMappingException      => 400,
-                RefreshTokenBadRequestException => 400,
-                EntityNotFoundException         => 404,
-                AddressException                => 422,
-                ContractServiceException        => 422,
-                DbUpdateException               => 503,
-                _ => 500
+                AutoMapperMappingException      => StatusCodes.Status400BadRequest,
+                RefreshTokenBadRequestException => StatusCodes.Status400BadRequest,
+                EntityNotFoundException         => StatusCodes.Status404NotFound,
+                ConflictException               => StatusCodes.Status409Conflict,
+                AddressException                => StatusCodes.Status422UnprocessableEntity,
+                ContractServiceException        => StatusCodes.Status422UnprocessableEntity,
+                DbUpdateException               => StatusCodes.Status503ServiceUnavailable,
+                _                               => StatusCodes.Status500InternalServerError,
             };
 
             context.Response.Clear();
@@ -44,7 +45,7 @@ public class ExceptionMiddleware(
                 Exception = SerializeException(e)
             };
 
-            logger.Log(LogLevel.Information, "Responded with: {@response}", response);
+            logger.Log(LogLevel.Debug, "Responded with: {@response}", response);
             var body = JsonSerializer.Serialize(response);
             await context.Response.WriteAsync(body);
         }

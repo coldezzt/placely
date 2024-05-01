@@ -106,7 +106,7 @@ public class AuthorizationService(
 
         if (tenant.IsTwoFactorEnabled)
         {
-            logger.Log(LogLevel.Information, "Successfully apply 2FA to user with {Email}.", email);
+            logger.Log(LogLevel.Information, "2FA already applied to user with {Email}.", email);
             return new TwoFactorAuthenticationModel
             {
                 ManualEntryKey = tenant.ManualEntryKey!,

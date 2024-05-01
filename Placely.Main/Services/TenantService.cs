@@ -38,7 +38,6 @@ public class TenantService(
         return favourites;
     }
     
-    // TODO: Кажется что логика слишком простая
     public async Task<Tenant> PatchSettingsAsync(Tenant tenant)
     {
         logger.Log(LogLevel.Trace, "Begin updating settings for user: {@tenant}", tenant);

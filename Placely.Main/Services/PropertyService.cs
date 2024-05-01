@@ -10,6 +10,7 @@ namespace Placely.Main.Services;
 
 public class PropertyService(
     ILogger<PropertyService> logger,
+    ILandlordRepository landlordRepo,
     IPropertyRepository propertyRepo,
     IDadataAddressService dadataAddressService) : IPropertyService
 {
@@ -26,6 +27,10 @@ public class PropertyService(
         var parsedAddress = await dadataAddressService.NormalizeAddressAsync(address);
         if (parsedAddress.unparsed_parts != null)
             throw new AddressException("Адрес содержит части, которые не могут быть нормализованы.");
+
+        var dbLandlord = await landlordRepo.GetByIdAsync(property.OwnerId);
+        if (dbLandlord.ContactAddress is null or "")
+            throw new AddressException("Контактный адрес не может быть пуст.");
         
         var dbEntity = await propertyRepo.AddAsync(property);
         await propertyRepo.SaveChangesAsync();
