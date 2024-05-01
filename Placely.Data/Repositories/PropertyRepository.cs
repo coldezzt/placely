@@ -1,3 +1,4 @@
+using LinqKit.Core;
 using Microsoft.EntityFrameworkCore;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Configurations;
@@ -8,12 +9,12 @@ namespace Placely.Data.Repositories;
 public class PropertyRepository(ILogger<PropertyRepository> logger, AppDbContext appDbContext) 
     : Repository<Property>(logger, appDbContext), IPropertyRepository
 {
-    public IQueryable<Property> GetPropertiesByFilter(Func<Property, bool>? predicate)
+    public IEnumerable<Property> GetPropertiesByFilter(Func<Property, bool>? predicate)
     {
         logger.Log(LogLevel.Debug, "Begin getting properties list with predicate");
 
         var result = predicate is not null 
-            ? appDbContext.Properties.Where(b => predicate(b)) 
+            ? appDbContext.Properties.AsExpandable().AsEnumerable().Where(predicate)
             : appDbContext.Properties;
         
         logger.Log(LogLevel.Debug, "Successfully got properties list with predicate");

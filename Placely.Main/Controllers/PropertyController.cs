@@ -29,11 +29,12 @@ public class PropertyController(
         return Ok(result);
     }
 
-    [SwaggerOperation("Предлагает продолжение адреса", """
-                                                       Доступен всем.
+    [SwaggerOperation("Предлагает продолжение адреса", 
+        """
+        Доступен всем.
 
-                                                       Получает на вход строку с адресом и пытается предположить какой адрес будет дальше.
-                                                       """)]
+        Получает на вход строку с адресом и пытается предположить какой адрес будет дальше.
+        """)]
     [SwaggerResponse(200, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
     [AllowAnonymous, HttpGet("suggestion")]
     public async Task<IActionResult> GetAddressSuggestion(
@@ -45,10 +46,10 @@ public class PropertyController(
 
     [SwaggerOperation("Получает список имуществ по фильтрам")]
     [SwaggerResponse(200, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
-    [AllowAnonymous, HttpGet("catalog/page/{pageNumber:int}")]
+    [AllowAnonymous, HttpGet("catalog/page/{pageNumber:int}/take/{amount:int}")]
     public async Task<IActionResult> GetCatalog(
         [FromQuery] [SwaggerParameter("Фильтры.")] Dictionary<SearchParameter, string> searchParameters,
-        [FromQuery] [SwaggerParameter("Количество элементов на странице.")] int amount,
+        [FromRoute] [SwaggerParameter("Количество элементов на странице.")] int amount,
         [FromRoute] [SwaggerParameter("Текущая страница каталога.")] int pageNumber)
     {
         var result = await service.GetChunkByFilterAsync(searchParameters, pageNumber, amount);

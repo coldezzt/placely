@@ -4,6 +4,6 @@ namespace Placely.Data.Abstractions.Repositories;
 
 public interface IPropertyRepository : IRepository<Property>
 {
-    public IQueryable<Property> GetPropertiesByFilter(Func<Property, bool>? predicate = null);
+    public IEnumerable<Property> GetPropertiesByFilter(Func<Property, bool>? predicate = null);
     public Task<List<Review>> GetReviewsListByIdAsync(long propertyId);
 }

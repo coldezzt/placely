@@ -1,5 +1,4 @@
 using LinqKit;
-using Microsoft.EntityFrameworkCore;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Entities;
@@ -68,7 +67,7 @@ public class PropertyService(
     public Task<List<Property>> GetChunkByFilterAsync(
         Dictionary<SearchParameter, string> searchParameters,
         int extraLoadNumber,
-        int amount)
+        int amount = 10)
     {
         // Сборка предиката
         var builder = PredicateBuilder.New<Property>();
@@ -80,26 +79,26 @@ public class PropertyService(
         var predicate = builder.Compile();
         
         // Получение данных
-        var properties = propertyRepo.GetPropertiesByFilter(predicate);
+        var properties = propertyRepo.GetPropertiesByFilter(predicate).ToList();
 
         // Сортировка
-        var ordered = (IOrderedQueryable<Property>) properties;
+        var ordered = properties.OrderBy(p => p.Id);
         if (searchParameters.TryGetValue(SearchParameter.New, out value)
             && bool.TryParse(value, out var isNew))
             ordered = isNew
-                ? properties.OrderByDescending(static p => p.PublicationDate)
-                : properties.OrderBy(static p => p.PublicationDate);
+                ? ordered.OrderByDescending(static p => p.PublicationDate)
+                : ordered.OrderBy(p => p.PublicationDate);
 
         if (searchParameters.TryGetValue(SearchParameter.HighRated, out value)
             && bool.TryParse(value, out var isHighRated))
             ordered = isHighRated
                 ? ordered.ThenByDescending(static p => p.Rating)
-                : ordered.ThenBy(static b => b.Rating);
+                : ordered.ThenBy(b => b.Rating);
         
         // Пагинация
-        var paginated = ordered.Skip((extraLoadNumber - 1) * amount).Take(amount).ToListAsync();
+        var paginated = ordered.Skip((extraLoadNumber - 1) * amount).Take(amount).ToList();
         
-        return paginated;
+        return Task.FromResult(paginated);
     }
     
     public async Task<List<Review>> GetReviewsListByIdAsync(long propertyId, int extraLoadNumber = 0)
