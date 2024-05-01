@@ -9,7 +9,7 @@ namespace Placely.Data.Repositories;
 public class MessageRepository(ILogger<MessageRepository> logger, AppDbContext appDbContext) 
     : Repository<Message>(logger, appDbContext), IMessageRepository
 {
-    public async Task<List<Message>> GetList(long chatId)
+    public async Task<List<Message>> GetListByChatIdAsync(long chatId)
     {
         logger.Log(LogLevel.Debug, $"Begin getting messages list of chat with Id: {chatId}");
 

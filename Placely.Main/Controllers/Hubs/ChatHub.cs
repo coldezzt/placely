@@ -74,7 +74,7 @@ public class ChatHub(
             return;
         }
         
-        var messages = await messageService.GetMessagesAsync(chatId);
+        var messages = await messageService.GetListAsync(chatId);
         var response = messages.Select(mapper.Map<MessageDto>);
         await Clients.Caller.SendAsync("LoadHistory", response);
     }
@@ -149,7 +149,7 @@ public class ChatHub(
         }
         
         var message = mapper.Map<Message>(dto);
-        var dbMessage = await messageService.AddMessageAsync(message);
+        var dbMessage = await messageService.AddAsync(message);
         var response = mapper.Map<MessageDto>(dbMessage);
         await Clients.All.SendAsync("ReceiveMessage", response);
     }

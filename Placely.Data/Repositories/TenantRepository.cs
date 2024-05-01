@@ -33,20 +33,20 @@ public class TenantRepository(ILogger<TenantRepository> logger, AppDbContext app
     {
         logger.Log(LogLevel.Information, "Begin adding or updating user according to it's existing. User: {@tenant}", tenant);
         var dbTenant = await appDbContext.Tenants.FirstOrDefaultAsync(t => t.Email == tenant.Email);
-        EntityEntry<Tenant> resultTenant;
+        EntityEntry<Tenant> resultTenantEntry;
         if (dbTenant is null)
         {
-            resultTenant = await appDbContext.Tenants.AddAsync(tenant);
+            resultTenantEntry = await appDbContext.Tenants.AddAsync(tenant);
             logger.Log(LogLevel.Information, "Successfully created user according to it's nonexistence. " +
-                                             "User: {@resultTenant}", resultTenant);
+                                             "User: {@resultTenant}", resultTenantEntry.Entity);
         }
         else
         {
-            resultTenant = appDbContext.Tenants.Update(tenant);
+            resultTenantEntry = appDbContext.Tenants.Update(tenant);
             logger.Log(LogLevel.Information, "Successfully updated user according to it's existence. " +
-                                             "User: {@resultTenant}", resultTenant);
+                                             "User: {@resultTenant}", resultTenantEntry.Entity);
         }
 
-        return resultTenant.Entity;
+        return resultTenantEntry.Entity;
     }
 }

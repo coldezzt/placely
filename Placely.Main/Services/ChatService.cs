@@ -18,10 +18,17 @@ public class ChatService(
         return await chatRepo.GetListByUserId(userId);
     }
 
-    public async Task<Chat> CreateAsync(Chat chat)
+    public async Task<Chat> CreateBetweenAsync(long firstUser, long secondUser)
     {
-        logger.Log(LogLevel.Trace, "Begin creating chat between: {user1} and {user2}", chat.FirstUserId, chat.SecondUserId);
+        logger.Log(LogLevel.Trace, "Begin creating chat between: {user1} and {user2}", firstUser, secondUser);
+
+        var dbChat = await chatRepo.TryGetByUsers(firstUser, secondUser);
+        if (dbChat is not null)
+        {
+            return dbChat;
+        }
         
+        var chat = new Chat { FirstUserId = firstUser, SecondUserId = secondUser };
         chat.DirectoryPath = "/chat-" + string.Join("-", new List<long> {chat.FirstUserId, chat.SecondUserId}.Order());
         
         var result = await chatRepo.AddAsync(chat);

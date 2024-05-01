@@ -106,7 +106,21 @@ public static class ServicesCollectionExtensions
                     ValidateLifetime = false
                 };
             })
-            .AddCookie()
+            .AddCookie(options =>
+            {
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToLogout = context => Task.FromResult("Logout!");
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = 403;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToReturnUrl = context => Task.FromResult("RedirectToReturnUrl!");
+            })
             .AddGoogle(options =>
             {
                 var googleConfig = configuration.GetSection("Authentication:Google");
@@ -234,8 +248,9 @@ public static class ServicesCollectionExtensions
                 .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
                 
-                .Destructure.ToMaximumStringLength(1024)
+                .Destructure.ToMaximumStringLength(128)
                 .Destructure.With(
+                    new ChatDestructingPolicy(),
                     new ContractDestructingPolicy(),
                     new MessageDestructingPolicy(),
                     new NotificationDestructingPolicy(),

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net.Mime;
 using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,8 @@ namespace Placely.Main.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 public class ChatController(
-    IChatService service,
+    IChatService chatService,
+    IMessageService messageService,
     IMapper mapper) : ControllerBase
 {
     [SwaggerOperation(
@@ -36,7 +38,7 @@ public class ChatController(
             NumberStyles.Any, 
             CultureInfo.InvariantCulture);
         
-        var result = await service.GetListByUserIdAsync(id);
+        var result = await chatService.GetListByUserIdAsync(id);
         var dtoList = result.Select(mapper.Map<ChatDto>);
         return Ok(dtoList);
     }
@@ -57,14 +59,15 @@ public class ChatController(
         statusCode: 403,
         description: "Пользователь попытался получить чат, участником, которого он не является.")]
     [HttpGet("{chatId:long}")]
-    public async Task<IActionResult> Get([SwaggerParameter(description: "Идентификатор чата.", Required = true)] long chatId)
+    public async Task<IActionResult> Get(
+        [SwaggerParameter(description: "Идентификатор чата.", Required = true)] long chatId)
     {
         var id = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!, 
             NumberStyles.Any, 
             CultureInfo.InvariantCulture);
 
-        var chat = await service.GetByIdAsync(chatId);
+        var chat = await chatService.GetByIdAsync(chatId);
         if (id != chat.FirstUserId && id != chat.SecondUserId)
             return Forbid();
         
@@ -85,25 +88,14 @@ public class ChatController(
         description: "Попытка создать чат с самим собой или с уже существующим аккаунтом.")]
     [HttpPost("my")]
     public async Task<IActionResult> Create(
-        [FromBody] 
-        [SwaggerRequestBody(
-            description: "Данные для создания чата.", 
-            Required = true)] 
-        ChatDto dto)
+        [FromQuery] long otherUserId)
     {
-        var id = long.Parse(
+        var currentUserId = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!, 
             NumberStyles.Any, 
             CultureInfo.InvariantCulture);
-
-        // Нельзя создать чат с самим собой
-        if (dto.FirstUserId == dto.SecondUserId)
-            return Conflict();
-
-        dto.FirstUserId = id;
-
-        var chat = mapper.Map<Chat>(dto);
-        var result = await service.CreateAsync(chat);
+        
+        var result = await chatService.CreateBetweenAsync(currentUserId, otherUserId);
         return Created(result.DirectoryPath, result);
     }
 
@@ -119,18 +111,20 @@ public class ChatController(
         statusCode: 403,
         description: "Попытка удалить чат, участником которого пользователь не является.")]
     [HttpDelete("my/{chatId:long}")]
-    public async Task<IActionResult> Delete([SwaggerParameter(description: "Идентификатор чата.", Required = true)] long chatId)
+    public async Task<IActionResult> Delete(
+        [SwaggerParameter(description: "Идентификатор чата.", Required = true)] long chatId)
     {
-        var id = long.Parse(
+        var currentUserId = long.Parse(
             User.FindFirstValue(CustomClaimTypes.UserId)!, 
             NumberStyles.Any, 
             CultureInfo.InvariantCulture);
 
-        var dbChat = await service.GetByIdAsync(chatId);
-        if (id != dbChat.FirstUserId && id != dbChat.SecondUserId)
+        var dbChat = await chatService.GetByIdAsync(chatId);
+        if (currentUserId != dbChat.FirstUserId 
+            && currentUserId != dbChat.SecondUserId)
             return Forbid();
 
-        var chat = await service.DeleteByIdAsync(chatId);
+        var chat = await chatService.DeleteByIdAsync(chatId);
         return Ok(chat);
     }
 }
