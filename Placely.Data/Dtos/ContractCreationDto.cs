@@ -12,10 +12,4 @@ public class ContractCreationDto
 
     [DefaultValue("1 раз в месяц")]
     public string PaymentFrequency { get; set; }
-
-    [DefaultValue("/api/data/contracts/default/default_template.docx")]
-    public string PathToTemplate { get; set; }
-
-    [DefaultValue("/api/data/contracts/default/default-fields.json")]
-    public string PathToTemplateFields { get; set; }
 }

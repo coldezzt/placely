@@ -10,14 +10,17 @@ using SautinSoft.Document;
 
 namespace Placely.Main.Services;
 
-public class ContractService(
-    ILogger<ContractService> logger,
-    IReservationRepository reservationRepository,
-    IContractRepository contractRepository,
-    IHostEnvironment environment,
-    IDadataAddressService dadataAddressService,
-    IMapper mapper) : IContractService
+public class ContractService(ILogger<ContractService> logger,
+        IReservationRepository reservationRepository,
+        IContractRepository contractRepository,
+        IHostEnvironment environment,
+        IConfiguration configuration,
+        IDadataAddressService dadataAddressService,
+        IMapper mapper)
+    : IContractService
 {
+    private readonly IConfigurationSection _configuration = configuration.GetSection("ContractGeneration");
+
     public async Task<Reservation> GetReservationByIdAsync(long reservationId)
     {
         return await reservationRepository.GetByIdAsync(reservationId);
@@ -45,7 +48,7 @@ public class ContractService(
         var contractDate = $"{contractModel.ContractDate:yy-MM-dd_HH-mm-ss}";
         
         // Создаём новую папку...
-        var workDir = Path.Combine(environment.ContentRootPath, dto.PathToTemplate, 
+        var workDir = Path.Combine(environment.ContentRootPath, _configuration["PathToTemplate"]!, 
             $"/contracts_{contract.LandlordId}");
         if (!Directory.Exists(workDir))
             Directory.CreateDirectory(workDir);
@@ -54,14 +57,14 @@ public class ContractService(
             dto.ReservationId);
 
         // ... и копируем туда шаблон
-        var pathToDoc = Path.Combine(dto.PathToTemplate, 
+        var pathToDoc = Path.Combine(_configuration["PathToTemplate"]!, 
             $"/{workDir}/dated_{contractDate}_with_{contract.TenantId}.docx");
-        File.Copy(dto.PathToTemplate, pathToDoc);
+        File.Copy(_configuration["PathToTemplate"]!, pathToDoc);
         logger.Log(LogLevel.Trace, "Copied template to directory for " +
                                    "contract based on reservation {reservationId}", dto.ReservationId);
         
         // Заменяем значения в шаблоне
-        var values = await contractModel.CreateFieldsAsync(dto.PathToTemplate);
+        var values = await contractModel.CreateFieldsAsync(_configuration["PathToTemplate"]!);
         var errors = Docx.MergeInplace(new Engine(), pathToDoc, values)
             .Select(static e => e.ToString() ?? "").ToList();
         logger.Log(LogLevel.Trace, "Filled template to directory for " +

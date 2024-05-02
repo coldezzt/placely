@@ -9,7 +9,4 @@ public class ChatDto
     
     [DefaultValue(6)]
     public long OtherUserId { get; set; }
- 
-    [DefaultValue("")]
-    public string DirectoryPath { get; set; }
 }

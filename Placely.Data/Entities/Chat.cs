@@ -12,7 +12,7 @@ public class Chat : IEntity
     public long SecondUserId { get; set; }
     public virtual Tenant SecondUser { get; set; }
     
-    public string DirectoryPath { get; set; }
+    public string DirectoryName { get; set; }
     
     public virtual List<Message> Messages { get; set; }
 }

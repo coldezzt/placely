@@ -30,7 +30,7 @@ public class ChatService(
         }
         
         var chat = new Chat { FirstUserId = firstUser, SecondUserId = secondUser };
-        chat.DirectoryPath = "/chat-" + string.Join("-", new List<long> {chat.FirstUserId, chat.SecondUserId}.Order());
+        chat.DirectoryName = "chat-" + string.Join("-", new List<long> {chat.FirstUserId, chat.SecondUserId}.Order());
         
         var result = await chatRepo.AddAsync(chat);
         await chatRepo.SaveChangesAsync();

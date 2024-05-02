@@ -49,7 +49,7 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
     [SwaggerOperation("Создаёт чат между пользователями",
         "Запрещено создавать чат с самим собой и нельзя создать чат " +
         "между двумя пользователями если он уже существует.")]
-    [SwaggerResponse(201, "Информация про созданный чат и путь до директории чата.", typeof(ChatDto),
+    [SwaggerResponse(200, "Информация про созданный чат.", typeof(ChatDto),
         "application/json")]
     [SwaggerResponse(409, "Попытка создать чат с самим собой или с уже существующим аккаунтом.")]
     [HttpPost("my")]
@@ -61,8 +61,9 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        var result = await chatService.CreateBetweenAsync(currentUserId, otherUserId);
-        return Created(result.DirectoryPath, result);
+        var chat = await chatService.CreateBetweenAsync(currentUserId, otherUserId);
+        var response = mapper.Map<ChatDto>(chat);
+        return Ok(response);
     }
 
     [SwaggerOperation("Удаляет чат по его идентификатору",

@@ -55,6 +55,7 @@
     </ItemGroup>
     
     <ItemGroup>
+      <Folder Include="Data\chats\" />
       <Folder Include="wwwroot\" />
     </ItemGroup>
 </Project>

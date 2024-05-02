@@ -17,6 +17,6 @@ public class MessageDto
     public string Content { get; set; }
     public DateTime Date { get; set; }
 
-    [DefaultValue("/filename.txt")]
-    public string? FilePath { get; set; }
+    [DefaultValue("filename.txt")]
+    public string? FileName { get; set; }
 }

@@ -29,9 +29,9 @@ public class AppDbContext : DbContext
     {
         _logger = logger;
         SavingChanges += (_, _) => 
-            _logger.Log(LogLevel.Information, $"Begin saving changes in context: {ContextId}");
+            _logger.Log(LogLevel.Trace, $"Begin saving changes in context: {ContextId}");
         SavedChanges += (_, _) =>
-            _logger.Log(LogLevel.Information, $"Successfully saved changes in context: {ContextId}");
+            _logger.Log(LogLevel.Debug, $"Successfully saved changes in context: {ContextId}");
     }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -39,7 +39,7 @@ public class AppDbContext : DbContext
         _logger.Log(LogLevel.Trace, $"Begin configuring AppDbContext in context: {ContextId}");
         optionsBuilder.UseLazyLoadingProxies();
         base.OnConfiguring(optionsBuilder);
-        _logger.Log(LogLevel.Trace, $"Successfully configured AppDbContext in context: {ContextId}");
+        _logger.Log(LogLevel.Debug, $"Successfully configured AppDbContext in context: {ContextId}");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -76,7 +76,7 @@ public class AppDbContext : DbContext
         _logger.Log(LogLevel.Trace, "Applied seeding for AppDbContext.");
 
         base.OnModelCreating(modelBuilder);
-        _logger.Log(LogLevel.Trace, "Successfully created models for AppDbContext.");
+        _logger.Log(LogLevel.Debug, "Successfully created models for AppDbContext.");
     }
 
     #region Seeding methods
@@ -237,19 +237,19 @@ public class AppDbContext : DbContext
                 Id = 1,
                 FirstUserId = 1,
                 SecondUserId = 1,
-                DirectoryPath = "/chat-t-1-l-1"
+                DirectoryName = "/chat-t-1-l-1"
             }, new()
             {
                 Id = 2,
                 FirstUserId = 2,
                 SecondUserId = 1,
-                DirectoryPath = "/chat-t-2-l-1"
+                DirectoryName = "/chat-t-2-l-1"
             }, new()
             {
                 Id = 3,
                 FirstUserId = 2,
                 SecondUserId = 2,
-                DirectoryPath = "/chat-t-2-l-2"
+                DirectoryName = "/chat-t-2-l-2"
             }
         };
 
@@ -493,7 +493,7 @@ public class AppDbContext : DbContext
                 AuthorId = 1,
                 Content = "message 1",
                 Date = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2)).ToUniversalTime(),
-                FilePath = null
+                FileName = ""
             }, new()
             {
                 Id = 2,
@@ -501,7 +501,7 @@ public class AppDbContext : DbContext
                 AuthorId = 4,
                 Content = "message 2",
                 Date = DateTime.UtcNow.Subtract(TimeSpan.FromDays(1)).ToUniversalTime(),
-                FilePath = null
+                FileName = ""
             }, new()
             {
                 Id = 3,
@@ -509,7 +509,7 @@ public class AppDbContext : DbContext
                 AuthorId = 2,
                 Content = "message with file",
                 Date = DateTime.UtcNow.Subtract(TimeSpan.FromDays(6)).ToUniversalTime(),
-                FilePath = "smt"
+                FileName = "smt.txt"
             }
         };
 
