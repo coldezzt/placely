@@ -24,23 +24,23 @@ public class ContractService(
 {
     public async Task<Reservation> GetReservationByIdAsync(long reservationId)
     {
-        return await reservationRepository.GetByIdAsync(reservationId);
+        return await reservationRepository.GetByIdAsNoTrackingAsync(reservationId);
     }
     
     public async Task<Contract> GetContractByIdAsync(long contractId)
     {
-        return await contractRepository.GetByIdAsync(contractId);
+        return await contractRepository.GetByIdAsNoTrackingAsync(contractId);
     }
     
     public async Task<Contract> GenerateContractAsync(ContractCreationDto dto)
     {
         logger.Log(LogLevel.Trace, "Begin creating contract based on reservation {reservationId}", dto.ReservationId);
         // Достаём данные
-        var reservation = await reservationRepository.GetByIdAsync(dto.ReservationId);
+        var reservation = await reservationRepository.GetByIdAsNoTrackingAsync(dto.ReservationId);
         var contract = mapper.Map<Contract>(reservation);
 
-        if (!await dadataAddressService.IsAddressExistsAsync(contract.Landlord.ContactAddress))
-            throw new AddressException("Контактного адреса не существует или он содержит лишние части.");
+        // if (!await dadataAddressService.IsAddressExistsAsync(contract.Landlord.ContactAddress))
+        //     throw new AddressException("Контактного адреса не существует или он содержит лишние части.");
         
         // Создаём сущность-обёртку над контрактом
         var contractModel = new ContractModel(contract, dto.PaymentAmount, dto.PaymentFrequency);

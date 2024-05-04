@@ -24,7 +24,7 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     public async Task<IActionResult> Get(
         [SwaggerParameter("Идентификатор пользователя.", Required = true)] long tenantId)
     {
-        var resultTenant = await service.GetByIdAsync(tenantId);
+        var resultTenant = await service.GetByIdAsNoTrackingAsync(tenantId);
         var response = mapper.Map<TenantDto>(resultTenant);
         return Ok(response);
     }
@@ -44,7 +44,7 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     }
 
     [SwaggerOperation("Получает настройки пользователя")]
-    [SwaggerResponse(200, "Данные о настройках.", typeof(SensitiveTenantDto), "application/json")]
+    [SwaggerResponse(200, "Данные о настройках.", typeof(TenantDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [HttpGet("my/settings")]
     public async Task<IActionResult> GetSettings()
@@ -52,7 +52,21 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
         var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
 
-        var result = await service.GetByIdAsync(tenantId);
+        var result = await service.GetByIdAsNoTrackingAsync(tenantId);
+        var response = mapper.Map<TenantDto>(result);
+        return Ok(response);
+    }
+    
+    [SwaggerOperation("Получает конфиденциальные настройки пользователя")]
+    [SwaggerResponse(200, "Данные о конфиденциальных настройках.", typeof(SensitiveTenantDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [HttpGet("my/sensitive/settings")]
+    public async Task<IActionResult> GetSensitiveSettings()
+    {
+        var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
+            CultureInfo.InvariantCulture);
+
+        var result = await service.GetByIdAsNoTrackingAsync(tenantId);
         var response = mapper.Map<SensitiveTenantDto>(result);
         return Ok(response);
     }
@@ -60,9 +74,9 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     [SwaggerOperation("Добавляет имущество в избранное текущему пользователю")]
     [SwaggerResponse(200, "Данные о добавленном в избранное имуществе.", typeof(PropertyDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [HttpPatch("my/favourites")]
+    [HttpPost("my/favourite")]
     public async Task<IActionResult> AddPropertyToFavourite(
-        [FromQuery] [SwaggerParameter("Идентификатор имущества.")] long propertyId)
+        [FromQuery] [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId)
     {
         var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
@@ -84,9 +98,9 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+        
         var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        
         var tenant = mapper.Map<Tenant>(dto);
         tenant.Id = tenantId;
         var result = await service.PatchSettingsAsync(tenant);
@@ -108,8 +122,10 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
         var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
 
-        var dbTenant = await service.GetByIdAsync(tenantId);
-        if (PasswordHasher.IsValid(dto.OldPassword, dbTenant.Password)) return Forbid();
+        var dbTenant = await service.GetByIdAsNoTrackingAsync(tenantId);
+        var oldPassHash = PasswordHasher.Hash(dto.OldPassword);
+        if (!PasswordHasher.IsValid(oldPassHash, dto.OldPassword)) 
+            return Forbid();
         if (dbTenant.PreviousPasswords?.Select(pp => pp.Password == dto.NewPassword).Any() ?? false)
             return BadRequest();
         
@@ -137,12 +153,13 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     [SwaggerResponse(200, "Данные об удалённом из избранного имуществе.", typeof(PropertyDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [HttpDelete("my/favourite")]
-    public async Task<IActionResult> DeletePropertyFromFavourite([FromQuery] long propertyId)
+    public async Task<IActionResult> DeletePropertyFromFavourite(
+        [FromQuery] [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId)
     {
         var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        var property = await service.DeletePropertyFromFavouritesAsync(tenantId, propertyId);
-        var response = mapper.Map<PropertyDto>(property);
+        var dbProperty = await service.DeletePropertyFromFavouritesAsync(tenantId, propertyId);
+        var response = mapper.Map<PropertyDto>(dbProperty);
         return Ok(response);
     }
 }

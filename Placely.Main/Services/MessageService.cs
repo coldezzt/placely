@@ -43,7 +43,7 @@ public class MessageService(
         logger.Log(LogLevel.Trace, "Begin getting file with name = \"{fileName}\" " +
                                    "from chat with id = {chatId}.", fileName, chatId);
 
-        var chat = await chatRepo.GetByIdAsync(chatId);
+        var chat = await chatRepo.GetByIdAsNoTrackingAsync(chatId);
         var fullFilePath = Path.Combine(options.Value.ContentRootPath, "data\\chats", chat.DirectoryName, fileName);
         if (!Path.Exists(fullFilePath))
         {
@@ -64,7 +64,7 @@ public class MessageService(
         logger.Log(LogLevel.Trace, "Begin uploading file with name = \"{fileName}\" " +
                                    "to message with id = {messageId}.", file.Name, messageId);
 
-        var dbMessage = await messageRepo.GetByIdAsync(messageId);
+        var dbMessage = await messageRepo.GetByIdAsNoTrackingAsync(messageId);
         if (dbMessage.FileName is not "")
         {
             logger.Log(LogLevel.Debug, 
@@ -104,7 +104,7 @@ public class MessageService(
         logger.Log(LogLevel.Trace, "Begin deleting file with name = \"{fileName}\" " +
                                    "from chat with id = {messageId}.", fileName, chatId);
 
-        var dbChat = await chatRepo.GetByIdAsync(chatId);
+        var dbChat = await chatRepo.GetByIdAsNoTrackingAsync(chatId);
         var fullFilePath = Path.Combine(options.Value.ContentRootPath, "data\\chats", dbChat.DirectoryName, fileName);
         if (!Path.Exists(fullFilePath))
             return fileName;

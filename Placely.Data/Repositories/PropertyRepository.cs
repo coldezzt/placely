@@ -1,5 +1,4 @@
 using LinqKit.Core;
-using Microsoft.EntityFrameworkCore;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Configurations;
 using Placely.Data.Entities;
@@ -19,15 +18,5 @@ public class PropertyRepository(ILogger<PropertyRepository> logger, AppDbContext
         
         logger.Log(LogLevel.Debug, "Successfully got properties list with predicate");
         return result;
-    }
-    
-    public async Task<List<Review>> GetReviewsListByIdAsync(long propertyId)
-    {
-        logger.Log(LogLevel.Debug, $"Begin getting reviews list of property with Id: {propertyId}");
-        
-        var reviews = await appDbContext.Reviews.Where(r => r.PropertyId == propertyId).ToListAsync();
-        
-        logger.Log(LogLevel.Debug, $"Successfully got reviews list of property with Id: {propertyId}");
-        return reviews;
     }
 }

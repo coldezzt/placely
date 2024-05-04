@@ -9,10 +9,6 @@ public class PropertyDtoValidator : AbstractValidator<PropertyDto>
 {
     public PropertyDtoValidator()
     {
-        RuleLevelCascadeMode = CascadeMode.Stop;
-        
-        RuleFor(p => p.OwnerId)
-            .NotEmpty().WithMessage(NullOrEmpty());
         RuleFor(p => p.ShortPeriodPayment)
             .NotEmpty().WithMessage(NullOrEmpty());
         RuleFor(p => p.MediumPeriodPayment)
@@ -33,6 +29,6 @@ public class PropertyDtoValidator : AbstractValidator<PropertyDto>
             .WithMessage(StringContainOnly("буквы и символы пунктуации"));
         RuleFor(p => p.PublicationDate)
             .NotEmpty().WithMessage(NullOrEmpty())
-            .Must(IsFuture).WithMessage(DateTimeShouldBeNotFromFuture());
+            .Must(IsPast).WithMessage(DateTimeShouldBeNotFromFuture());
     }
 }

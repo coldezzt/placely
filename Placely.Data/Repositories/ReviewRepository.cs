@@ -19,4 +19,14 @@ public class ReviewRepository(ILogger<ReviewRepository> logger, AppDbContext app
                                          "Found: {@review}", authorId, propertyId, found);
         return found;
     }
+    
+    public async Task<List<Review>> GetReviewsListByIdAsync(long propertyId)
+    {
+        logger.Log(LogLevel.Debug, $"Begin getting reviews list of property with Id: {propertyId}");
+        
+        var reviews = await appDbContext.Reviews.Where(r => r.PropertyId == propertyId).ToListAsync();
+        
+        logger.Log(LogLevel.Debug, $"Successfully got reviews list of property with Id: {propertyId}");
+        return reviews;
+    }
 }

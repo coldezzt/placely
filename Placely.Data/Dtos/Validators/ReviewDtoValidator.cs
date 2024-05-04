@@ -15,7 +15,7 @@ public class ReviewDtoValidator : AbstractValidator<ReviewDto>
             .InclusiveBetween(0, 5).WithMessage(StringImpossibleValue("от 1 до 5 включительно"));
         RuleFor(r => r.Date)
             .NotEmpty().WithMessage(NullOrEmpty())
-            .Must(IsFuture).WithMessage(DateTimeShouldBeNotFromFuture());
+            .Must(IsPast).WithMessage(DateTimeShouldBeNotFromFuture());
         RuleFor(r => r.Content)
             .NotEmpty().WithMessage(NullOrEmpty())
             .MaximumLength(1024).WithMessage(StringLengthShouldBeLessThan(1024));

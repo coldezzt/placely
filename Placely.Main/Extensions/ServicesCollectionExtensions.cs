@@ -64,6 +64,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<IPropertyService, PropertyService>();
         services.AddScoped<IRegistrationService, RegistrationService>();
+        services.AddScoped<IReservationService, ReservationService>();
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<IRatingUpdaterService, RatingUpdaterService>();
@@ -83,6 +84,9 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IValidator<SensitiveTenantDto>, SensitiveTenantDtoValidator>();
         services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
         
+        // Чтобы валидаторы не продолжали валидацию после первой же ошибки.
+        ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop; 
+        
         return services;
     }
 
@@ -100,6 +104,7 @@ public static class ServicesCollectionExtensions
         {
             builder.UseNpgsql(configuration["Database:ConnectionString"]);
             builder.UseSnakeCaseNamingConvention();
+            builder.EnableSensitiveDataLogging();
         });
     }
 
@@ -229,6 +234,7 @@ public static class ServicesCollectionExtensions
                 new MessageMapperProfile(),
                 new PropertyMapperProfile(),
                 new RegistrationMapperProfile(),
+                new ReservationMapperProfile(),
                 new ReviewMapperProfile(),
                 new TenantMapperProfile(),
                 new ValidationFailureMapperProfile(),
@@ -253,17 +259,21 @@ public static class ServicesCollectionExtensions
     }
 
     public static IServiceCollection AddConfiguredSerilog(this IServiceCollection services, IConfiguration configuration)
-    { 
-        services.AddSerilog((servs, lc) => 
-            lc
+    {
+        services.AddSerilog((servs, loggerConfiguration) =>
+        {
+            loggerConfiguration
                 .ReadFrom.Configuration(configuration)
                 .ReadFrom.Services(servs)
 
-                .MinimumLevel.Information()
+                .MinimumLevel.Verbose()
                 .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+                .MinimumLevel.Override("Hangfire", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore.SignalR", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore.Server", LogEventLevel.Warning)
                 
                 .Destructure.ToMaximumStringLength(128)
                 .Destructure.With(
@@ -276,10 +286,12 @@ public static class ServicesCollectionExtensions
                     new ReservationDestructionProperty(),
                     new ReviewDestructionPolicy(),
                     new TenantDestructingPolicy()
-                    )
-                
-                .Enrich.FromLogContext()
-            );
+                )
+
+                .Enrich.FromLogContext();
+        });
+
+
         return services;
     }
 }

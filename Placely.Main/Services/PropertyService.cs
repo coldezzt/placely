@@ -9,13 +9,12 @@ namespace Placely.Main.Services;
 
 public class PropertyService(
     ILogger<PropertyService> logger,
-    ILandlordRepository landlordRepo,
     IPropertyRepository propertyRepo,
     IDadataAddressService dadataAddressService) : IPropertyService
 {
-    public async Task<Property> GetByIdAsync(long propertyId)
+    public async Task<Property> GetByIdAsNoTrackingAsync(long propertyId)
     {
-        return await propertyRepo.GetByIdAsync(propertyId);
+        return await propertyRepo.GetByIdAsNoTrackingAsync(propertyId);
     }
     
     public async Task<Property> AddAsync(Property property)
@@ -27,9 +26,9 @@ public class PropertyService(
         if (parsedAddress.unparsed_parts != null)
             throw new AddressException("Адрес содержит части, которые не могут быть нормализованы.");
 
-        var dbLandlord = await landlordRepo.GetByIdAsync(property.OwnerId);
-        if (dbLandlord.ContactAddress is null or "")
-            throw new AddressException("Контактный адрес не может быть пуст.");
+        // var dbLandlord = await landlordRepo.GetByIdAsync(property.OwnerId);
+        // if (dbLandlord.ContactAddress is null or "")
+        //    throw new AddressException("Контактный адрес не может быть пуст.");
         
         var dbEntity = await propertyRepo.AddAsync(property);
         await propertyRepo.SaveChangesAsync();
@@ -46,17 +45,21 @@ public class PropertyService(
         var parsedAddress = await dadataAddressService.NormalizeAddressAsync(address);
         if (parsedAddress.unparsed_parts != null)
             throw new AddressException("Адрес содержит части, которые не могут быть нормализованы.");
-        
-        var dbEntity = await propertyRepo.UpdateAsync(property);
+
+        var dbProperty = await propertyRepo.GetByIdAsNoTrackingAsync(property.Id);
+        dbProperty.Description = property.Description;
+        dbProperty.PriceList = property.PriceList;
+
+        var updatedProperty = await propertyRepo.UpdateAsync(dbProperty);
         await propertyRepo.SaveChangesAsync();
         
-        logger.Log(LogLevel.Information, "Successfully updated a property: {@property}", property);
-        return dbEntity;
+        logger.Log(LogLevel.Information, "Successfully updated a property: {@property}", updatedProperty);
+        return updatedProperty;
     }
 
     public async Task<Property> DeleteAsync(long propertyId)
     {
-        var property = await propertyRepo.GetByIdAsync(propertyId);
+        var property = await propertyRepo.GetByIdAsNoTrackingAsync(propertyId);
         var dbEntity = await propertyRepo.DeleteAsync(property);
         await propertyRepo.SaveChangesAsync();
         
@@ -70,7 +73,7 @@ public class PropertyService(
         int amount = 10)
     {
         // Сборка предиката
-        var builder = PredicateBuilder.New<Property>();
+        var builder = PredicateBuilder.New<Property>(true);
 
         if (searchParameters.TryGetValue(SearchParameter.Category, out var value)
             && Enum.TryParse<PropertyType>(value, out var propertyType))
@@ -101,21 +104,6 @@ public class PropertyService(
         return Task.FromResult(paginated);
     }
     
-    public async Task<List<Review>> GetReviewsListByIdAsync(long propertyId, int extraLoadNumber = 0)
-    {
-        logger.Log(LogLevel.Trace, "Begin getting review list of property with id: {propertyId}", propertyId);
-
-        var reviews = await propertyRepo.GetReviewsListByIdAsync(propertyId);
-        var result = reviews
-            .OrderByDescending(static r => r.Date)
-            .Skip((extraLoadNumber - 1) * 10)
-            .Take(10)
-            .ToList();
-
-        logger.Log(LogLevel.Information, "Successfully got review list of property with id: {propertyId}", propertyId);
-        return result;
-    }
-
     public async Task<List<string>> GetAddressSuggestionAsync(string address)
     {
         var response = await dadataAddressService.SuggestAddress(address);

@@ -10,7 +10,7 @@ public class ChatService(
 {
     public async Task<Chat> GetByIdAsync(long chatId)
     {
-        return await chatRepo.GetByIdAsync(chatId);
+        return await chatRepo.GetByIdAsNoTrackingAsync(chatId);
     }
 
     public async Task<List<Chat>> GetListByUserIdAsync(long userId)
@@ -41,7 +41,7 @@ public class ChatService(
 
     public async Task<Chat> DeleteByIdAsync(long chatId)
     {
-        var dbChat = await chatRepo.GetByIdAsync(chatId);
+        var dbChat = await chatRepo.GetByIdAsNoTrackingAsync(chatId);
         var chat = await chatRepo.DeleteAsync(dbChat);
         return chat;
     }

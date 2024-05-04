@@ -16,7 +16,8 @@ public class PropertyDto
     [DefaultValue("г Москва, ул Хабаровская, д 3, кв 10")]
     public string Address { get; set; }
     
-    [DefaultValue("Это моя очень крутая квартира. Недавно сделал ремонт!")]
+    [DefaultValue("Это моя очень крутая квартира. Недавно сделал ремонт! " +
+                  "А это много дополнительного текста, для того, чтобы я прошёл валидацию!")]
     public string Description { get; set; }
     
     public DateTime PublicationDate { get; set; }

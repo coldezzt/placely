@@ -24,7 +24,7 @@ public class PropertyController(
     public async Task<IActionResult> GetById(
         [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId = 1)
     {
-        var property = await service.GetByIdAsync(propertyId);
+        var property = await service.GetByIdAsNoTrackingAsync(propertyId);
         var result = mapper.Map<PropertyDto>(property);
         return Ok(result);
     }
@@ -44,7 +44,7 @@ public class PropertyController(
         return Ok(result);
     }
 
-    [SwaggerOperation("Получает список имуществ по фильтрам")]
+    [SwaggerOperation("Получает список имуществ по фильтрам", "Доступен всем.")]
     [SwaggerResponse(200, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
     [AllowAnonymous, HttpGet("catalog/page/{pageNumber:int}/take/{amount:int}")]
     public async Task<IActionResult> GetCatalog(
@@ -69,8 +69,13 @@ public class PropertyController(
         PropertyDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
-        if (!validationResult.IsValid) return UnprocessableEntity(validationResult.Errors);
+        if (!validationResult.IsValid) 
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+        var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
+            CultureInfo.InvariantCulture);
         var property = mapper.Map<Property>(dto);
+        property.OwnerId = currentUserId;
+        property.PublicationDate = DateTime.UtcNow;
         var createdProperty = await service.AddAsync(property);
         var result = mapper.Map<PropertyDto>(createdProperty);
         return Ok(result);
@@ -80,7 +85,7 @@ public class PropertyController(
     [SwaggerResponse(200, "Обновлённая информация по имуществу.", typeof(PropertyDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Попытка обновить чужое имущество.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(ValidationResult),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
         "application/json")]
     [HttpPatch("my/{propertyId:long}")]
     public async Task<IActionResult> Patch(
@@ -89,13 +94,13 @@ public class PropertyController(
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        var dbProperty = await service.GetByIdAsync(propertyId);
+        var dbProperty = await service.GetByIdAsNoTrackingAsync(propertyId);
         if (dbProperty.OwnerId != currentUserId) return Forbid();
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
-        dto.Id = propertyId;
         var property = mapper.Map<Property>(dto);
+        property.Id = propertyId;
         var updatedProperty = await service.UpdateAsync(property);
         var result = mapper.Map<PropertyDto>(updatedProperty);
         return Ok(result);
@@ -111,19 +116,10 @@ public class PropertyController(
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        var dbProperty = await service.GetByIdAsync(propertyId);
+        var dbProperty = await service.GetByIdAsNoTrackingAsync(propertyId);
         if (dbProperty.OwnerId != currentUserId) return Forbid();
         var property = await service.DeleteAsync(propertyId);
         var response = mapper.Map<PropertyDto>(property);
         return Ok(response);
-    }
-
-    [SwaggerOperation]
-    [AllowAnonymous, HttpGet("{propertyId:long}/reviews/{page:int}")]
-    public async Task<IActionResult> GetListByPropertyId(long propertyId, int page)
-    {
-        var result = await service.GetReviewsListByIdAsync(propertyId, page);
-        var responseDtoList = result.Select(mapper.Map<ReviewDto>);
-        return Ok(responseDtoList);
     }
 }

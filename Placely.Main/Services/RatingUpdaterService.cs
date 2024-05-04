@@ -5,7 +5,8 @@ namespace Placely.Main.Services;
 
 public class RatingUpdaterService(
     ILogger<RatingUpdaterService> logger,
-    IPropertyRepository propertyRepo) : IRatingUpdaterService
+    IPropertyRepository propertyRepo,
+    IReviewRepository reviewRepo) : IRatingUpdaterService
 {
     public async Task UpdatePropertyRating()
     {
@@ -13,7 +14,7 @@ public class RatingUpdaterService(
         var properties = propertyRepo.GetPropertiesByFilter().ToList();
         foreach (var property in properties)
         {
-            var reviews = await propertyRepo.GetReviewsListByIdAsync(property.Id);
+            var reviews = await reviewRepo.GetReviewsListByIdAsync(property.Id);
             property.Rating = reviews.Sum(static review => review.Rating) / reviews.Count;
             logger.Log(LogLevel.Trace, "Updated rating for {@property}", property);
         }

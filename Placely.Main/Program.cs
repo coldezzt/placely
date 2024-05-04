@@ -4,6 +4,7 @@ using Placely.Main.Controllers.Hubs;
 using Placely.Main.Extensions;
 using Placely.Main.Middlewares;
 using Serilog;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 // Логирование на уровне приложения
 Log.Logger = new LoggerConfiguration()
@@ -59,7 +60,11 @@ try
     {
         application
             .UseSwagger()
-            .UseSwaggerUI(static options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "Placely API v1"); });
+            .UseSwaggerUI(static options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Placely API v1");
+                options.DocExpansion(DocExpansion.None);
+            });
         Log.Logger.Verbose("Added SwaggerUI to application pipeline.");
     }
 
@@ -119,5 +124,9 @@ catch (Exception ex)
 //? TODO: заменить перебор значений из enum на метод применения фильтров в методе фильтрации имуществ
 //? TODO: для быстроты работы можно создать задачу на создание документа (hangfire уже подключён) и присвоение его пути в сущности в базе данных, для этого нужно будет создать состояние документа (его готовность)
 //? TODO: заменить все статусные коды на Enum StatusCodes из Microsoft.AspNetCore
+//? TODO: добавить ограничение на оставление отзывов от владельца имущества
+//? TODO: придумать что делать с отзывами на другие имущества у пользователя который стал владельцем
+//? TODO: превращать пользователя во владельца после добавления имущества
+//? TODO: проблема с удалением списков цен - они просто генерируются, а при удалении имущества список остаётся
 
 // TODO: [Вопрос] Узнать куда какие логи лучше записавыть. Пока предположение что все - в консоль, а важные - в файл - как считаешь правильным - объяснить

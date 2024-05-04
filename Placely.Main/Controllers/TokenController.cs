@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Dtos;
 using Swashbuckle.AspNetCore.Annotations;
@@ -6,7 +5,6 @@ using IAuthorizationService = Placely.Data.Abstractions.Services.IAuthorizationS
 
 namespace Placely.Main.Controllers;
 
-[Authorize]
 [Route("api/[controller]")]
 public class TokenController(IAuthorizationService service) : ControllerBase
 {

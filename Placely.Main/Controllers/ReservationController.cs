@@ -50,7 +50,8 @@ public class ReservationController(
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        if (dto.TenantId != currentUserId) return Forbid();
+        
+        dto.TenantId = currentUserId;
         var reservation = mapper.Map<Reservation>(dto);
         var dbReservation = await service.CreateAsync(reservation);
         var response = mapper.Map<ReservationDto>(dbReservation);
