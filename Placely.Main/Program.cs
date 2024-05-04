@@ -23,7 +23,7 @@ try
         .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
     Log.Logger.Verbose("Added application configuration files.");
 
-    // Настройка сервисов. Всё что возвращает IServiceCollection
+    // Добавление сервисов. Всё что возвращает IServiceCollection
     builder.Services
         .AddConfiguredSerilog(builder.Configuration)
         .AddRouting(static opt => opt.LowercaseUrls = true)
@@ -38,9 +38,11 @@ try
         .AddConfiguredHangfire(builder.Configuration)
         .AddConfiguredJwtAuthentication(builder.Configuration);
 
-    // Настройка сервисов. Всё что НЕ возвращает IServiceCollection
+    // Добавление сервисов. Всё что НЕ возвращает IServiceCollection
     builder.Services.AddControllers();
     builder.Services.AddSignalR();
+
+    builder.Services.ConfigureServices(builder.Environment, builder.Configuration);
 
     Log.Logger.Verbose("Complete application services configuring.");
 
@@ -104,15 +106,18 @@ catch (Exception ex)
 //       - получилось вообще круто, ничего не пришлось удалять, немного подкорректировал работу с типами и предикатом и всё заработало
 // DONE: добавить метод загрузки собственного шаблона договора и полей к нему - функционал удалён
 // DONE: разобраться с путями для хэндлинга файлов - там по-моему вообще всё неправильно работает
-// TODO: починить чаты (signalR) - скорее всего они неверно работают (отправляют сообщения не только участникам чата, а ВСЕМ участникам хаба)
+// DONE: заменить IHostEnvironment и IConfiguration на IOptions<>
 
 // TODO: Перед тем чтобы приступить к нижним TODO нужно сначала всё протестить и написать юз кейсы, а затем выкатить релиз скорее всего
 
+//? TODO: починить чаты (signalR) - скорее всего они неверно работают (отправляют сообщения не только участникам чата, а ВСЕМ участникам хаба)
 //? TODO: заменить почти все логи в конце методов на тип Debug - они не подходят под инфу т.к. всё равно слишком подробные, но и под Trace не подходят - не достаточно подробны.
 //? TODO: разделить проект Placely.Data. реализация доступа к бд, абстракция доступа к бд, реализация сервисов, абстракции сервисов.
 //? TODO: добавить аналогичные методы /my только для админов (чтобы они могли удалять и получать доступ к любому аккаунту)
 //? TODO: придумать каким образом мне показать qr код для пользователя (в целом можно просто использовать ManualEntryKey)
 //? TODO: не совсем нравится как работает авторизация, попробовать исправить.
 //? TODO: заменить перебор значений из enum на метод применения фильтров в методе фильтрации имуществ
+//? TODO: для быстроты работы можно создать задачу на создание документа (hangfire уже подключён) и присвоение его пути в сущности в базе данных, для этого нужно будет создать состояние документа (его готовность)
+//? TODO: заменить все статусные коды на Enum StatusCodes из Microsoft.AspNetCore
 
 // TODO: [Вопрос] Узнать куда какие логи лучше записавыть. Пока предположение что все - в консоль, а важные - в файл - как считаешь правильным - объяснить

@@ -4,9 +4,9 @@ using Placely.Data.Entities;
 
 namespace Placely.Data.Configurations.Mapper;
 
-public class TenantMapperConfiguration : Profile
+public class TenantMapperProfile : Profile
 {
-    public TenantMapperConfiguration()
+    public TenantMapperProfile()
     {
         CreateMap<TenantDto, Tenant>();
         CreateMap<Tenant, TenantDto>();

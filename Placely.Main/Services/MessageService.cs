@@ -1,14 +1,17 @@
-﻿using Placely.Data.Abstractions.Repositories;
+﻿using Microsoft.Extensions.Options;
+using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Entities;
+using Placely.Data.Options;
 
 namespace Placely.Main.Services;
 
 public class MessageService(
     ILogger<MessageService> logger,
+    IOptions<ApplicationCommonOptions> options,
     IChatRepository chatRepo,
-    IMessageRepository messageRepo,
-    IWebHostEnvironment env) : IMessageService
+    IMessageRepository messageRepo) 
+    : IMessageService
 {
     public async Task<List<Message>> GetListAsync(long chatId)
     {
@@ -41,7 +44,7 @@ public class MessageService(
                                    "from chat with id = {chatId}.", fileName, chatId);
 
         var chat = await chatRepo.GetByIdAsync(chatId);
-        var fullFilePath = Path.Combine(env.ContentRootPath, "data\\chats", chat.DirectoryName, fileName);
+        var fullFilePath = Path.Combine(options.Value.ContentRootPath, "data\\chats", chat.DirectoryName, fileName);
         if (!Path.Exists(fullFilePath))
         {
             logger.Log(LogLevel.Debug,
@@ -70,7 +73,7 @@ public class MessageService(
             return "";
         }
         
-        var chatRoot = Path.Combine(env.ContentRootPath, "data\\chats", dbMessage.Chat.DirectoryName);
+        var chatRoot = Path.Combine(options.Value.ContentRootPath, "data\\chats", dbMessage.Chat.DirectoryName);
         if (!Directory.Exists(chatRoot))
         {
             Directory.CreateDirectory(chatRoot);
@@ -102,7 +105,7 @@ public class MessageService(
                                    "from chat with id = {messageId}.", fileName, chatId);
 
         var dbChat = await chatRepo.GetByIdAsync(chatId);
-        var fullFilePath = Path.Combine(env.ContentRootPath, "data\\chats", dbChat.DirectoryName, fileName);
+        var fullFilePath = Path.Combine(options.Value.ContentRootPath, "data\\chats", dbChat.DirectoryName, fileName);
         if (!Path.Exists(fullFilePath))
             return fileName;
         

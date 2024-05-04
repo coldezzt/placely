@@ -1,26 +1,27 @@
 using AutoMapper;
 using EasyDox;
+using Microsoft.Extensions.Options;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;
 using Placely.Data.Entities;
 using Placely.Data.Models;
+using Placely.Data.Options;
 using Placely.Main.Exceptions;
 using SautinSoft.Document;
 
 namespace Placely.Main.Services;
 
-public class ContractService(ILogger<ContractService> logger,
-        IReservationRepository reservationRepository,
-        IContractRepository contractRepository,
-        IHostEnvironment environment,
-        IConfiguration configuration,
-        IDadataAddressService dadataAddressService,
-        IMapper mapper)
+public class ContractService(
+    ILogger<ContractService> logger,
+    IOptions<ApplicationCommonOptions> options,
+    IOptions<ContractServiceOptions> configurationOptions,
+    IReservationRepository reservationRepository,
+    IContractRepository contractRepository,
+    IDadataAddressService dadataAddressService,
+    IMapper mapper)
     : IContractService
 {
-    private readonly IConfigurationSection _configuration = configuration.GetSection("ContractGeneration");
-
     public async Task<Reservation> GetReservationByIdAsync(long reservationId)
     {
         return await reservationRepository.GetByIdAsync(reservationId);
@@ -31,8 +32,6 @@ public class ContractService(ILogger<ContractService> logger,
         return await contractRepository.GetByIdAsync(contractId);
     }
     
-    // TODO: для быстроты работы можно создать задачу на создание документа (hangfire уже подключён)
-    // и присвоение его пути в сущности в базе данных, для этого нужно будет создать состояние документа (его готовность)
     public async Task<Contract> GenerateContractAsync(ContractCreationDto dto)
     {
         logger.Log(LogLevel.Trace, "Begin creating contract based on reservation {reservationId}", dto.ReservationId);
@@ -48,7 +47,7 @@ public class ContractService(ILogger<ContractService> logger,
         var contractDate = $"{contractModel.ContractDate:yy-MM-dd_HH-mm-ss}";
         
         // Создаём новую папку...
-        var workDir = Path.Combine(environment.ContentRootPath, _configuration["PathToTemplate"]!, 
+        var workDir = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToTemplate, 
             $"/contracts_{contract.LandlordId}");
         if (!Directory.Exists(workDir))
             Directory.CreateDirectory(workDir);
@@ -57,14 +56,14 @@ public class ContractService(ILogger<ContractService> logger,
             dto.ReservationId);
 
         // ... и копируем туда шаблон
-        var pathToDoc = Path.Combine(_configuration["PathToTemplate"]!, 
+        var pathToDoc = Path.Combine(configurationOptions.Value.PathToTemplate, 
             $"/{workDir}/dated_{contractDate}_with_{contract.TenantId}.docx");
-        File.Copy(_configuration["PathToTemplate"]!, pathToDoc);
+        File.Copy(configurationOptions.Value.PathToTemplate, pathToDoc);
         logger.Log(LogLevel.Trace, "Copied template to directory for " +
                                    "contract based on reservation {reservationId}", dto.ReservationId);
         
         // Заменяем значения в шаблоне
-        var values = await contractModel.CreateFieldsAsync(_configuration["PathToTemplate"]!);
+        var values = await contractModel.CreateFieldsAsync(configurationOptions.Value.PathToTemplateFields);
         var errors = Docx.MergeInplace(new Engine(), pathToDoc, values)
             .Select(static e => e.ToString() ?? "").ToList();
         logger.Log(LogLevel.Trace, "Filled template to directory for " +

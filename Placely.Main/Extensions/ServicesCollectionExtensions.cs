@@ -14,9 +14,10 @@ using Placely.Data.Configurations;
 using Placely.Data.Configurations.Mapper;
 using Placely.Data.Dtos;
 using Placely.Data.Dtos.Validators;
+using Placely.Data.Options;
 using Placely.Data.Repositories;
+using Placely.Main.Configurations.DestructingPolicies;
 using Placely.Main.Middlewares;
-using Placely.Main.Policies.DestructingPolicies;
 using Placely.Main.Services;
 using Serilog;
 using Serilog.Events;
@@ -25,6 +26,19 @@ namespace Placely.Main.Extensions;
 
 public static class ServicesCollectionExtensions
 {
+    public static IServiceCollection ConfigureServices(this IServiceCollection services, IHostEnvironment env,
+        IConfiguration configuration)
+    {
+        services.Configure<ApplicationCommonOptions>(options =>
+        {
+            options.ContentRootPath = env.ContentRootPath;
+            options.IsProduction = env.IsProduction();
+        });
+        services.Configure<ContractServiceOptions>(configuration.GetSection("ContractGeneration"));
+
+        return services;
+    }
+
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IChatRepository, ChatRepository>();
@@ -216,7 +230,8 @@ public static class ServicesCollectionExtensions
                 new PropertyMapperProfile(),
                 new RegistrationMapperProfile(),
                 new ReviewMapperProfile(),
-                new TenantMapperConfiguration(),
+                new TenantMapperProfile(),
+                new ValidationFailureMapperProfile(),
             });
         });
         return services;

@@ -1,14 +1,17 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Placely.Data.Exceptions;
+using Placely.Data.Options;
 using Placely.Main.Exceptions;
 
 namespace Placely.Main.Middlewares;
 
 public class ExceptionMiddleware(
     ILogger<ExceptionMiddleware> logger,
-    IWebHostEnvironment webHostEnvironment) : IMiddleware
+    IOptions<ApplicationCommonOptions> options) 
+    : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -53,6 +56,6 @@ public class ExceptionMiddleware(
     private string? SerializeException(Exception e)
     {
         // мы не включаем информацию об exception в продакшн из-за возможной утечки чувствительных данных
-        return webHostEnvironment.IsProduction() ? null : e.ToString();
+        return options.Value.IsProduction ? null : e.ToString();
     }
 }
