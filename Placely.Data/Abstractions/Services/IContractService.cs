@@ -5,7 +5,10 @@ namespace Placely.Data.Abstractions.Services;
 
 public interface IContractService
 {
-    public Task<Contract> GetContractByIdAsync(long id);
+    public Task<Contract> GetByIdAsNoTrackingAsync(long contractId);
     public Task<Reservation> GetReservationByIdAsync(long reservationId);
-    public Task<Contract> GenerateContractAsync(ContractCreationDto dto);
+    public Task<Contract> GenerateAsync(ContractCreationDto dto);
+    public Task<byte[]> GetFileBytesByIdAsync(long contractId, string format = "pdf");
+    public Task<List<string>> GetFileNamesListByLandlordIdAsync(long landlordId);
+
 }

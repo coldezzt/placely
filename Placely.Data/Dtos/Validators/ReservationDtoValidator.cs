@@ -11,6 +11,7 @@ public class ReservationDtoValidator : AbstractValidator<ReservationDto>
     {
         RuleFor(r => r.ReservationStatus)
             .Must(t => Enum.IsDefined(typeof(ReservationStatus), t ?? ""))
+            .When(r => r.ReservationStatus is not null)
             .WithMessage(StringImpossibleValue(string.Join(" | ", Enum.GetValues<ReservationStatus>())));
         RuleFor(r => r.DeclineReason)
             .Must(dr => dr?.Length < 256)
@@ -24,7 +25,7 @@ public class ReservationDtoValidator : AbstractValidator<ReservationDto>
             .Must(n => n >= 1).WithMessage(TimeSpanDurationShouldBeMoreThan(1));
         RuleFor(r => r.EntryDate)
             .NotEmpty().WithMessage(NullOrEmpty())
-            .Must(IsPast).WithMessage(DateTimeShouldBeNotFromPast());
+            .Must(IsFuture).WithMessage(DateTimeShouldBeNotFromPast());
         RuleFor(r => r.GuestsAmount)
             .NotEmpty().WithMessage(NullOrEmpty());
     }

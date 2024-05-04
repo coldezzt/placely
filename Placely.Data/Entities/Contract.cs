@@ -17,8 +17,8 @@ public class Contract : IEntity
     
     public string TemplatePath { get; set; }
     public string TemplateFieldsPath { get; set; }
-    public string? FinalizedPathDocx { get; set; }
-    public string? FinalizedPathPdf { get; set; }
+    public string? FinalizedDocxFileName { get; set; }
+    public string? FinalizedPdfFileName { get; set; }
     public DateTime LeaseStartDateTime { get; set; }
     public DateTime LeaseEndDateTime { get; set; }
 }

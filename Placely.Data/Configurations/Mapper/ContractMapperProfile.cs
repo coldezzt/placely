@@ -16,8 +16,8 @@ public class ContractMapperProfile : Profile
         
         CreateMap<Contract, ContractDto>()
             .ForMember(static dto => dto.DocxPath,
-                static opt => opt.MapFrom(static c => c.FinalizedPathDocx))
+                static opt => opt.MapFrom(static c => c.FinalizedDocxFileName))
             .ForMember(static dto => dto.PdfPath,
-                static opt => opt.MapFrom(static c => c.FinalizedPathPdf));
+                static opt => opt.MapFrom(static c => c.FinalizedPdfFileName));
     }
 }

@@ -273,7 +273,7 @@ public static class ServicesCollectionExtensions
                 .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
                 .MinimumLevel.Override("Hangfire", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.AspNetCore.SignalR", LogEventLevel.Warning)
-                .MinimumLevel.Override("Microsoft.AspNetCore.Server", LogEventLevel.Warning)
+                // .MinimumLevel.Override("Microsoft.AspNetCore.Server", LogEventLevel.Warning)
                 
                 .Destructure.ToMaximumStringLength(128)
                 .Destructure.With(

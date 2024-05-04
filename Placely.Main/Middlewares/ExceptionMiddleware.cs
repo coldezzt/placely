@@ -31,6 +31,7 @@ public class ExceptionMiddleware(
                 RefreshTokenBadRequestException => StatusCodes.Status400BadRequest,
                 EntityNotFoundException         => StatusCodes.Status404NotFound,
                 ConflictException               => StatusCodes.Status409Conflict,
+                ReservationServiceException     => StatusCodes.Status409Conflict,
                 AddressException                => StatusCodes.Status422UnprocessableEntity,
                 ContractServiceException        => StatusCodes.Status422UnprocessableEntity,
                 DbUpdateException               => StatusCodes.Status503ServiceUnavailable,
