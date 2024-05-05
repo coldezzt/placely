@@ -39,7 +39,7 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
         "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Попытка получить список чужих контрактов.")]
-    [HttpGet("list/{contractId:long}")]
+    [HttpGet("file/list/{contractId:long}")]
     public async Task<IActionResult> GetAssociatedFiles(
         [DefaultValue(3)] [FromRoute] [SwaggerParameter("Идентификатор контракта.", Required = true)] 
         long contractId)
@@ -48,7 +48,8 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
             CultureInfo.InvariantCulture);
         var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
         if (currentUserId != dbContract.TenantId && currentUserId != dbContract.LandlordId) return Forbid();
-        var names = await service.GetFileNamesListByLandlordIdAsync(dbContract.LandlordId);
+        var names = 
+            await service.GetFileNamesListByLandlordAndTenantIdAsync(dbContract.LandlordId, dbContract.TenantId);
         return Ok(names);
     }
     
@@ -58,12 +59,12 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Попытка загрузить файл из чужого чата.")]
     [SwaggerResponse(404, "Файл для скачивания не был найден.")]
-    [HttpGet("{contractId:long}/file")]
+    [HttpGet("file/{contractId:long}")]
     public async Task<IActionResult> DownloadFile(
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
         long contractId,
-        [DefaultValue("new.txt")] [FromQuery] [SwaggerParameter("Название файла для скачивания.", Required = true)]
-        string fileName)
+        [DefaultValue("contract_data_id.docx")] [FromQuery] 
+        [SwaggerParameter("Название файла для скачивания.", Required = true)] string fileName)
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
@@ -75,13 +76,14 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
 
     [SwaggerOperation("Генерирует контракт на основе заявки", 
         """
-        Создаёт контракт в папке с чатом между пользователями (если нет создаёт её).
+        Создаёт контракт в папке с контрактами владельца имущества между пользователями (если нет создаёт её).
 
         Большинство данных берёт из заявки. Некоторые договорные данные необходимо передать в теле.
         """)]
     [SwaggerResponse(200, "Информация по контракту.", typeof(ContractDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Попытка запросить создание контракта пользователем, не фигурирующем в контракте.")]
+    [SwaggerResponse(409, "Попытка создать контракт на основе отклонённой заявки.")]
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] [SwaggerRequestBody("Данные необходимые для завершения создания контракта.", Required = true)]
@@ -91,7 +93,9 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
             CultureInfo.InvariantCulture);
         var reservation = await service.GetReservationByIdAsync(dto.ReservationId);
         if (reservation.LandlordId != currentUserId && reservation.TenantId != currentUserId) return Forbid();
+        if (reservation.ReservationStatus is ReservationStatus.Declined) return Conflict();
         var contract = await service.GenerateAsync(dto);
-        return Ok(contract);
+        var response = mapper.Map<ContractDto>(contract);
+        return Ok(response);
     }
 }

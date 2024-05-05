@@ -42,7 +42,7 @@ public class ContractModel(
             { ContractField.LandlordContactAddress, Contract.Landlord.ContactAddress},
             { ContractField.TenantFullname, Contract.Tenant.Name},
             { ContractField.TenantPhoneNumber, Contract.Tenant.PhoneNumber},
-            { ContractField.TenantEmail, Contract.Tenant.Email},
+            { ContractField.TenantEmail, Contract.Tenant.Email is null or "" ? "нет" : Contract.Tenant.Email},
             { ContractField.PropertyAddress, Contract.Property.Address},
             { ContractField.LeaseStartDateTime, Contract.LeaseStartDateTime.ToString(CultureInfo.InvariantCulture)},
             { ContractField.LeaseEndDateTime, Contract.LeaseEndDateTime.ToString(CultureInfo.InvariantCulture)},

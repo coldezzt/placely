@@ -32,9 +32,9 @@ public class ContractService(
         return await contractRepo.GetByIdAsNoTrackingAsync(contractId);
     }
 
-    public async Task<List<string>> GetFileNamesListByLandlordIdAsync(long landlordId)
+    public async Task<List<string>> GetFileNamesListByLandlordAndTenantIdAsync(long landlordId, long tenantId)
     {
-        var workingDirectoryName = $"\\contracts_{landlordId}";
+        var workingDirectoryName = "contracts_" + string.Join("_", new List<long> {landlordId, tenantId}.Order());
         var pathToWorkingDirectory =
             Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToContractDirectory, 
                 workingDirectoryName);
@@ -45,27 +45,26 @@ public class ContractService(
         return Directory.GetFiles(pathToWorkingDirectory).Select(s => Path.GetFileName(s)).ToList();
     }
     
-    public async Task<byte[]> GetFileBytesByIdAsync(long contractId, string format = "pdf")
+    public async Task<byte[]> GetFileBytesByIdAsync(long contractId, string fileName)
     {
         logger.Log(LogLevel.Trace, "Begin getting contract file with id: {contractId}", contractId);
         var contract = await contractRepo.GetByIdAsNoTrackingAsync(contractId);
         if (contract.FinalizedDocxFileName is null || contract.FinalizedPdfFileName is null)
             throw new ContractServiceException("Файлы контракта ещё не созданы. Попробуйте позднее.");
         
-        var fullFilePath = Path.Combine(
+        var absoluteFilePath = Path.Combine(
             options.Value.ContentRootPath, 
-            configurationOptions.Value.PathToContractDirectory, 
-            format == "pdf" 
-                ? contract.FinalizedPdfFileName 
-                : contract.FinalizedDocxFileName
+            configurationOptions.Value.PathToContractDirectory,
+            "contracts_" + string.Join("_", new List<long> {contract.LandlordId, contract.TenantId}.Order()),
+            fileName
             );
-        if (!Path.Exists(fullFilePath))
+        if (!Path.Exists(absoluteFilePath))
         {
             logger.Log(LogLevel.Debug,
                 "Contract file with id: {contractId} is not found. Returning empty byte array.", contractId);
             return Array.Empty<byte>();
         }
-        var fileBytes = await File.ReadAllBytesAsync(fullFilePath);
+        var fileBytes = await File.ReadAllBytesAsync(absoluteFilePath);
         
         logger.Log(LogLevel.Debug, "Successfully got contract file with id: {contractId}.", contractId);
         return fileBytes;
@@ -74,63 +73,77 @@ public class ContractService(
     public async Task<Contract> GenerateAsync(ContractCreationDto dto)
     {
         logger.Log(LogLevel.Trace, "Begin creating contract based on reservation {reservationId}", dto.ReservationId);
-        // Достаём данные
-        var reservation = await reservationRepository.GetByIdAsNoTrackingAsync(dto.ReservationId);
+        // Достаём данные и "сокращаем переменные" (для читабельности)
+        var reservation = await reservationRepository.GetByIdAsync(dto.ReservationId);
         var contract = mapper.Map<Contract>(reservation);
-
-        var workingDirectoryName = $"\\contracts_{contract.LandlordId}";
-        var pathToTemplate = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToTemplate);
-        var pathToTemplateFields =
-            Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToTemplateFields);
-        var pathToContractDirectory =
-            Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToContractDirectory);
-        var pathToWorkingDirectory = Path.Combine(pathToContractDirectory, workingDirectoryName);
+        var workingDirectoryName = "contracts_" + string.Join("_", new List<long> {contract.LandlordId, contract.TenantId}.Order());
+        var absolutePathToTemplate = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToTemplate);
+        var absolutePathToTemplateFields = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToTemplateFields);
+        var absolutePathToContractDirectory = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToContractDirectory);
+        var absolutePathToWorkingDirectory = Path.Combine(absolutePathToContractDirectory, workingDirectoryName);
+        
         // if (!await dadataAddressService.IsAddressExistsAsync(contract.Landlord.ContactAddress))
         //     throw new AddressException("Контактного адреса не существует или он содержит лишние части.");
-        
+
         // Создаём сущность-обёртку над контрактом
         var contractModel = new ContractModel(contract, dto.PaymentAmount, dto.PaymentFrequency);
         var contractDate = $"{contractModel.ContractDate:yy-MM-dd_HH-mm-ss}";
-        var docxFileName = $"\\contract_{contractDate}_{contract.TenantId}.docx";
-        var pdfFileName = $"\\contract_{contractDate}_{contract.TenantId}.pdf";
+        var docxFileName = $"contract_{contractDate}_{contract.TenantId}.docx";
+        var pdfFileName = $"contract_{contractDate}_{contract.TenantId}.pdf";
         
-        // Создаём новую папку...
-        if (!Directory.Exists(pathToWorkingDirectory))
-            Directory.CreateDirectory(pathToWorkingDirectory);
-        logger.Log(LogLevel.Trace, "Created directory for " +
-                                   "contract based on reservation {reservationId}", 
-            dto.ReservationId);
+        var absolutePathToDoc = Path.Combine(absolutePathToWorkingDirectory, docxFileName);
+        var absolutePathToPdf = Path.Combine(absolutePathToWorkingDirectory, pdfFileName);
 
-        // ... и копируем туда шаблон
-        var pathToDoc = Path.Combine(pathToWorkingDirectory, docxFileName);
-        File.Copy(pathToTemplate, pathToDoc);
-        logger.Log(LogLevel.Trace, "Copied template to directory for " +
-                                   "contract based on reservation {reservationId}", dto.ReservationId);
+        List<string> errors = new();
+        var result = new Contract();
         
-        // Заменяем значения в шаблоне
-        var values = await contractModel.CreateFieldsAsync(pathToTemplateFields);
-        var errors = Docx.MergeInplace(new Engine(), pathToDoc, values)
-            .Select(static e => e.ToString() ?? "").ToList();
-        logger.Log(LogLevel.Trace, "Filled template to directory for " +
-                                   "contract based on reservation {reservationId}", dto.ReservationId);
+        // Здесь блок try-catch, потому что это так называемая "опасная зона"
+        // Мы взаимодействуем с физическими файлами снаружи нашей программы (которые не под нашим контролем),
+        // поэтому я ловлю ошибку здесь же, и откатываю изменения если такие есть.
+        try
+        {
+            // Создаём новую папку...
+            if (!Directory.Exists(absolutePathToWorkingDirectory))
+                Directory.CreateDirectory(absolutePathToWorkingDirectory);
+            logger.Log(LogLevel.Trace, "Created directory for " +
+                                       "contract based on reservation {reservationId}", dto.ReservationId);
+
+            // ... и копируем туда шаблон
+            File.Copy(absolutePathToTemplate, absolutePathToDoc);
+            logger.Log(LogLevel.Trace, "Copied template to directory for " +
+                                       "contract based on reservation {reservationId}", dto.ReservationId);
+            
+            // Заменяем значения в шаблоне
+            var values = await contractModel.CreateFieldsAsync(absolutePathToTemplateFields);
+            errors.AddRange(Docx.MergeInplace(new Engine(), absolutePathToDoc, values)
+                .Select(e => e.Accept(new ErrorToRussianString())).ToList());
+            logger.Log(LogLevel.Trace, "Filled template to directory for " +
+                                       "contract based on reservation {reservationId}", dto.ReservationId);
+            
+            // Берём изменённый шаблон и превращаем его в pdf, сохраняя туда же
+            var documentCore = DocumentCore.Load(absolutePathToDoc);
+            documentCore.Save(absolutePathToPdf);
+            logger.Log(LogLevel.Trace, "Converted doc to pdf into directory for " +
+                                       "contract based on reservation {reservationId}", dto.ReservationId);
+            
+            contract.FinalizedDocxFileName = Path.Combine(workingDirectoryName, docxFileName);
+            contract.FinalizedPdfFileName = Path.Combine(workingDirectoryName, pdfFileName);
+            result = await contractRepo.AddAsync(contract);
+            await contractRepo.SaveChangesAsync();
+            
+            logger.Log(LogLevel.Information, "Successfully created contract " +
+                                             "based on reservation {reservationId}", dto.ReservationId);
+        }
+        catch (Exception ex)
+        {
+            // Подчищаем за собой мусор
+            File.Delete(absolutePathToDoc);
+            File.Delete(absolutePathToPdf);
+            
+            // Выбрасываемся к глобальному обработчику
+            throw new ContractServiceException(ex.Message + string.Join(" | ", errors)); 
+        }
         
-        if (errors.Any())
-            throw new ContractServiceException(string.Join(" | ", errors));
-        
-        // Берём изменённый шаблон и превращаем его в pdf, сохраняя туда же
-        var pathToPdf = Path.Combine(pathToWorkingDirectory, pdfFileName);
-        var documentCore = DocumentCore.Load(pathToDoc);
-        documentCore.Save(pathToPdf);
-        logger.Log(LogLevel.Trace, "Converted doc to pdf into directory for " +
-                                   "contract based on reservation {reservationId}", dto.ReservationId);
-        
-        contract.FinalizedDocxFileName = Path.Combine(workingDirectoryName, docxFileName);
-        contract.FinalizedPdfFileName = Path.Combine(workingDirectoryName, docxFileName);
-        var result = await contractRepo.AddAsync(contract);
-        await contractRepo.SaveChangesAsync();
-        
-        logger.Log(LogLevel.Information, "Successfully created contract " +
-                                         "based on reservation {reservationId}", dto.ReservationId);
         return result;
     }
 }

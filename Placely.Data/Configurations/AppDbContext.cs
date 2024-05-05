@@ -37,6 +37,7 @@ public class AppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         _logger.Log(LogLevel.Trace, $"Begin configuring AppDbContext in context: {ContextId}");
+        optionsBuilder.EnableDetailedErrors();
         optionsBuilder.UseLazyLoadingProxies();
         base.OnConfiguring(optionsBuilder);
         _logger.Log(LogLevel.Debug, $"Successfully configured AppDbContext in context: {ContextId}");
@@ -64,9 +65,6 @@ public class AppDbContext : DbContext
         SeedingStartedChats(modelBuilder);
         SeedingStartedPriceLists(modelBuilder);
         SeedingStartedProperties(modelBuilder);
-        /* TODO: not implemented cause of m-t-m (i just don't know how)
-        SeedingStartedPropertyTenant(modelBuilder); 
-        */
         SeedingStartedContracts(modelBuilder);
         SeedingStartedReservations(modelBuilder);
         SeedingStartedReviews(modelBuilder);
@@ -319,11 +317,6 @@ public class AppDbContext : DbContext
         };
 
         modelBuilder.Entity<Property>().HasData(l);
-    }
-    
-    private static void SeedingStartedPropertyTenant(ModelBuilder modelBuilder)
-    {
-        throw new NotImplementedException();
     }
 
     private static void SeedingStartedContracts(ModelBuilder modelBuilder)

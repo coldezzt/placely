@@ -1,19 +1,19 @@
 {
-  "CONTRACT-DATE":"---------",
-  "LANDLORD-FULLNAME":"---------",
-  "LANDLORD-PHONE-NUMBER":"---------",
-  "LANDLORD-EMAIL":"---------",
-  "LANDLORD-CONTACT-ADDRESS":"---------",
+  "ContractDate":"---------",
+  "LandlordFullname":"---------",
+  "LandlordPhoneNumber":"---------",
+  "LandlordEmail":"---------",
+  "LandlordContactAddress":"---------",
   
-  "TENANT-FULLNAME":"---------",
-  "TENANT-PHONE-NUMBER":"---------",
-  "TENANT-EMAIL":"---------",
+  "TenantFullname":"---------",
+  "TenantPhoneNumber":"---------",
+  "TenantEmail":"---------",
   
-  "PROPERTY-ADDRESS":"---------",
+  "PropertyAddress":"---------",
 
-  "LEASE-START-DATE-TIME": "---------",
-  "LEASE-END-DATE-TIME":"---------",
+  "LeaseStartDateTime": "---------",
+  "LeaseEndDateTime":"---------",
   
-  "PAYMENT-AMOUNT":"---------",
-  "PAYMENT-FREQUENCY":"---------"
+  "PaymentAmount":"---------",
+  "PaymentFrequency":"---------"
 }
