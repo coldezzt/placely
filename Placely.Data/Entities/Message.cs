@@ -14,5 +14,5 @@ public class Message : IEntity
     
     public string Content { get; set; }
     public DateTime Date { get; set; }
-    public string? FilePath { get; set; }
+    public string FileName { get; set; } = "";
 }

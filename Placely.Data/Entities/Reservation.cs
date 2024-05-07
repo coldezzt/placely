@@ -16,7 +16,7 @@ public class Reservation : IEntity
     public long PropertyId { get; set; }
     public virtual Property Property { get; set; }
 
-    public ReservationStatus ReservationStatus { get; set; }
+    public ReservationStatus? ReservationStatus { get; set; }
     public string? DeclineReason { get; set; }
     public DateTime CreationDateTime { get; set; }
     public TimeSpan Duration { get; set; }

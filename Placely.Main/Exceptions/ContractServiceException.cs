@@ -1,4 +1,7 @@
 namespace Placely.Main.Exceptions;
 
-public class ContractServiceException(IEnumerable<string> errors) 
-    : Exception($"Произошла ошибка во время создания контракта. Информация: {string.Join(" || ", errors)}");
+public class ContractServiceException(string? error) 
+    : Exception("Произошла ошибка во время взаимодействия с контрактом. " + (error is null 
+            ? "" 
+            : "Дополнительно: " + error)
+        );

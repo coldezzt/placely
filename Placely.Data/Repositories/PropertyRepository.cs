@@ -1,23 +1,22 @@
-using Microsoft.EntityFrameworkCore;
+using LinqKit.Core;
 using Placely.Data.Abstractions.Repositories;
 using Placely.Data.Configurations;
 using Placely.Data.Entities;
 
 namespace Placely.Data.Repositories;
 
-public class PropertyRepository(AppDbContext appDbContext) 
-    : Repository<Property>(appDbContext), IPropertyRepository
+public class PropertyRepository(ILogger<PropertyRepository> logger, AppDbContext appDbContext) 
+    : Repository<Property>(logger, appDbContext), IPropertyRepository
 {
-    public IQueryable<Property> GetPropertiesByFilter(Func<Property, bool>? predicate)
+    public IEnumerable<Property> GetPropertiesByFilter(Func<Property, bool>? predicate)
     {
-        return predicate is not null 
-            ? appDbContext.Properties.Where(b => predicate(b)) 
+        logger.Log(LogLevel.Debug, "Begin getting properties list with predicate");
+
+        var result = predicate is not null 
+            ? appDbContext.Properties.AsExpandable().AsEnumerable().Where(predicate)
             : appDbContext.Properties;
-    }
-    
-    public async Task<List<Review>> GetListByPropertyIdAsync(long propertyId)
-    {
-        var reviews = await appDbContext.Reviews.Where(r => r.PropertyId == propertyId).ToListAsync();
-        return reviews;
+        
+        logger.Log(LogLevel.Debug, "Successfully got properties list with predicate");
+        return result;
     }
 }

@@ -14,17 +14,17 @@ public class ContractField
             .ToDictionary(fi => fi.Name, fi => (string) fi.GetRawConstantValue()!);
     }
 
-    public const string ContractDate = "CONTRACT-DATE";
-    public const string LandlordFullname = "LANDLORD-FULLNAME";
-    public const string LandlordPhoneNumber = "LANDLORD-PHONE-NUMBER";
-    public const string LandlordEmail = "LANDLORD-EMAIL";
-    public const string LandlordContactAddress = "LANDLORD-CONTACT-ADDRESS";
-    public const string TenantFullname = "TENANT-FULLNAME";
-    public const string TenantPhoneNumber = "TENANT-PHONE-NUMBER";
-    public const string TenantEmail = "TENANT-EMAIL";
-    public const string PropertyAddress = "PROPERTY-ADDRESS";
-    public const string LeaseStartDateTime = "LEASE-START-DATE-TIME";
-    public const string LeaseEndDateTime = "LEASE-END-DATE-TIME";
-    public const string PaymentAmount = "PAYMENT-AMOUNT";
-    public const string PaymentFrequency = "PAYMENT-FREQUENCY";
+    public const string ContractDate = "ContractDate";
+    public const string LandlordFullname = "LandlordFullname";
+    public const string LandlordPhoneNumber = "LandlordPhoneNumber";
+    public const string LandlordEmail = "LandlordEmail";
+    public const string LandlordContactAddress = "LandlordContactAddress";
+    public const string TenantFullname = "TenantFullname";
+    public const string TenantPhoneNumber = "TenantPhoneNumber";
+    public const string TenantEmail = "TenantEmail";
+    public const string PropertyAddress = "PropertyAddress";
+    public const string LeaseStartDateTime = "LeaseStartDateTime";
+    public const string LeaseEndDateTime = "LeaseEndDateTime";
+    public const string PaymentAmount = "PaymentAmount";
+    public const string PaymentFrequency = "PaymentFrequency";
 }

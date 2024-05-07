@@ -1,7 +1,7 @@
-using System.Globalization;
 using FluentValidation;
 using Placely.Data.Models;
 using static Placely.Data.Dtos.Validators.ValidatorErrorMessages;
+using static Placely.Data.Dtos.Validators.ValidatorMethods;
 
 namespace Placely.Data.Dtos.Validators;
 
@@ -9,9 +9,11 @@ public class PropertyDtoValidator : AbstractValidator<PropertyDto>
 {
     public PropertyDtoValidator()
     {
-        RuleFor(p => p.OwnerId)
+        RuleFor(p => p.ShortPeriodPayment)
             .NotEmpty().WithMessage(NullOrEmpty());
-        RuleFor(p => p.PriceList)
+        RuleFor(p => p.MediumPeriodPayment)
+            .NotEmpty().WithMessage(NullOrEmpty());
+        RuleFor(p => p.LongPeriodPayment)            
             .NotEmpty().WithMessage(NullOrEmpty());
         RuleFor(p => p.Type)
             .NotEmpty().WithMessage(NullOrEmpty())
@@ -27,7 +29,6 @@ public class PropertyDtoValidator : AbstractValidator<PropertyDto>
             .WithMessage(StringContainOnly("буквы и символы пунктуации"));
         RuleFor(p => p.PublicationDate)
             .NotEmpty().WithMessage(NullOrEmpty())
-            .Must(pd => DateTime.TryParse(pd, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out _))
-            .WithMessage(StringUnparsableValue());
+            .Must(IsPast).WithMessage(DateTimeShouldBeNotFromFuture());
     }
 }

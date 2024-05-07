@@ -1,9 +1,12 @@
-﻿namespace Placely.Data.Dtos;
+﻿using System.ComponentModel;
+
+namespace Placely.Data.Dtos;
 
 public class ChatDto
 {
+    [DefaultValue(1)]
     public long Id { get; set; }
-    public long FirstUserId { get; set; }
-    public long SecondUserId { get; set; }
-    public string DirectoryPath { get; set; }
+    
+    [DefaultValue(6)]
+    public long OtherUserId { get; set; }
 }

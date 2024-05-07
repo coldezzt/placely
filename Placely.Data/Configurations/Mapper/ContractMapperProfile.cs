@@ -9,15 +9,19 @@ public class ContractMapperProfile : Profile
     public ContractMapperProfile()
     {
         CreateMap<Reservation, Contract>()
-            .ForMember(static c => c.LeaseStartDateTime, 
-                static opt => opt.MapFrom(static r => r.EntryDate))
-            .ForMember(static c => c.LeaseEndDateTime,
-                static opt => opt.MapFrom(static r => r.EntryDate.Add(r.Duration)));
+            .ForMember(c => c.LeaseStartDateTime, 
+                opt => 
+                    opt.MapFrom(r => r.EntryDate))
+            .ForMember(c => c.LeaseEndDateTime,
+                opt => 
+                    opt.MapFrom(r => r.EntryDate.Add(r.Duration)));
         
         CreateMap<Contract, ContractDto>()
-            .ForMember(static dto => dto.DocxPath,
-                static opt => opt.MapFrom(static c => c.FinalizedPathDocx))
-            .ForMember(static dto => dto.PdfPath,
-                static opt => opt.MapFrom(static c => c.FinalizedPathPdf));
+            .ForMember(dto => dto.DocxPath,
+                opt => 
+                    opt.MapFrom(c => c.FinalizedDocxFileName))
+            .ForMember(dto => dto.PdfPath,
+                opt => 
+                    opt.MapFrom(c => c.FinalizedPdfFileName));
     }
 }

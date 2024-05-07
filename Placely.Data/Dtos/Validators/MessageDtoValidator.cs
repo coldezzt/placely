@@ -18,8 +18,9 @@ public class MessageDtoValidator : AbstractValidator<MessageDto>
         RuleFor(m => m.Date)
             .NotEmpty().WithMessage(NullOrEmpty())
             .Must(m => !IsFuture(m)).WithMessage(DateTimeShouldBeNotFromFuture());
-        RuleFor(m => m.FilePath)
+        RuleFor(m => m.FileName)
             .Must(p => Uri.IsWellFormedUriString(p, UriKind.Absolute))
-            .When(m => m.FilePath is not (null or ""));
+            .When(m => m.FileName is not (null or ""))
+            .WithMessage(StringWrongFormat());
     }
 }

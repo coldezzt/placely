@@ -5,8 +5,10 @@ using Placely.Data.Models;
 
 namespace Placely.Data.Configurations;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext : DbContext
 {
+    private readonly ILogger<AppDbContext> _logger;
+    
     #region Database sets
     
     public DbSet<Tenant> Tenants => Set<Tenant>();
@@ -22,15 +24,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Chat> Chats => Set<Chat>();
     
     #endregion
-
+    
+    public AppDbContext(ILogger<AppDbContext> logger, DbContextOptions<AppDbContext> options) : base(options)
+    {
+        _logger = logger;
+        SavingChanges += (_, _) => 
+            _logger.Log(LogLevel.Trace, $"Begin saving changes in context: {ContextId}");
+        SavedChanges += (_, _) =>
+            _logger.Log(LogLevel.Debug, $"Successfully saved changes in context: {ContextId}");
+    }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseLazyLoadingProxies();
+        _logger.Log(LogLevel.Trace, $"Begin configuring AppDbContext in context: {ContextId}");
         base.OnConfiguring(optionsBuilder);
+        _logger.Log(LogLevel.Debug, $"Successfully configured AppDbContext in context: {ContextId}");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        _logger.Log(LogLevel.Trace, "Begin creating models for AppDbContext.");
+        
         #region Entities configuration
         
         modelBuilder.ApplyConfiguration(new PropertyEntityConfiguration());
@@ -39,7 +53,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.ApplyConfiguration(new ChatEntityConfiguration());
 
         #endregion
-
+        _logger.Log(LogLevel.Trace, "Applied configurations for AppDbContext.");
+        
         #region Seeding
         
         SeedingStartedTenant(modelBuilder);
@@ -48,17 +63,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         SeedingStartedChats(modelBuilder);
         SeedingStartedPriceLists(modelBuilder);
         SeedingStartedProperties(modelBuilder);
-        /* TODO: not implemented cause of m-t-m (i just don't know how)
-        SeedingStartedPropertyTenant(modelBuilder); 
-        */
         SeedingStartedContracts(modelBuilder);
         SeedingStartedReservations(modelBuilder);
         SeedingStartedReviews(modelBuilder);
         SeedingStartedMessages(modelBuilder);
         
         #endregion
+        _logger.Log(LogLevel.Trace, "Applied seeding for AppDbContext.");
 
         base.OnModelCreating(modelBuilder);
+        _logger.Log(LogLevel.Debug, "Successfully created models for AppDbContext.");
     }
 
     #region Seeding methods
@@ -74,7 +88,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 PhoneNumber = "111 1111 11 11",
                 Email = "test.tenant.1@email.domen",
                 Password = "test.tenant.1@email.domen",
-                AvatarPath = "",
                 About = "I'm test tenant 1",
                 Work = "I'm working nowhere"
             }, new()
@@ -84,7 +97,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 PhoneNumber = "222 2222 22 22",
                 Email = "test.tenant.2@email.domen",
                 Password = "test.tenant.2@email.domen",
-                AvatarPath = "",
                 About = "I'm test tenant 2",
                 Work = "I'm working nowhere"
             }, new()
@@ -94,7 +106,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 PhoneNumber = "333 3333 33 33",
                 Email = "test.tenant.3@email.domen",
                 Password = "test.tenant.3@email.domen",
-                AvatarPath = "",
                 About = "I'm test tenant 3",
                 Work = "I'm working nowhere"
             }, new()
@@ -104,7 +115,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 PhoneNumber = "111 1111 11 11",
                 Email = "test.landlord.1@email.domen",
                 Password = "test.landlord.1@email.domen",
-                AvatarPath = "",
                 About = "I'm test landlord 1",
                 Work = "I'm working here"
             }, new()
@@ -114,7 +124,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 PhoneNumber = "222 2222 22 22",
                 Email = "test.landlord.2@email.domen",
                 Password = "test.landlord.2@email.domen",
-                AvatarPath = "",
                 About = "I'm test landlord 2",
                 Work = "I'm working here"
             }, new()
@@ -124,7 +133,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 PhoneNumber = "333 3333 33 33",
                 Email = "test.landlord.3@email.domen",
                 Password = "test.landlord.3@email.domen",
-                AvatarPath = "",
                 About = "I'm test landlord 3",
                 Work = "I'm working here"
             }
@@ -225,19 +233,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Id = 1,
                 FirstUserId = 1,
                 SecondUserId = 1,
-                DirectoryPath = "/chat-t-1-l-1"
+                DirectoryName = "/chat-t-1-l-1"
             }, new()
             {
                 Id = 2,
                 FirstUserId = 2,
                 SecondUserId = 1,
-                DirectoryPath = "/chat-t-2-l-1"
+                DirectoryName = "/chat-t-2-l-1"
             }, new()
             {
                 Id = 3,
                 FirstUserId = 2,
                 SecondUserId = 2,
-                DirectoryPath = "/chat-t-2-l-2"
+                DirectoryName = "/chat-t-2-l-2"
             }
         };
 
@@ -307,11 +315,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         };
 
         modelBuilder.Entity<Property>().HasData(l);
-    }
-    
-    private static void SeedingStartedPropertyTenant(ModelBuilder modelBuilder)
-    {
-        throw new NotImplementedException();
     }
 
     private static void SeedingStartedContracts(ModelBuilder modelBuilder)
@@ -408,6 +411,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Duration = TimeSpan.FromDays(10),
                 EntryDate = DateTime.UtcNow.Add(TimeSpan.FromDays(4)),
                 GuestsAmount = 34
+            }, new()
+            {
+                Id = 6,
+                TenantId = 1,
+                LandlordId = 2,
+                PropertyId = 3,
+                ReservationStatus = ReservationStatus.InProgress,
+                CreationDateTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(10)),
+                Duration = TimeSpan.FromDays(10),
+                EntryDate = DateTime.UtcNow.Add(TimeSpan.FromDays(4)),
+                GuestsAmount = 2
             }
         };
 
@@ -470,7 +484,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 AuthorId = 1,
                 Content = "message 1",
                 Date = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2)).ToUniversalTime(),
-                FilePath = null
+                FileName = ""
             }, new()
             {
                 Id = 2,
@@ -478,7 +492,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 AuthorId = 4,
                 Content = "message 2",
                 Date = DateTime.UtcNow.Subtract(TimeSpan.FromDays(1)).ToUniversalTime(),
-                FilePath = null
+                FileName = ""
             }, new()
             {
                 Id = 3,
@@ -486,7 +500,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 AuthorId = 2,
                 Content = "message with file",
                 Date = DateTime.UtcNow.Subtract(TimeSpan.FromDays(6)).ToUniversalTime(),
-                FilePath = "smt"
+                FileName = "smt.txt"
             }
         };
 

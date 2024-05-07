@@ -8,7 +8,7 @@ public class Property : IEntity
     public long Id { get; set; }
     
     public long OwnerId { get; set; }
-    public virtual Landlord Owner { get; set; }
+    public virtual Tenant Owner { get; set; }
     
     public PropertyType Type { get; set; }
 

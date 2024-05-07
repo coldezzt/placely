@@ -2,149 +2,164 @@ using System.Globalization;
 using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Placely.Data.Abstractions.Services;
 using Placely.Data.Dtos;
 using Placely.Data.Entities;
 using Placely.Data.Models;
+using Placely.Main.Services.Utils;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.Main.Controllers;
 
 [Authorize]
 [Route("api/[controller]")]
-public class TenantController(
-    ITenantService service,
-    IMapper mapper,
-    IValidator<TenantDto> validator) : ControllerBase
+public class TenantController(ITenantService service, IMapper mapper, IValidator<TenantDto> validator,
+    IValidator<SensitiveTenantDto> sensitiveDtoValidator) : ControllerBase
 {
-    [SwaggerOperation(
-        summary: "Получает публичные данные пользователя",
-        description: "Доступен всем.")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Данные о пользователе.",
-        type: typeof(TenantDto),
-        contentTypes: "application/json")]
+    [SwaggerOperation("Получает публичные данные пользователя", "Доступен всем.")]
+    [SwaggerResponse(200, "Данные о пользователе.", typeof(TenantDto), "application/json")]
     [AllowAnonymous, HttpGet("{tenantId}")]
     public async Task<IActionResult> Get(
-        [SwaggerParameter(
-            description: "Идентификатор пользователя.",
-            Required = true)] 
-        long tenantId)
+        [SwaggerParameter("Идентификатор пользователя.", Required = true)] long tenantId)
     {
-        var resultTenant = await service.GetByIdAsync(tenantId);
+        var resultTenant = await service.GetByIdAsNoTrackingAsync(tenantId);
         var response = mapper.Map<TenantDto>(resultTenant);
         return Ok(response);
     }
 
-    [SwaggerOperation(
-        summary: "Получает все имущества, добавленные пользователем в избранное")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Список имуществ.",
-        type: typeof(List<PropertyDto>),
-        contentTypes: "application/json")]
-    [SwaggerResponse(
-        statusCode: 401,
-        description: "Пользователь не авторизован.")]
+    [SwaggerOperation("Получает все имущества, добавленные пользователем в избранное")]
+    [SwaggerResponse(200, "Список имуществ.", typeof(List<PropertyDto>), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
     [HttpGet("my/favourite")]
     public async Task<IActionResult> GetFavouriteProperties()
     {
-        var tenantId = long.Parse(
-            User.FindFirstValue(CustomClaimTypes.UserId)!,
-            NumberStyles.Any,
+        var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
 
         var result = await service.GetFavouritePropertiesAsync(tenantId);
         var response = result.Select(mapper.Map<PropertyDto>);
         return Ok(response);
     }
-    
-    [SwaggerOperation(
-        summary: "Получает настройки пользователя")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Данные о настройках.",
-        type: typeof(SensitiveTenantDto),
-        contentTypes: "application/json")]
-    [SwaggerResponse(
-        statusCode: 401,
-        description: "Пользователь не авторизован.")]
+
+    [SwaggerOperation("Получает настройки пользователя")]
+    [SwaggerResponse(200, "Данные о настройках.", typeof(TenantDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
     [HttpGet("my/settings")]
     public async Task<IActionResult> GetSettings()
     {
-        var tenantId = long.Parse(
-            User.FindFirstValue(CustomClaimTypes.UserId)!,
-            NumberStyles.Any,
+        var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
 
-        var result = await service.GetByIdAsync(tenantId);
+        var result = await service.GetByIdAsNoTrackingAsync(tenantId);
+        var response = mapper.Map<TenantDto>(result);
+        return Ok(response);
+    }
+    
+    [SwaggerOperation("Получает конфиденциальные настройки пользователя")]
+    [SwaggerResponse(200, "Данные о конфиденциальных настройках.", typeof(SensitiveTenantDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [HttpGet("my/sensitive/settings")]
+    public async Task<IActionResult> GetSensitiveSettings()
+    {
+        var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
+            CultureInfo.InvariantCulture);
+
+        var result = await service.GetByIdAsNoTrackingAsync(tenantId);
         var response = mapper.Map<SensitiveTenantDto>(result);
         return Ok(response);
     }
 
-    [SwaggerOperation(
-        summary: "Обновляет настройки пользователя")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Данные об обновлённых настройках.",
-        type: typeof(SensitiveTenantDto),
-        contentTypes: "application/json")]
-    [SwaggerResponse(
-        statusCode: 401,
-        description: "Пользователь не авторизован.")]
-    [SwaggerResponse(
-        statusCode: 422,
-        description: "Данные не прошли валидацию. Возвращает список ошибок.",
-        type: typeof(List<ValidationFailure>),
-        contentTypes: "application/json")]
+    [SwaggerOperation("Добавляет имущество в избранное текущему пользователю")]
+    [SwaggerResponse(200, "Данные о добавленном в избранное имуществе.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [HttpPost("my/favourite")]
+    public async Task<IActionResult> AddPropertyToFavourite(
+        [FromQuery] [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId)
+    {
+        var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
+            CultureInfo.InvariantCulture);
+
+        var property = await service.AddPropertyToFavouritesAsync(tenantId, propertyId);
+        var response = mapper.Map<PropertyDto>(property);
+        return Ok(response);
+    }
+
+    [SwaggerOperation("Обновляет настройки пользователя")]
+    [SwaggerResponse(200, "Данные об обновлённых настройках.", typeof(SensitiveTenantDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+        "application/json")]
     [HttpPatch("my/settings")]
     public async Task<IActionResult> UpdateSettings(
-        [FromBody]
-        [SwaggerRequestBody(
-            description: "Данные для обновления.",
-            Required = true)]
-        TenantDto dto)
+        [FromBody] [SwaggerRequestBody("Данные для обновления.", Required = true)] TenantDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors);
-
-        var tenantId = long.Parse(
-            User.FindFirstValue(CustomClaimTypes.UserId)!,
-            NumberStyles.Any,
-            CultureInfo.InvariantCulture);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
         
+        var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
+            CultureInfo.InvariantCulture);
         var tenant = mapper.Map<Tenant>(dto);
         tenant.Id = tenantId;
-        var result = await service.ChangeSettingsAsync(tenant);
+        var result = await service.PatchSettingsAsync(tenant);
         var response = mapper.Map<TenantDto>(result);
         return Ok(response);
     }
 
-    [SwaggerOperation(
-        summary: "Удаляет аккаунт пользователя")]
-    [SwaggerResponse(
-        statusCode: 200,
-        description: "Данные об удалённом аккаунте.",
-        type: typeof(TenantDto),
-        contentTypes: "application/json")]
-    [SwaggerResponse(
-        statusCode: 401,
-        description: "Пользователь не авторизован.")]
+    [SwaggerOperation("Обновляет чувствительные настройки пользователя")]
+    [SwaggerResponse(200, "Данные об обновлённых настройках.", typeof(SensitiveTenantDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+        "application/json")]
+    [HttpPatch("my/sensitive/settings")]
+    public async Task<IActionResult> UpdateSensitiveSettings([FromBody] SensitiveTenantDto dto)
+    {
+        var validationResult = await sensitiveDtoValidator.ValidateAsync(dto);
+        if (!validationResult.IsValid)
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+        var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
+            CultureInfo.InvariantCulture);
+
+        var dbTenant = await service.GetByIdAsNoTrackingAsync(tenantId);
+        var oldPassHash = PasswordHasher.Hash(dto.OldPassword);
+        if (!PasswordHasher.IsValid(oldPassHash, dto.OldPassword)) 
+            return Forbid();
+        if (dbTenant.PreviousPasswords?.Select(pp => pp.Password == dto.NewPassword).Any() ?? false)
+            return BadRequest();
+        
+        var tenant = mapper.Map<Tenant>(dto);
+        tenant.Id = tenantId;
+        var result = await service.PatchSensitiveSettingsAsync(tenant);
+        var response = mapper.Map<SensitiveTenantDto>(result);
+        return Ok(response);
+    }
+
+    [SwaggerOperation("Удаляет аккаунт пользователя")]
+    [SwaggerResponse(200, "Данные об удалённом аккаунте.", typeof(TenantDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
     [HttpDelete("my")]
     public async Task<IActionResult> Delete()
     {
-        var tenantId = long.Parse(
-            User.FindFirstValue(CustomClaimTypes.UserId)!,
-            NumberStyles.Any,
+        var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        
         var result = await service.DeleteAsync(tenantId);
         var response = mapper.Map<TenantDto>(result);
+        return Ok(response);
+    }
+
+    [SwaggerOperation("Удаляет имущество из избранного текущего пользователя")]
+    [SwaggerResponse(200, "Данные об удалённом из избранного имуществе.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [HttpDelete("my/favourite")]
+    public async Task<IActionResult> DeletePropertyFromFavourite(
+        [FromQuery] [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId)
+    {
+        var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
+            CultureInfo.InvariantCulture);
+        var dbProperty = await service.DeletePropertyFromFavouritesAsync(tenantId, propertyId);
+        var response = mapper.Map<PropertyDto>(dbProperty);
         return Ok(response);
     }
 }
