@@ -79,7 +79,7 @@ try
 
     // Маппинг
     application.MapControllers();
-    application.MapHub<ChatHub>("api/hubs/chat");
+    // application.MapHub<ChatHub>("api/hubs/chat"); в разработке :(
     Log.Logger.Verbose("Successfully mapped endpoints in application.");
 
     // Background задачи

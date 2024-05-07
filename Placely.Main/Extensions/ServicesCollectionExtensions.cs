@@ -103,6 +103,7 @@ public static class ServicesCollectionExtensions
         return collection.AddDbContext<AppDbContext>(builder =>
         {
             builder.UseNpgsql(configuration["Database:ConnectionString"]);
+            builder.UseLazyLoadingProxies();
             builder.UseSnakeCaseNamingConvention();
             builder.EnableSensitiveDataLogging();
         });
@@ -290,7 +291,6 @@ public static class ServicesCollectionExtensions
 
                 .Enrich.FromLogContext();
         });
-
 
         return services;
     }

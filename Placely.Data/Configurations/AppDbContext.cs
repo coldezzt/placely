@@ -37,8 +37,6 @@ public class AppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         _logger.Log(LogLevel.Trace, $"Begin configuring AppDbContext in context: {ContextId}");
-        optionsBuilder.EnableDetailedErrors();
-        optionsBuilder.UseLazyLoadingProxies();
         base.OnConfiguring(optionsBuilder);
         _logger.Log(LogLevel.Debug, $"Successfully configured AppDbContext in context: {ContextId}");
     }

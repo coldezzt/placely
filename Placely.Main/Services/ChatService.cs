@@ -41,8 +41,9 @@ public class ChatService(
 
     public async Task<Chat> DeleteByIdAsync(long chatId)
     {
-        var dbChat = await chatRepo.GetByIdAsNoTrackingAsync(chatId);
+        var dbChat = await chatRepo.GetByIdAsync(chatId);
         var chat = await chatRepo.DeleteAsync(dbChat);
+        await chatRepo.SaveChangesAsync();
         return chat;
     }
 }

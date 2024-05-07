@@ -31,7 +31,7 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
 
     [SwaggerOperation("Возвращает чат по его идентификатору",
         "Может быть использовано, когда вам нужно часто проверять" +
-        "только несколько определённых чатов, а не все сразу.")]
+        " только несколько определённых чатов, а не все сразу.")]
     [SwaggerResponse(200, "Информация по выбранному чату.", typeof(ChatDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Пользователь попытался получить чат, участником, которого он не является.")]
@@ -43,7 +43,8 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
             CultureInfo.InvariantCulture);
         var chat = await chatService.GetByIdAsync(chatId);
         if (id != chat.FirstUserId && id != chat.SecondUserId) return Forbid();
-        return Ok(chat);
+        var response = mapper.Map<ChatDto>(chat);
+        return Ok(response);
     }
 
     [SwaggerOperation("Создаёт чат между пользователями",
@@ -79,6 +80,7 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
         var dbChat = await chatService.GetByIdAsync(chatId);
         if (currentUserId != dbChat.FirstUserId && currentUserId != dbChat.SecondUserId) return Forbid();
         var chat = await chatService.DeleteByIdAsync(chatId);
-        return Ok(chat);
+        var response = mapper.Map<ChatDto>(chat);
+        return Ok(response);
     }
 }
