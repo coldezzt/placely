@@ -60,6 +60,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IContractService, ContractService>();
         services.AddScoped<IDadataAddressService, DadataAddressService>();
+        services.AddScoped<ILandlordService, LandlordService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<IPropertyService, PropertyService>();
         services.AddScoped<IRegistrationService, RegistrationService>();

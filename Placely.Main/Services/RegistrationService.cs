@@ -10,6 +10,7 @@ public class RegistrationService(
     ILogger<RegistrationService> logger,
     ITenantRepository tenantRepo) : IRegistrationService
 {
+    // TODO: добавить проверку на номер телефона
     public async Task<Tenant> RegisterUserAsync(Tenant tenant)
     {
         logger.Log(LogLevel.Trace, "Begin registering user: {@tenant}.", tenant);
