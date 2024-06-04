@@ -10,12 +10,12 @@ public class ReservationDtoValidator : AbstractValidator<ReservationDto>
     public ReservationDtoValidator()
     {
         RuleFor(r => r.ReservationStatus)
-            .Must(t => Enum.IsDefined(typeof(ReservationStatusType), t ?? ""))
+            .Must(t => Enum.IsDefined(typeof(ReservationStatus), t ?? ""))
             .When(r => r.ReservationStatus is not null)
-            .WithMessage(StringImpossibleValue(string.Join(" | ", Enum.GetValues<ReservationStatusType>())));
+            .WithMessage(StringImpossibleValue(string.Join(" | ", Enum.GetValues<ReservationStatus>())));
         RuleFor(r => r.DeclineReason)
             .Must(dr => dr?.Length < 256)
-            .When(r => Enum.TryParse<ReservationStatusType>(r.ReservationStatus, out _))
+            .When(r => Enum.TryParse<ReservationStatus>(r.ReservationStatus, out _))
             .WithMessage(StringLengthShouldBeLessThan(256));
         RuleFor(r => r.CreationDateTime)
             .NotEmpty().WithMessage(NullOrEmpty())

@@ -5,16 +5,18 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.WebAPI.Abstractions.Services;
+using Placely.Application.Models;
+using Placely.Domain.Abstractions.Services;
 using Placely.WebAPI.Dto;
-using Placely.WebAPI.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthorizationController(IAuthService service, IMapper mapper,
+public class AuthorizationController(
+    IAuthService service, 
+    IMapper mapper,
     IValidator<AuthorizationDto> validator) : ControllerBase
 {
     [SwaggerOperation("Авторизует пользователя",
@@ -31,9 +33,10 @@ public class AuthorizationController(IAuthService service, IMapper mapper,
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
-        var authResult = await service.AuthorizeAsync(dto);
+        var model = mapper.Map<AuthorizationModel>(dto);
+        var authResult = await service.AuthorizeAsync(model);
         if (!authResult.IsSuccess) return BadRequest(authResult.Error);
-        return Ok(authResult.TokenDto);
+        return Ok(authResult.TokenModel);
     }
 
     [SwaggerOperation("Авторизует пользователя используя Google OAuth",

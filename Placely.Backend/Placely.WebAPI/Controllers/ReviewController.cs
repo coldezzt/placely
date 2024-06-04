@@ -4,10 +4,10 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Placely.Application.Models;
+using Placely.Domain.Abstractions.Services;
 using Placely.Domain.Entities;
-using Placely.WebAPI.Abstractions.Services;
 using Placely.WebAPI.Dto;
-using Placely.WebAPI.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.WebAPI.Controllers;

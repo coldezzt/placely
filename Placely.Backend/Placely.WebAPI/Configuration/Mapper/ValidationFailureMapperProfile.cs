@@ -1,6 +1,6 @@
 using AutoMapper;
 using FluentValidation.Results;
-using Placely.WebAPI.Models;
+using Placely.Application.Models;
 
 namespace Placely.WebAPI.Configuration.Mapper;
 

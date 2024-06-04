@@ -4,11 +4,11 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Placely.Application.Models;
+using Placely.Domain.Abstractions.Services;
 using Placely.Domain.Entities;
 using Placely.Domain.Enums;
-using Placely.WebAPI.Abstractions.Services;
 using Placely.WebAPI.Dto;
-using Placely.WebAPI.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.WebAPI.Controllers;
@@ -104,7 +104,7 @@ public class ReservationController(
             CultureInfo.InvariantCulture);
         var dbReservation = await service.GetByIdAsNoTrackingAsync(reservationId);
         if (dbReservation.LandlordId != currentUserId && dbReservation.TenantId != currentUserId) return Forbid();
-        if (dbReservation.StatusType == ReservationStatusType.InProgress) return Conflict();
+        if (dbReservation.Status == ReservationStatus.InProgress) return Conflict();
         var deletedReservation = await service.DeleteAsync(reservationId);
         var response = mapper.Map<ReservationDto>(deletedReservation);
         return Ok(response);

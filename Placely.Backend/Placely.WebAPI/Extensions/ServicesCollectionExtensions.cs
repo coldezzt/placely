@@ -11,14 +11,14 @@ using Microsoft.OpenApi.Models;
 using Placely.Application.Abstractions.Repositories;
 using Placely.Application.Configuration.DestructingPolicies;
 using Placely.Application.Options;
-using Placely.Infrastructure;
-using Placely.Infrastructure.Repositories;
-using Placely.WebAPI.Abstractions.Services;
+using Placely.Application.Services;
+using Placely.Domain.Abstractions.Services;
+using Placely.Persistence;
+using Placely.Persistence.Repositories;
 using Placely.WebAPI.Configuration.Mapper;
 using Placely.WebAPI.Dto;
 using Placely.WebAPI.Dto.Validators;
 using Placely.WebAPI.Middlewares;
-using Placely.WebAPI.Services;
 using Serilog;
 using Serilog.Events;
 
@@ -96,16 +96,10 @@ public static class ServicesCollectionExtensions
         return services;
     }
     
-    public static IServiceCollection AddDbContext(this IServiceCollection collection,
-        IConfiguration configuration)
+    public static IServiceCollection AddDbContext(this IServiceCollection collection, IConfiguration configuration)
     {
-        return collection.AddDbContext<AppDbContext>(builder =>
-        {
-            builder.UseNpgsql(configuration["Database:ConnectionString"]);
-            builder.UseLazyLoadingProxies();
-            builder.UseSnakeCaseNamingConvention();
-            builder.EnableSensitiveDataLogging();
-        });
+        return collection.AddDbContext<AppDbContext>(builder => 
+            builder.UseNpgsql(configuration["Database:ConnectionString"]));
     }
 
     public static IServiceCollection AddConfiguredJwtAuthentication(this IServiceCollection services, IConfiguration configuration)

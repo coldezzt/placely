@@ -10,9 +10,9 @@ public class ReservationMapperProfile : Profile
     public ReservationMapperProfile()
     {
         CreateMap<ReservationDto, Reservation>()
-            .ForMember(r => r.StatusType,
+            .ForMember(r => r.Status,
                 opt =>
-                    opt.MapFrom(dto => Enum.Parse<ReservationStatusType>(dto.ReservationStatus)))
+                    opt.MapFrom(dto => Enum.Parse<ReservationStatus>(dto.ReservationStatus)))
             .ForMember(r => r.Duration,
                 opt =>
                     opt.MapFrom(dto => TimeSpan.FromDays(dto.DurationInDays)));
@@ -20,7 +20,7 @@ public class ReservationMapperProfile : Profile
         CreateMap<Reservation, ReservationDto>()
             .ForMember(dto => dto.ReservationStatus,
                 opt => 
-                    opt.MapFrom(r => r.StatusType.ToString()))
+                    opt.MapFrom(r => r.Status.ToString()))
             .ForMember(dto => dto.DurationInDays,
                 opt => 
                     opt.MapFrom(r => r.Duration.Days));

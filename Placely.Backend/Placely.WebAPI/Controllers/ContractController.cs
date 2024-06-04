@@ -5,10 +5,10 @@ using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Placely.Application.Models;
+using Placely.Domain.Abstractions.Services;
 using Placely.Domain.Enums;
-using Placely.WebAPI.Abstractions.Services;
 using Placely.WebAPI.Dto;
-using Placely.WebAPI.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.WebAPI.Controllers;
@@ -28,9 +28,9 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        var contract = await service.GetByIdAsNoTrackingAsync(contractId);
-        if (contract.LandlordId != currentUserId && contract.TenantId != currentUserId) return Forbid();
-        var response = mapper.Map<ContractDto>(contract);
+        var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
+        if (dbContract.Reservation.LandlordId != currentUserId && dbContract.Reservation.TenantId != currentUserId) return Forbid();
+        var response = mapper.Map<ContractDto>(dbContract.Reservation);
         return Ok(response);
     }
 
@@ -48,9 +48,9 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
         var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
-        if (currentUserId != dbContract.TenantId && currentUserId != dbContract.LandlordId) return Forbid();
+        if (currentUserId != dbContract.Reservation.TenantId && currentUserId != dbContract.Reservation.LandlordId) return Forbid();
         var names = 
-            await service.GetFileNamesListByLandlordAndTenantIdAsync(dbContract.LandlordId, dbContract.TenantId);
+            await service.GetFileNamesListByLandlordAndTenantIdAsync(dbContract.Reservation.LandlordId, dbContract.Reservation.TenantId);
         return Ok(names);
     }
     
@@ -70,17 +70,19 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
         var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
-        if (dbContract.TenantId != currentUserId && dbContract.LandlordId != currentUserId) return Forbid();
+        
+        if (dbContract.Reservation.TenantId != currentUserId 
+            && dbContract.Reservation.LandlordId != currentUserId) 
+            return Forbid();
+        
         var file = await service.GetFileBytesByIdAsync(dbContract.Id, fileName);
-        return file.Length == 0 ? NotFound() : File(file, MediaTypeNames.Application.Octet, fileName);
+        return file.Length == 0 
+            ? NotFound() 
+            : File(file, MediaTypeNames.Application.Octet, fileName);
     }
 
     [SwaggerOperation("Генерирует контракт на основе заявки", 
-        """
-        Создаёт контракт в папке с контрактами владельца имущества между пользователями (если нет создаёт её).
-
-        Большинство данных берёт из заявки. Некоторые договорные данные необходимо передать в теле.
-        """)]
+        "Создаёт контракт в папке (если нет создаёт её) с контрактами владельца имущества между пользователями.")]
     [SwaggerResponse(200, "Информация по контракту.", typeof(ContractDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Попытка запросить создание контракта пользователем, не фигурирующем в контракте.")]
@@ -88,14 +90,19 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] [SwaggerRequestBody("Данные необходимые для завершения создания контракта.", Required = true)]
-        ContractCreationDto dto)
+        long reservationId)
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        var reservation = await service.GetReservationByIdAsync(dto.ReservationId);
-        if (reservation.LandlordId != currentUserId && reservation.TenantId != currentUserId) return Forbid();
-        if (reservation.StatusType is ReservationStatusType.Declined) return Conflict();
-        var contract = await service.GenerateAsync(dto);
+        var reservation = await service.GetReservationByIdAsync(reservationId);
+        
+        if (reservation.LandlordId != currentUserId && reservation.TenantId != currentUserId) 
+            return Forbid();
+        
+        if (reservation.Status is ReservationStatus.Declined) 
+            return Conflict();
+        
+        var contract = await service.GenerateAsync(reservationId);
         var response = mapper.Map<ContractDto>(contract);
         return Ok(response);
     }

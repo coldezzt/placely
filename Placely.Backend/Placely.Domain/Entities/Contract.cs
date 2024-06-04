@@ -5,20 +5,8 @@ namespace Placely.Domain.Entities;
 public class Contract : IEntity
 {
     public long Id { get; set; }
-    
-    public long TenantId { get; set; }
-    public virtual Tenant Tenant { get; set; }
-    
-    public long LandlordId { get; set; }
-    public virtual Landlord Landlord { get; set; }
-    
-    public long PropertyId { get; set; }
-    public virtual Property Property { get; set; }
-    
-    public string TemplatePath { get; set; }
-    public string TemplateFieldsPath { get; set; }
+    public long ReservationId { get; set; }
+    public Reservation Reservation { get; set; }
     public string? FinalizedDocxFileName { get; set; }
     public string? FinalizedPdfFileName { get; set; }
-    public DateTime LeaseStartDateTime { get; set; }
-    public DateTime LeaseEndDateTime { get; set; }
 }

@@ -19,11 +19,7 @@ public class ContractDestructingPolicy : IDestructuringPolicy
             new[]
             {
                 new LogEventProperty("Id", new ScalarValue(c.Id)),
-                new LogEventProperty("TenantId", new ScalarValue(c.TenantId)),
-                new LogEventProperty("LandlordId", new ScalarValue(c.LandlordId)),
-                new LogEventProperty("PropertyId", new ScalarValue(c.PropertyId)),
-                new LogEventProperty("LeaseStartDateTime", new ScalarValue(c.LeaseStartDateTime)),
-                new LogEventProperty("LeaseEndDateTime", new ScalarValue(c.LeaseEndDateTime))
+                new LogEventProperty("Reservation", new ScalarValue(c.Reservation))
             },
             "Contract");
 

@@ -4,10 +4,10 @@ using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.SignalR;
+using Placely.Application.Models;
+using Placely.Domain.Abstractions.Services;
 using Placely.Domain.Entities;
-using Placely.WebAPI.Abstractions.Services;
 using Placely.WebAPI.Dto;
-using Placely.WebAPI.Models;
 using SignalRSwaggerGen.Attributes;
 using SignalRSwaggerGen.Enums;
 

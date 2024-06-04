@@ -3,9 +3,6 @@
 **/Logs
 **/obj
 
-# Storing source
-**/Data
-
 # Private settings
 **/appsettings.Development.json
 

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Placely.Application.Models;
 using Placely.Domain.Entities;
 using Placely.WebAPI.Dto;
 
@@ -8,6 +9,7 @@ public class AuthorizationMapperProfile : Profile
 {
     public AuthorizationMapperProfile()
     {
-        CreateMap<AuthorizationDto, Tenant>();
+        CreateMap<AuthorizationDto, AuthorizationModel>();
+        CreateMap<AuthorizationModel, AuthorizationDto>();
     }
 }

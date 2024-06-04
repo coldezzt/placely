@@ -16,10 +16,12 @@ public class Reservation : IEntity
     public long PropertyId { get; set; }
     public virtual Property Property { get; set; }
 
-    public ReservationStatusType? StatusType { get; set; }
+    public ReservationStatus? Status { get; set; }
     public string? DeclineReason { get; set; }
     public DateTime CreationDateTime { get; set; }
     public TimeSpan Duration { get; set; }
     public DateTime EntryDate { get; set; }
     public byte GuestsAmount { get; set; }
+    public decimal PaymentAmount { get; set; }
+    public string PaymentFrequency { get; set; }
 }
