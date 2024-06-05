@@ -12,10 +12,13 @@ public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbCont
     public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
         logger.Log(LogLevel.Trace, "Begin adding an entity: {@entity}.", entity);
+        
         entity.Id = 0; // ID не важен когда мы добавляем значение в бд
         var set = appDbContext.Set<TEntity>();
         var result = await set.AddAsync(entity);
-        logger.Log(LogLevel.Information, "Successfully added: {@entity}.", entity);
+        
+        logger.Log(LogLevel.Debug, "Successfully added: {@entity}.", entity);
+        
         return result.Entity;
     }
 
@@ -29,7 +32,9 @@ public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbCont
             throw new EntityNotFoundException(typeof(TEntity), entity.Id.ToString());
         
         var result = set.Update(entity);
-        logger.Log(LogLevel.Information, "Successfully updated: {@entity}.", entity);
+        
+        logger.Log(LogLevel.Debug, "Successfully updated: {@entity}.", entity);
+        
         return Task.FromResult(result.Entity);
     }
 
@@ -43,7 +48,9 @@ public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbCont
             throw new EntityNotFoundException(typeof(TEntity), entity.Id.ToString());
         
         var result = set.Remove(entity);
-        logger.Log(LogLevel.Information, "Successfully deleted: {@entity}.", entity);
+        
+        logger.Log(LogLevel.Debug, "Successfully deleted: {@entity}.", entity);
+        
         return Task.FromResult(result.Entity);
     }
 
@@ -56,7 +63,8 @@ public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbCont
         if (result is null)
             throw new EntityNotFoundException(typeof(TEntity), entityId.ToString());
         
-        logger.Log(LogLevel.Information, "Successfully got: {@1}. {@2}.", typeof(TEntity).Name, result);
+        logger.Log(LogLevel.Debug, "Successfully got: {@1}. {@2}.", typeof(TEntity).Name, result);
+        
         return result;
     }
     
@@ -69,7 +77,8 @@ public abstract class Repository<TEntity>(ILogger logger, AppDbContext appDbCont
         if (result is null)
             throw new EntityNotFoundException(typeof(TEntity), entityId.ToString());
         
-        logger.Log(LogLevel.Information, "Successfully got: {@1}. {@2}.", typeof(TEntity).Name, result);
+        logger.Log(LogLevel.Debug, "Successfully got: {@1}. {@2}.", typeof(TEntity).Name, result);
+        
         return result;
     }
 

@@ -34,7 +34,7 @@ public class TenantService(
         await tenantRepo.UpdateAsync(dbTenant);
         await tenantRepo.SaveChangesAsync();
         
-        logger.Log(LogLevel.Trace, "Successfully added property to favourites." +
+        logger.Log(LogLevel.Debug, "Successfully added property to favourites." +
                                    "User: {@tenant}. Property: {@property}.", dbTenant, dbProperty);
         return dbProperty;
     }
@@ -49,7 +49,7 @@ public class TenantService(
         var result = await tenantRepo.UpdateAsync(dbTenant);
         await tenantRepo.SaveChangesAsync();
         
-        logger.Log(LogLevel.Information, "Successfully updated and saved settings for user: {@tenant}", user);
+        logger.Log(LogLevel.Debug, "Successfully updated and saved settings for user: {@tenant}", user);
         return result;
     }
 
@@ -67,7 +67,7 @@ public class TenantService(
         var result = await tenantRepo.UpdateAsync(dbTenant);
         await tenantRepo.SaveChangesAsync();
         
-        logger.Log(LogLevel.Information, "Successfully updated and saved sensitive settings for user: {@tenant}", user);
+        logger.Log(LogLevel.Debug, "Successfully updated and saved sensitive settings for user: {@tenant}", user);
         return result;
     }
 
@@ -94,7 +94,7 @@ public class TenantService(
         await tenantRepo.UpdateAsync(dbTenant);
         await tenantRepo.SaveChangesAsync();
         
-        logger.Log(LogLevel.Trace, "Successfully removed property from favourites." +
+        logger.Log(LogLevel.Debug, "Successfully removed property from favourites." +
                                    "User: {@tenant}. Property: {@property}.", dbTenant, dbProperty);
         return dbProperty;
     }

@@ -12,6 +12,7 @@ public class RatingUpdaterService(
     public async Task UpdatePropertyRating()
     {
         logger.Log(LogLevel.Information, "Begin updating rating for all properties.");
+        
         var properties = propertyRepo.GetPropertiesByFilter().ToList();
         foreach (var property in properties)
         {

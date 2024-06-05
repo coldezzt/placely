@@ -26,7 +26,8 @@ public class DadataAddressService : IDadataAddressService
         var client = new CleanClientAsync(DadataToken, DadataSecret);
         var clean = await client.Clean<Address>(address);
 
-        Logger.Log(LogLevel.Trace, "Successfully cleaned address: {address}", address);
+        Logger.Log(LogLevel.Debug, "Successfully cleaned address: {address}", address);
+        
         return clean;
     }
 
@@ -35,7 +36,8 @@ public class DadataAddressService : IDadataAddressService
         var client = new SuggestClientAsync(DadataToken);
         var suggested = await client.SuggestAddress(address);
         
-        Logger.Log(LogLevel.Trace, "Successfully suggested address: {address}", address);
+        Logger.Log(LogLevel.Debug, "Successfully suggested address: {address}", address);
+        
         return suggested;
     }
 
@@ -43,12 +45,14 @@ public class DadataAddressService : IDadataAddressService
     {
         var normalizeAddress = await NormalizeAddressAsync(address);
         var isSuccess = normalizeAddress.unparsed_parts == null;
+        
         Logger.Log(
-            LogLevel.Trace,
+            LogLevel.Debug,
             isSuccess 
                 ? "Successfully find address: {address}" 
                 : "Address doesn't exist: {address}", 
             address);
+        
         return isSuccess;
     }
 }

@@ -11,7 +11,7 @@ public class MessageRepository(ILogger<MessageRepository> logger, AppDbContext a
 {
     public async Task<List<Message>> GetListByChatIdAsync(long chatId)
     {
-        logger.Log(LogLevel.Debug, $"Begin getting messages list of chat with Id: {chatId}");
+        logger.Log(LogLevel.Trace, $"Begin getting messages list of chat with Id: {chatId}");
 
         var dbChat = await appDbContext.Chats
             .Include(static chat => chat.Messages)
@@ -21,6 +21,7 @@ public class MessageRepository(ILogger<MessageRepository> logger, AppDbContext a
             throw new EntityNotFoundException(typeof(Chat), chatId.ToString());
 
         logger.Log(LogLevel.Debug, $"Successfully got messages list of chat with Id: {chatId}");
+        
         return dbChat.Messages;
     }
 }

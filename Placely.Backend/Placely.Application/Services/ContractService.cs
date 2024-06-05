@@ -46,16 +46,18 @@ public class ContractService(
     public async Task<byte[]> GetFileBytesByIdAsync(long contractId, string fileName)
     {
         logger.Log(LogLevel.Trace, "Begin getting contract file with id: {contractId}", contractId);
-        var contract = await contractRepo.GetByIdAsNoTrackingAsync(contractId);
-        if (contract.FinalizedDocxFileName is null || contract.FinalizedPdfFileName is null)
+        
+        var dbContract = await contractRepo.GetByIdAsNoTrackingAsync(contractId);
+        if (dbContract.FinalizedDocxFileName is null || dbContract.FinalizedPdfFileName is null)
             throw new ContractServiceException("Файлы контракта ещё не созданы. Попробуйте позднее.");
         
         var absoluteFilePath = Path.Combine(
-            options.Value.ContentRootPath, 
-            configurationOptions.Value.PathToContractDirectory,
-            "contracts_" + string.Join("_", contract.Reservation.Participants.Order()),
-            fileName
+                options.Value.ContentRootPath, 
+                configurationOptions.Value.PathToContractDirectory,
+                "contracts_" + string.Join("_", dbContract.Reservation.Participants.Order()),
+                fileName
             );
+        
         if (!Path.Exists(absoluteFilePath))
         {
             logger.Log(LogLevel.Debug,
@@ -71,6 +73,7 @@ public class ContractService(
     public async Task<Contract> GenerateAsync(long reservationId)
     {
         logger.Log(LogLevel.Trace, "Begin creating contract based on reservation {reservationId}", reservationId);
+        
         // Достаём данные и "сокращаем переменные" (для читабельности)
         var dbReservation = await reservationRepository.GetByIdAsync(reservationId);
         var workingDirectoryName = "contracts_" + string.Join("_", dbReservation.Participants.Order());

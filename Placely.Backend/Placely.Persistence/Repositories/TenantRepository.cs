@@ -21,29 +21,33 @@ public class TenantRepository(ILogger<TenantRepository> logger, AppDbContext app
 
     public async Task<User?> TryGetByEmailAsync(string email)
     {
-        logger.Log(LogLevel.Debug, $"Begin getting user by email: {email}");
+        logger.Log(LogLevel.Trace, $"Begin getting user by email: {email}");
 
         var result = await appDbContext.Tenants.FirstOrDefaultAsync(t => t.Email == email);
 
         logger.Log(LogLevel.Debug, $"Successfully got user by email: {email}");
+        
         return result;
     }
 
     public async Task<User> AddOrUpdateAsync(User user)
     {
-        logger.Log(LogLevel.Information, "Begin adding or updating user according to it's existing. User: {@tenant}", user);
+        logger.Log(LogLevel.Trace, "Begin adding or updating user according to it's existing. User: {@tenant}", user);
+        
         var dbTenant = await appDbContext.Tenants.FirstOrDefaultAsync(t => t.Email == user.Email);
         EntityEntry<User> resultTenantEntry;
         if (dbTenant is null)
         {
             resultTenantEntry = await appDbContext.Tenants.AddAsync(user);
-            logger.Log(LogLevel.Information, "Successfully created user according to it's nonexistence. " +
+            
+            logger.Log(LogLevel.Debug, "Successfully created user according to it's nonexistence. " +
                                              "User: {@resultTenant}", resultTenantEntry.Entity);
         }
         else
         {
             resultTenantEntry = appDbContext.Tenants.Update(user);
-            logger.Log(LogLevel.Information, "Successfully updated user according to it's existence. " +
+            
+            logger.Log(LogLevel.Debug, "Successfully updated user according to it's existence. " +
                                              "User: {@resultTenant}", resultTenantEntry.Entity);
         }
 

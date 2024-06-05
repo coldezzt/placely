@@ -54,7 +54,7 @@ public class PropertyService(
         var updatedProperty = await propertyRepo.UpdateAsync(dbProperty);
         await propertyRepo.SaveChangesAsync();
         
-        logger.Log(LogLevel.Information, "Successfully updated a property: {@property}", updatedProperty);
+        logger.Log(LogLevel.Debug, "Successfully updated a property: {@property}", updatedProperty);
         return updatedProperty;
     }
 

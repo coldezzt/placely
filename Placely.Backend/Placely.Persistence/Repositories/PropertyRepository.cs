@@ -10,13 +10,14 @@ public class PropertyRepository(ILogger<PropertyRepository> logger, AppDbContext
 {
     public IEnumerable<Property> GetPropertiesByFilter(Func<Property, bool>? predicate)
     {
-        logger.Log(LogLevel.Debug, "Begin getting properties list with predicate");
+        logger.Log(LogLevel.Trace, "Begin getting properties list with predicate");
 
         var result = predicate is not null 
             ? appDbContext.Properties.AsExpandable().AsEnumerable().Where(predicate)
             : appDbContext.Properties;
         
         logger.Log(LogLevel.Debug, "Successfully got properties list with predicate");
+        
         return result;
     }
 }

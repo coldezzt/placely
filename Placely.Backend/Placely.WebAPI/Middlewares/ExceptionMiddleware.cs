@@ -22,7 +22,8 @@ public class ExceptionMiddleware(
         {
             if (context.Response.HasStarted)
                 throw;
-            logger.Log(LogLevel.Trace, "Found exception. Type: {type}, Full: {@exception}", e.GetType().Name, e);
+            
+            logger.Log(LogLevel.Warning, "Found exception. Type: {type}, Full: {@exception}", e.GetType().Name, e);
             
             var statusCode = e switch
             {
@@ -47,7 +48,11 @@ public class ExceptionMiddleware(
                 Exception = SerializeException(e)
             };
 
+            if (statusCode is StatusCodes.Status500InternalServerError)
+                logger.Log(LogLevel.Error, "Unhandled error. {type}. Full: {@exception}", e.GetType().Name, e);
+            
             logger.Log(LogLevel.Debug, "Responded with: {@response}", response);
+            
             var body = JsonSerializer.Serialize(response);
             await context.Response.WriteAsync(body);
         }

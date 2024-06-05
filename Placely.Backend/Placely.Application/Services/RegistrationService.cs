@@ -18,7 +18,7 @@ public class RegistrationService(
         {
             await tenantRepo.GetByEmailAsync(user.Email);
             
-            logger.Log(LogLevel.Information, "Registration failure. User with same email already exists: {@tenant}.", user);
+            logger.Log(LogLevel.Debug, "Registration failure. User with same email already exists: {@tenant}.", user);
             return new User {Email = ""};
         }
         catch (EntityNotFoundException)

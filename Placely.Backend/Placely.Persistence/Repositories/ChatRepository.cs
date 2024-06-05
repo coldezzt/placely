@@ -16,7 +16,8 @@ public class ChatRepository(ILogger<ChatRepository> logger, AppDbContext appDbCo
             .Where(c => c.Participants.Any(t => t.Id == userId))
             .ToListAsync();
         
-        logger.Log(LogLevel.Trace, $"Successfully got chats list of user with Id: {userId}");
+        logger.Log(LogLevel.Debug, $"Successfully got chats list of user with Id: {userId}");
+        
         return chats;
     }
 
@@ -32,7 +33,7 @@ public class ChatRepository(ILogger<ChatRepository> logger, AppDbContext appDbCo
                 .SequenceEqual(ids.Order())
             );
         
-        logger.Log(LogLevel.Information, dbChat is null 
+        logger.Log(LogLevel.Debug, dbChat is null 
             ? "Chat with users {firstUserId} and {secondUserId} not found"
             : "Successfully found chat with users {firstUserId} and {secondUserId}",
             firstUserId, secondUserId);

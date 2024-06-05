@@ -57,7 +57,7 @@ public class ReviewService(
             .Take(10)
             .ToList();
 
-        logger.Log(LogLevel.Information, "Successfully got review list of property with id: {propertyId}", propertyId);
+        logger.Log(LogLevel.Debug, "Successfully got review list of property with id: {propertyId}", propertyId);
         return result;
     }
 

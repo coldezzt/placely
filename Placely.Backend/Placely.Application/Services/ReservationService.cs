@@ -39,6 +39,7 @@ public class ReservationService(
     public async Task<Reservation> UpdateAsync(Reservation reservation)
     {
         logger.Log(LogLevel.Trace, "Begin updating reservation: {@reservation}.", reservation);
+        
         var dbReservation = await reservationRepo.GetByIdAsync(reservation.Id);
 
         if (reservation.Status >= ReservationStatus.InProgress)

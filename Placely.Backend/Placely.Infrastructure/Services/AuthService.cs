@@ -26,10 +26,12 @@ public class AuthService(
     public async Task<AuthorizationResult> AuthorizeAsync(AuthorizationModel tenant)
     {
         logger.Log(LogLevel.Trace, "Begin authorize user with email {Email}", tenant.Email);
+        
         var dbTenant = await tenantRepo.GetByEmailAsync(tenant.Email);
         if (!PasswordHasher.IsValid(dbTenant.Password, tenant.Password))
         {
-            logger.Log(LogLevel.Information, "Authorization user with email {Email} failed due to: wrong password.", tenant.Email);
+            logger.Log(LogLevel.Debug, "Authorization user with email {Email} failed due to: wrong password.", tenant.Email);
+            
             return new AuthorizationResult { IsSuccess = false, Error = "Неверный пароль!" };
         }
 
@@ -38,19 +40,23 @@ public class AuthService(
             var tfa = new TwoFactorAuthenticator();
             if (!tfa.ValidateTwoFactorPIN(dbTenant.TwoFactorAccountSecretKey, tenant.TwoFactorKey))
             {
-                logger.Log(LogLevel.Information, "Authorization user with email {Email} failed due to: wrong 2FA TOTP key.", tenant.Email);
+                logger.Log(LogLevel.Debug, "Authorization user with email {Email} failed due to: wrong 2FA TOTP key.", tenant.Email);
+                
                 return new AuthorizationResult { IsSuccess = false, Error = "Неверный двухфакторный ключ!" };
             }
         }
 
         var tokenDto = await CreateTokenAsync(dbTenant, populateExp: true);
-        logger.Log(LogLevel.Information, "Successfully authorized user with email {Email}.", tenant.Email);
+        
+        logger.Log(LogLevel.Debug, "Successfully authorized user with email {Email}.", tenant.Email);
+        
         return new AuthorizationResult { IsSuccess = true, TokenModel = tokenDto };
     }
     
     public async Task<TokenModel> RefreshTokenAsync(TokenModel tokenDto)
     {
         logger.Log(LogLevel.Trace, "Begin refreshing user tokens with expired access token {accessToken}", tokenDto.AccessToken);
+        
         var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
 
         var email = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
@@ -61,7 +67,8 @@ public class AuthService(
             throw new RefreshTokenBadRequestException();
         
         var newTokenPair = await CreateTokenAsync(tenant, populateExp: false);
-        logger.Log(LogLevel.Trace, "Successfully refresh user tokens with expired access token {accessToken}", tokenDto.AccessToken);
+        
+        logger.Log(LogLevel.Debug, "Successfully refresh user tokens with expired access token {accessToken}", tokenDto.AccessToken);
         
         return newTokenPair;
     }
@@ -96,7 +103,7 @@ public class AuthService(
 
         await tenantRepo.AddOrUpdateAsync(tenant);
         await tenantRepo.SaveChangesAsync();
-        logger.Log(LogLevel.Information, "Successfully authorize user with {Email} using external service.", email);
+        logger.Log(LogLevel.Debug, "Successfully authorize user with {Email} using external service.", email);
 
         return tokenDto;
     }
@@ -109,7 +116,8 @@ public class AuthService(
 
         if (tenant.IsTwoFactorEnabled)
         {
-            logger.Log(LogLevel.Information, "2FA already applied to user with {Email}.", email);
+            logger.Log(LogLevel.Debug, "2FA already applied to user with {Email}.", email);
+            
             return new TwoFactorAuthenticationModel
             {
                 ManualEntryKey = tenant.ManualEntryKey!,
@@ -118,6 +126,7 @@ public class AuthService(
         }
 
         logger.Log(LogLevel.Trace, "Begin setting up TOTP code generation tokens for user with {Email}.", email);
+        
         var key = new byte[32];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(key);
@@ -125,7 +134,8 @@ public class AuthService(
 
         var tfa = new TwoFactorAuthenticator();
         var setupInfo = tfa.GenerateSetupCode("Placely & You", email, accountSecretKey, false);
-        logger.Log(LogLevel.Trace, "Successfully setup TOTP code generation tokens for user with {Email}.", email);
+        
+        logger.Log(LogLevel.Trace, "Successfully setup TOTP code generation tokens for user with email {Email}.", email);
 
         tenant.IsTwoFactorEnabled = true;
         tenant.QrImageUrl = setupInfo.QrCodeSetupImageUrl;
@@ -135,7 +145,8 @@ public class AuthService(
         await tenantRepo.AddOrUpdateAsync(tenant);
         await tenantRepo.SaveChangesAsync();
 
-        logger.Log(LogLevel.Information, "Successfully apply 2FA to user with {Email}.", email);
+        logger.Log(LogLevel.Debug, "Successfully apply 2FA to user with {Email}.", email);
+        
         return new TwoFactorAuthenticationModel
         {
             ManualEntryKey = tenant.ManualEntryKey,
@@ -161,7 +172,8 @@ public class AuthService(
             RefreshToken = refreshToken
         };
         
-        logger.Log(LogLevel.Trace, "Successfully created tokens pair for user with email: {email}", user.Email);
+        logger.Log(LogLevel.Debug, "Successfully created tokens pair for user with email: {email}", user.Email);
+        
         return tokenDto;
     }
     
@@ -178,8 +190,6 @@ public class AuthService(
         );
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-        logger.Log(LogLevel.Trace, "Successfully created jwtToken by {claims}", claimsList);
         return token;
     }
 
@@ -193,6 +203,7 @@ public class AuthService(
         };
 
         logger.Log(LogLevel.Trace, "Successfully created server-side claims by user with {Email}", user.Email);
+        
         return claims;
     }
     
@@ -218,7 +229,8 @@ public class AuthService(
                 StringComparison.InvariantCultureIgnoreCase))
             throw new SecurityTokenException("Invalid token");
 
-        logger.Log(LogLevel.Trace, "Successfully extracted claims from expired token - {token}", token);
+        logger.Log(LogLevel.Debug, "Successfully extracted claims from expired token - {token}", token);
+        
         return principal;
     }
     

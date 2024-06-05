@@ -43,7 +43,7 @@ public class ChatService(
         var result = await chatRepo.AddAsync(chat);
         await chatRepo.SaveChangesAsync();
         
-        logger.Log(LogLevel.Trace, "Successfully created chat between: {user1} and {user2}", firstUser, secondUser);
+        logger.Log(LogLevel.Debug, "Successfully created chat between: {user1} and {user2}", firstUser, secondUser);
         return result;
     }
 
