@@ -18,7 +18,7 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User>
         builder
             .HasMany(u => u.PreviousPasswords)
             .WithOne(p => p.User)
-            .HasForeignKey(p => p.TenantId)
+            .HasForeignKey(p => p.UserId)
             .IsRequired();
 
         builder

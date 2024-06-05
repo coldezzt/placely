@@ -6,10 +6,10 @@ using Placely.Domain.Interfaces.Services;
 
 namespace Placely.Application.Services;
 
-public class TenantService(
-    ILogger<TenantService> logger,
-    ITenantRepository tenantRepo,
-    IPropertyRepository propertyRepo) : ITenantService
+public class UserService(
+    ILogger<UserService> logger,
+    IUserRepository tenantRepo,
+    IPropertyRepository propertyRepo) : IUserService
 {
     public async Task<User> GetByIdAsNoTrackingAsync(long tenantId)
     {
@@ -18,8 +18,8 @@ public class TenantService(
     
     public async Task<List<Property>> GetFavouritePropertiesAsync(long tenantId)
     {
-        var dbTenant = await GetByIdAsNoTrackingAsync(tenantId);
-        var favourites = dbTenant.Favourites;
+        var dbUser = await GetByIdAsNoTrackingAsync(tenantId);
+        var favourites = dbUser.Favourites;
         return favourites;
     }
     
@@ -27,26 +27,26 @@ public class TenantService(
     {
         logger.Log(LogLevel.Trace, "Begin adding property to favourites." +
                                    "UserId: {userId}. PropertyId: {propertyId}.", tenantId, propertyId);
-        var dbTenant = await tenantRepo.GetByIdAsync(tenantId);
+        var dbUser = await tenantRepo.GetByIdAsync(tenantId);
         var dbProperty = await propertyRepo.GetByIdAsync(propertyId);
         
-        dbTenant.Favourites.Add(dbProperty);
-        await tenantRepo.UpdateAsync(dbTenant);
+        dbUser.Favourites.Add(dbProperty);
+        await tenantRepo.UpdateAsync(dbUser);
         await tenantRepo.SaveChangesAsync();
         
         logger.Log(LogLevel.Debug, "Successfully added property to favourites." +
-                                   "User: {@tenant}. Property: {@property}.", dbTenant, dbProperty);
+                                   "User: {@tenant}. Property: {@property}.", dbUser, dbProperty);
         return dbProperty;
     }
     
     public async Task<User> PatchSettingsAsync(User user)
     {
         logger.Log(LogLevel.Trace, "Begin updating settings for user: {@tenant}", user);
-        var dbTenant = await tenantRepo.GetByIdAsync(user.Id);
+        var dbUser = await tenantRepo.GetByIdAsync(user.Id);
 
-        dbTenant.About = user.About;
-        dbTenant.Work = user.Work;
-        var result = await tenantRepo.UpdateAsync(dbTenant);
+        dbUser.About = user.About;
+        dbUser.Work = user.Work;
+        var result = await tenantRepo.UpdateAsync(dbUser);
         await tenantRepo.SaveChangesAsync();
         
         logger.Log(LogLevel.Debug, "Successfully updated and saved settings for user: {@tenant}", user);
@@ -56,15 +56,15 @@ public class TenantService(
     public async Task<User> PatchSensitiveSettingsAsync(User user)
     {
         logger.Log(LogLevel.Trace, "Begin updating sensitive settings for user: {@tenant}", user);
-        var dbTenant = await tenantRepo.GetByIdAsNoTrackingAsync(user.Id);
+        var dbUser = await tenantRepo.GetByIdAsNoTrackingAsync(user.Id);
 
-        dbTenant.Name = user.Name;
-        dbTenant.PhoneNumber = user.PhoneNumber;
-        dbTenant.Email = user.Email;
-        dbTenant.Password = PasswordHasher.Hash(user.Password);
+        dbUser.Name = user.Name;
+        dbUser.PhoneNumber = user.PhoneNumber;
+        dbUser.Email = user.Email;
+        dbUser.Password = PasswordHasher.Hash(user.Password);
         logger.Log(LogLevel.Trace, "Updated sensitive settings for user: {@tenant}", user);
 
-        var result = await tenantRepo.UpdateAsync(dbTenant);
+        var result = await tenantRepo.UpdateAsync(dbUser);
         await tenantRepo.SaveChangesAsync();
         
         logger.Log(LogLevel.Debug, "Successfully updated and saved sensitive settings for user: {@tenant}", user);
@@ -73,8 +73,8 @@ public class TenantService(
 
     public async Task<User> DeleteAsync(long tenantId)
     {
-        var dbTenant = await GetByIdAsNoTrackingAsync(tenantId);
-        var result = await tenantRepo.DeleteAsync(dbTenant);
+        var dbUser = await GetByIdAsNoTrackingAsync(tenantId);
+        var result = await tenantRepo.DeleteAsync(dbUser);
         await tenantRepo.SaveChangesAsync();
         return result;
     }
@@ -84,18 +84,18 @@ public class TenantService(
         logger.Log(LogLevel.Trace, "Begin removing property from favourites." +
                                    "UserId: {userId}. PropertyId: {propertyId}.", tenantId, propertyId);
         
-        var dbTenant = await tenantRepo.GetByIdAsync(tenantId);
-        var dbProperty = dbTenant.Favourites.Find(p => p.Id == propertyId);
+        var dbUser = await tenantRepo.GetByIdAsync(tenantId);
+        var dbProperty = dbUser.Favourites.Find(p => p.Id == propertyId);
         if (dbProperty is null) 
             return new Property();
         
-        dbTenant.Favourites.Remove(dbProperty);
+        dbUser.Favourites.Remove(dbProperty);
         
-        await tenantRepo.UpdateAsync(dbTenant);
+        await tenantRepo.UpdateAsync(dbUser);
         await tenantRepo.SaveChangesAsync();
         
         logger.Log(LogLevel.Debug, "Successfully removed property from favourites." +
-                                   "User: {@tenant}. Property: {@property}.", dbTenant, dbProperty);
+                                   "User: {@tenant}. Property: {@property}.", dbUser, dbProperty);
         return dbProperty;
     }
 }

@@ -50,7 +50,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IPropertyRepository, PropertyRepository>();
         services.AddScoped<IReservationRepository, ReservationRepository>();
         services.AddScoped<IReviewRepository, ReviewRepository>();
-        services.AddScoped<ITenantRepository, TenantRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
@@ -66,7 +66,7 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IRegistrationService, RegistrationService>();
         services.AddScoped<IReservationService, ReservationService>();
         services.AddScoped<IReviewService, ReviewService>();
-        services.AddScoped<ITenantService, TenantService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRatingUpdaterService, RatingUpdaterService>();
         
         return services;
@@ -81,8 +81,8 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
         services.AddScoped<IValidator<ReservationDto>, ReservationDtoValidator>();
         services.AddScoped<IValidator<ReviewDto>, ReviewDtoValidator>();
-        services.AddScoped<IValidator<SensitiveTenantDto>, SensitiveTenantDtoValidator>();
-        services.AddScoped<IValidator<TenantDto>, TenantDtoValidator>();
+        services.AddScoped<IValidator<SensitiveUserDto>, SensitiveTenantDtoValidator>();
+        services.AddScoped<IValidator<UserDto>, TenantDtoValidator>();
         
         // Чтобы валидаторы не продолжали валидацию после первой же ошибки.
         ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop; 
@@ -229,7 +229,7 @@ public static class ServicesCollectionExtensions
                 new RegistrationMapperProfile(),
                 new ReservationMapperProfile(),
                 new ReviewMapperProfile(),
-                new TenantMapperProfile(),
+                new UserMapperProfile(),
                 new ValidationFailureMapperProfile(),
             });
         });
@@ -278,7 +278,7 @@ public static class ServicesCollectionExtensions
                     new PropertyDestructingPolicy(),
                     new ReservationDestructionProperty(),
                     new ReviewDestructionPolicy(),
-                    new TenantDestructingPolicy()
+                    new UserDestructingPolicy()
                 )
 
                 .Enrich.FromLogContext();

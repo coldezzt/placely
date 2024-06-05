@@ -15,7 +15,10 @@ namespace Placely.WebAPI.Controllers;
 
 [Authorize]
 [Route("api/[controller]")]
-public class ContractController(IContractService service, IMapper mapper) : ControllerBase
+public class ContractController(
+        IContractService service, 
+        IMapper mapper
+    ) : ControllerBase
 {
     [SwaggerOperation("Получает контракт по его идентификатору",
         "Если авторизованный пользователь не фигурирует в контракте запрещает доступ.")]
@@ -23,7 +26,7 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка получить контракт, в котором нет текущего авторизованного пользователя.")]
     [HttpGet("{contractId:long}")]
-    public async Task<IActionResult> Get(
+    public async Task<IActionResult> Get( // GET api/contract/{contractId}
         [SwaggerParameter("Идентификатор контракта.", Required = true)] long contractId)
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
@@ -43,8 +46,8 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
         "application/json")]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка получить список чужих контрактов.")]
-    [HttpGet("file/list/{contractId:long}")]
-    public async Task<IActionResult> GetAssociatedFiles(
+    [HttpGet("{contractId:long}/file/list")]
+    public async Task<IActionResult> GetAssociatedFiles( // GET api/contract/{contractId}/file/list
         [DefaultValue(3)] [FromRoute] [SwaggerParameter("Идентификатор контракта.", Required = true)] 
         long contractId)
     {
@@ -66,8 +69,8 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка загрузить файл из чужого чата.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Файл для скачивания не был найден.")]
-    [HttpGet("file/{contractId:long}")]
-    public async Task<IActionResult> DownloadFile(
+    [HttpGet("{contractId:long}/file")]
+    public async Task<IActionResult> DownloadFile( // GET api/contract/{contractId}/file?fileName={fileName}
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
         long contractId,
         [DefaultValue("contract_data_id.docx")] [FromQuery] 
@@ -93,8 +96,8 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка запросить создание контракта пользователем, не фигурирующем в контракте.")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Попытка создать контракт на основе отклонённой заявки.")]
     [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] [SwaggerRequestBody("Данные необходимые для завершения создания контракта.", Required = true)]
+    public async Task<IActionResult> Create( // POST api/contract?reservationId={reservationId}
+        [FromQuery] [SwaggerRequestBody("Данные необходимые для завершения создания контракта.", Required = true)]
         long reservationId)
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,

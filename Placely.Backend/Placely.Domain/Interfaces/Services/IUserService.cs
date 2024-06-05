@@ -2,7 +2,7 @@ using Placely.Domain.Entities;
 
 namespace Placely.Domain.Interfaces.Services;
 
-public interface ITenantService
+public interface IUserService
 {
     public Task<User> GetByIdAsNoTrackingAsync(long tenantId);
     public Task<Property> AddPropertyToFavouritesAsync(long tenantId, long propertyId);

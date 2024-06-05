@@ -13,14 +13,17 @@ namespace Placely.WebAPI.Controllers;
 
 [Authorize]
 [Route("api/[controller]")]
-public class ChatController(IChatService chatService, IMapper mapper) : ControllerBase
+public class ChatController(
+        IChatService chatService, 
+        IMapper mapper
+    ) : ControllerBase
 {
     [SwaggerOperation("Получает список всех чатов для текущего пользователя",
         "Используется для получения всех чатов (без истории сообщений) пользователя, когда он перешёл на страницу с сообщениями.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Список информации по всем чатам пользователя.", typeof(List<ChatDto>), "application/json")]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [HttpGet("my/list")]
-    public async Task<IActionResult> GetList()
+    public async Task<IActionResult> GetList() // GET api/chat/my/list
     {
         var id = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
@@ -36,7 +39,7 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Пользователь попытался получить чат, участником, которого он не является.")]
     [HttpGet("{chatId:long}")]
-    public async Task<IActionResult> Get(
+    public async Task<IActionResult> Get( // GET api/chat/{chatId}
         [DefaultValue(1)] [SwaggerParameter("Идентификатор чата.", Required = true)] long chatId)
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
@@ -57,7 +60,7 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
         "application/json")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Попытка создать чат с самим собой или с уже существующим аккаунтом.")]
     [HttpPost("my")]
-    public async Task<IActionResult> Create(
+    public async Task<IActionResult> Create( // POST api/chat/my?otherUserId={otherUserId}
         [DefaultValue(1)]
         [FromQuery]
         [SwaggerParameter("Идентификатор собеседника.", Required = true)]
@@ -75,7 +78,7 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
     [SwaggerResponse(StatusCodes.Status200OK, "Чат успешно удалён.", typeof(ChatDto), "application/json")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка удалить чат, участником которого пользователь не является.")]
     [HttpDelete("my/{chatId:long}")]
-    public async Task<IActionResult> Delete(
+    public async Task<IActionResult> Delete( // DELETE api/chat/my/{chatId}
         [DefaultValue(1)] [SwaggerParameter("Идентификатор чата.", Required = true)] long chatId)
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,

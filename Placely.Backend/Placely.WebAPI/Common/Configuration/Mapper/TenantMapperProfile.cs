@@ -4,17 +4,17 @@ using Placely.WebAPI.Dto;
 
 namespace Placely.WebAPI.Common.Configuration.Mapper;
 
-public class TenantMapperProfile : Profile
+public class UserMapperProfile : Profile
 {
-    public TenantMapperProfile()
+    public UserMapperProfile()
     {
-        CreateMap<TenantDto, User>();
-        CreateMap<User, TenantDto>();
+        CreateMap<UserDto, User>();
+        CreateMap<User, UserDto>();
         
-        CreateMap<SensitiveTenantDto, User>()
+        CreateMap<SensitiveUserDto, User>()
             .ForMember(t => t.Password, 
                 opt => opt.MapFrom(dto => dto.NewPassword));
-        CreateMap<User, SensitiveTenantDto>()
+        CreateMap<User, SensitiveUserDto>()
             .ForMember(dto => dto.OldPassword, opt => opt.MapFrom(_ => "******"));
     }
 }

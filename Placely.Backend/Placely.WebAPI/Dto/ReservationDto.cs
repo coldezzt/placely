@@ -8,7 +8,7 @@ public class ReservationDto
     public long Id { get; set; }
 
     [DefaultValue(1)]
-    public long TenantId { get; set; }
+    public long UserId { get; set; }
     
     [DefaultValue(1)]
     public long LandlordId { get; set; }

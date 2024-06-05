@@ -13,7 +13,7 @@ public class PreviousPasswordEntityConfiguration : IEntityTypeConfiguration<Prev
         builder
             .HasOne(p => p.User)
             .WithMany(t => t.PreviousPasswords)
-            .HasForeignKey(p => p.TenantId)
+            .HasForeignKey(p => p.UserId)
             .IsRequired();
     }
 }

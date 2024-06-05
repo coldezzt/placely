@@ -12,7 +12,10 @@ namespace Placely.WebAPI.Controllers;
 
 [Authorize]
 [Route("api/chat/my/{chatId:long}/file")]
-public class ChatFileController(IChatService chatService, IMessageService messageService) : ControllerBase
+public class ChatFileController(
+        IChatService chatService, 
+        IMessageService messageService
+    ) : ControllerBase
 {
     [SwaggerOperation("Получает все названия файлов выбранного чата",
         "Нельзя получить названия файлов из чужого чата.")]
@@ -21,7 +24,7 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка получить список файлов из чужого чата.")]
     [HttpGet("list")]
-    public async Task<IActionResult> GetAssociatedFiles(
+    public async Task<IActionResult> GetAssociatedFiles( // GET api/chat/my/{chatId}/file/list
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
         long chatId)
     {
@@ -43,7 +46,7 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка загрузить файл в чужой чат.")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Попытка загрузить файл в сообщение, у которого уже есть файл.")]
     [HttpPost]
-    public async Task<IActionResult> UploadFile(
+    public async Task<IActionResult> UploadFile( // POST api/chat/my/{chatId}/file?messageId={messageId}?file={file}
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
         long chatId,
         [DefaultValue(1)] [FromQuery] [SwaggerParameter("Идентификатор сообщения.", Required = true)]
@@ -73,7 +76,7 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка загрузить файл из чужого чата.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Файл для скачивания не был найден.")]
     [HttpGet]
-    public async Task<IActionResult> DownloadFile(
+    public async Task<IActionResult> DownloadFile( // GET api/chat/my/{chatId}/file?fileName={fileName}
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
         long chatId,
         [DefaultValue("new.txt")] [FromQuery] [SwaggerParameter("Название файла для скачивания.", Required = true)]
@@ -98,7 +101,7 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка удалить файл из чужого чата.")]
     [HttpDelete]
-    public async Task<IActionResult> DeleteFile(
+    public async Task<IActionResult> DeleteFile( // DELETE api/chat/my/{chatId}/file?fileName={fileName}
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
         long chatId,
         [DefaultValue("new.txt")] [FromQuery] [SwaggerParameter("Название файла для удаления.", Required = true)]

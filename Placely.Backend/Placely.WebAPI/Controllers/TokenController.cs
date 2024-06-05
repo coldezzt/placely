@@ -9,14 +9,14 @@ namespace Placely.WebAPI.Controllers;
 
 [Route("api/[controller]")]
 public class TokenController(
-    IAuthService service,
-    IMapper mapper
+        IAuthService service,
+        IMapper mapper
     ) : ControllerBase
 {
     [SwaggerOperation("Обновляет токены доступа пользователя", "Для обновления необходимы старые токены.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Обновлённые токены пользователя. ", typeof(TokenDto), "application/json")]
-    [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh(
+    [HttpPost("[action]")]
+    public async Task<IActionResult> Refresh( // POST api/token/refresh
         [FromBody] [SwaggerRequestBody("Старые токены доступа.", Required = true)] TokenDto dto)
     {
         var tokenModel = mapper.Map<TokenModel>(dto);

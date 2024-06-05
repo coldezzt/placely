@@ -14,12 +14,17 @@ namespace Placely.WebAPI.Controllers;
 
 [Authorize]
 [Route("api/[controller]")]
-public class ReviewController(IReviewService service, IMapper mapper, IValidator<ReviewDto> validator) : ControllerBase
+public class ReviewController(
+        IReviewService service, 
+        IMapper mapper, 
+        IValidator<ReviewDto> validator
+    ) : ControllerBase
 {
     [SwaggerOperation("Получает отзыв пользователя по идентификатору", "Доступен всем.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Данные по отзыву.", typeof(ReviewDto), "application/json")]
     [AllowAnonymous, HttpGet("{reviewId:long}")]
-    public async Task<IActionResult> GetById([SwaggerParameter("Идентификатор отзыва.", Required = true)] long reviewId)
+    public async Task<IActionResult> GetById( // GET api/review/{reviewId}
+        [FromRoute] [SwaggerParameter("Идентификатор отзыва.", Required = true)] long reviewId)
     {
         var result = await service.GetByIdAsNoTrackingAsync(reviewId);
         var response = mapper.Map<ReviewDto>(result);
@@ -33,14 +38,16 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
     [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost]
-    public async Task<IActionResult> Add(
+    public async Task<IActionResult> Add( // POST api/review
         [FromBody] [SwaggerRequestBody("Данные для добавления отзыва.", Required = true)] ReviewDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
+        
         dto.AuthorId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var review = mapper.Map<Review>(dto);
         var result = await service.AddAsync(review);
         var response = mapper.Map<ReviewDto>(result);
@@ -54,19 +61,23 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
     [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/{reviewId:long}")]
-    public async Task<IActionResult> Patch(
-        [SwaggerParameter("Идентификатор отзыва.", Required = true)] long reviewId,
+    public async Task<IActionResult> Patch( // PATCH api/review/my/{reviewId}
+        [FromRoute] [SwaggerParameter("Идентификатор отзыва.", Required = true)] long reviewId,
         [FromBody] [SwaggerRequestBody("Данные для обновления отзыва.", Required = true)] ReviewDto dto)
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbReview = await service.GetByIdAsNoTrackingAsync(reviewId);
-        if (dbReview.AuthorId != currentUserId) return Forbid();
+        if (dbReview.AuthorId != currentUserId) 
+            return Forbid();
+        
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
+        
+        dto.Id = reviewId;
         var review = mapper.Map<Review>(dto);
-        review.Id = reviewId;
         var updatedProperty = await service.UpdateAsync(review);
         var result = mapper.Map<ReviewDto>(updatedProperty);
         return Ok(result);
@@ -77,12 +88,16 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка удалить чужой отзыв.")]
     [HttpDelete("{reviewId:long}")]
-    public async Task<IActionResult> Delete([SwaggerParameter("Идентификатор отзыва.", Required = true)] long reviewId)
+    public async Task<IActionResult> Delete( // DELETE api/review/{reviewId}
+        [FromRoute] [SwaggerParameter("Идентификатор отзыва.", Required = true)] long reviewId)
     {
         var id = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbReview = await service.GetByIdAsNoTrackingAsync(reviewId);
-        if (dbReview.AuthorId != id) return Forbid();
+        if (dbReview.AuthorId != id) 
+            return Forbid();
+        
         var result = await service.DeleteAsync(reviewId);
         var response = mapper.Map<ReviewDto>(result);
         return Ok(response);
@@ -91,7 +106,7 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
     [SwaggerOperation("Достаёт отзывы по имуществу", "Доступно всем.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Список отзывов.", typeof(List<ReviewDto>), "application/json")]
     [AllowAnonymous, HttpGet("list")]
-    public async Task<IActionResult> GetListByPropertyId(
+    public async Task<IActionResult> GetListByPropertyId( // GET api/review/list?propertyId={propertyId}&page={page}
         [FromQuery] [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId,
         [FromQuery] [SwaggerParameter("Страница, для пагинации.")] int page = 0)
     {

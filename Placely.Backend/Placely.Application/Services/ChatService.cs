@@ -8,7 +8,7 @@ namespace Placely.Application.Services;
 public class ChatService(
     ILogger<ChatService> logger,
     IChatRepository chatRepo,
-    ITenantRepository tenantRepo
+    IUserRepository userRepo
     ) : IChatService
 {
     public async Task<Chat> GetByIdAsync(long chatId)
@@ -33,7 +33,7 @@ public class ChatService(
         }
 
         var ids = new List<long> {firstUser, secondUser}.Order();
-        var tenants = ids.Select(id => tenantRepo.GetByIdAsync(id).Result).ToList();
+        var tenants = ids.Select(id => userRepo.GetByIdAsync(id).Result).ToList();
         var chat = new Chat
         {
             Participants = tenants,

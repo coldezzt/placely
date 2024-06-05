@@ -14,11 +14,12 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Placely.WebAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthorizationController(
-    IAuthService service, 
-    IMapper mapper,
-    IValidator<AuthorizationDto> validator) : ControllerBase
+        IAuthService service, 
+        IMapper mapper,
+        IValidator<AuthorizationDto> validator
+    ) : ControllerBase
 {
     [SwaggerOperation("Авторизует пользователя",
         "**Если** на аккаунте подключена двухфакторная аутентификация необходимо " +
@@ -28,7 +29,7 @@ public class AuthorizationController(
     [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost]
-    public async Task<IActionResult> Authorize(
+    public async Task<IActionResult> Authorize( // POST api/auth
         [FromBody] [SwaggerRequestBody("Данные для авторизации", Required = true)] AuthorizationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
@@ -44,7 +45,7 @@ public class AuthorizationController(
         "Ничего не возвращает и не принимает, всегда перенаправляет пользователя на Google OAuth.")]
     [SwaggerResponse(StatusCodes.Status302Found, "Перенаправление на Google OAuth.")]
     [HttpGet("google")]
-    public Task<IActionResult> GoogleAuthorize()
+    public Task<IActionResult> GoogleAuthorize() // GET api/auth/google
     {
         var authenticationProperties = new AuthenticationProperties {RedirectUri = Url.Action("GoogleCallback")};
         return Task.FromResult<IActionResult>(Challenge(authenticationProperties, GoogleDefaults.AuthenticationScheme));
@@ -66,7 +67,7 @@ public class AuthorizationController(
                           которые предоставляет Google **или** изменилась процедура авторизации через Google OAuth.
                           """, typeof(string), "text/plain")]
     [HttpGet("google/callback")]
-    public async Task<IActionResult> GoogleCallback()
+    public async Task<IActionResult> GoogleCallback() // GET api/auth/google/callback
     {
         var authResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
         if (!authResult.Succeeded) 
@@ -90,7 +91,7 @@ public class AuthorizationController(
         typeof(TwoFactorAuthenticationModel), "application/json")]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [Authorize, HttpPost("google/2fa")]
-    public async Task<IActionResult> GoogleTwoFactorCreation()
+    public async Task<IActionResult> GoogleTwoFactorCreation() // POST api/auth/google/2fa
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
         if (email is null) return Unauthorized();

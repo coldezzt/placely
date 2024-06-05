@@ -7,8 +7,8 @@ using Placely.Domain.Entities;
 
 namespace Placely.Persistence.Repositories;
 
-public class TenantRepository(ILogger<TenantRepository> logger, AppDbContext appDbContext) 
-    : Repository<User>(logger, appDbContext), ITenantRepository
+public class UserRepository(ILogger<UserRepository> logger, AppDbContext appDbContext) 
+    : Repository<User>(logger, appDbContext), IUserRepository
 {
     public async Task<User> GetByEmailAsync(string email)
     {
@@ -23,7 +23,7 @@ public class TenantRepository(ILogger<TenantRepository> logger, AppDbContext app
     {
         logger.Log(LogLevel.Trace, $"Begin getting user by email: {email}");
 
-        var result = await appDbContext.Tenants.FirstOrDefaultAsync(t => t.Email == email);
+        var result = await appDbContext.Users.FirstOrDefaultAsync(t => t.Email == email);
 
         logger.Log(LogLevel.Debug, $"Successfully got user by email: {email}");
         
@@ -34,23 +34,23 @@ public class TenantRepository(ILogger<TenantRepository> logger, AppDbContext app
     {
         logger.Log(LogLevel.Trace, "Begin adding or updating user according to it's existing. User: {@tenant}", user);
         
-        var dbTenant = await appDbContext.Tenants.FirstOrDefaultAsync(t => t.Email == user.Email);
-        EntityEntry<User> resultTenantEntry;
-        if (dbTenant is null)
+        var dbUser = await appDbContext.Users.FirstOrDefaultAsync(t => t.Email == user.Email);
+        EntityEntry<User> resultUserEntry;
+        if (dbUser is null)
         {
-            resultTenantEntry = await appDbContext.Tenants.AddAsync(user);
+            resultUserEntry = await appDbContext.Users.AddAsync(user);
             
             logger.Log(LogLevel.Debug, "Successfully created user according to it's nonexistence. " +
-                                             "User: {@resultTenant}", resultTenantEntry.Entity);
+                                             "User: {@resultTenant}", resultUserEntry.Entity);
         }
         else
         {
-            resultTenantEntry = appDbContext.Tenants.Update(user);
+            resultUserEntry = appDbContext.Users.Update(user);
             
             logger.Log(LogLevel.Debug, "Successfully updated user according to it's existence. " +
-                                             "User: {@resultTenant}", resultTenantEntry.Entity);
+                                             "User: {@resultTenant}", resultUserEntry.Entity);
         }
 
-        return resultTenantEntry.Entity;
+        return resultUserEntry.Entity;
     }
 }

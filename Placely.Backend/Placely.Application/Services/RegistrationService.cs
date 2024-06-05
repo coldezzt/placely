@@ -9,7 +9,7 @@ namespace Placely.Application.Services;
 
 public class RegistrationService(
     ILogger<RegistrationService> logger,
-    ITenantRepository tenantRepo) : IRegistrationService
+    IUserRepository tenantRepo) : IRegistrationService
 {
     public async Task<User> RegisterUserAsync(User user)
     {
@@ -36,11 +36,11 @@ public class RegistrationService(
     {
         logger.Log(LogLevel.Trace, "Begin finalizing user registration. User: {@tenant}.", user);
 
-        var dbTenant = await tenantRepo.GetByEmailAsync(user.Email);
+        var dbUser = await tenantRepo.GetByEmailAsync(user.Email);
 
-        dbTenant.Password = PasswordHasher.Hash(user.Password);
-        dbTenant.PhoneNumber = user.PhoneNumber;
-        dbTenant.Name = user.Name;
+        dbUser.Password = PasswordHasher.Hash(user.Password);
+        dbUser.PhoneNumber = user.PhoneNumber;
+        dbUser.Name = user.Name;
 
         await tenantRepo.UpdateAsync(user);
         await tenantRepo.SaveChangesAsync();

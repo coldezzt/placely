@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace Placely.WebAPI.Dto;
 
-public class TenantDto
+public class UserDto
 { 
     [DefaultValue("Я обычный чувак, зарабатываю пол ляма в секунду, на выходных летаю на Мальдивы.")]
     public string About { get; set; }

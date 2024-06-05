@@ -16,7 +16,10 @@ namespace Placely.WebAPI.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 public class ReservationController(
-    IReservationService service, IMapper mapper, IValidator<ReservationDto> validator) : ControllerBase
+        IReservationService service, 
+        IMapper mapper, 
+        IValidator<ReservationDto> validator
+    ) : ControllerBase
 {
     [SwaggerOperation("Получает бронирование по идентификатору",
         "Нельзя получить бронирование, участником которого ты не являешься (не арендатор или арендодатель)")]
@@ -24,9 +27,8 @@ public class ReservationController(
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка получить бронирование, участником которого пользователь не является.")]
     [HttpGet("my/{reservationId:long}")]
-    public async Task<IActionResult> Get(
-        [SwaggerParameter("Идентификатор бронирования.", Required = true)]
-        long reservationId)
+    public async Task<IActionResult> Get( // GET api/reservation/my/{reservationId}
+        [FromRoute] [SwaggerParameter("Идентификатор бронирования.", Required = true)] long reservationId)
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
@@ -47,17 +49,17 @@ public class ReservationController(
     [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost("my")]
-    public async Task<IActionResult> Create(
-        [FromBody] [SwaggerRequestBody("Данные для бронирования.", Required = true)]
-        ReservationDto dto)
+    public async Task<IActionResult> Create( // POST api/reservation/my
+        [FromBody] [SwaggerRequestBody("Данные для бронирования.", Required = true)] ReservationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
+        
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
         
-        dto.TenantId = currentUserId;
+        dto.UserId = currentUserId;
         var reservation = mapper.Map<Reservation>(dto);
         var dbReservation = await service.CreateAsync(reservation);
         var response = mapper.Map<ReservationDto>(dbReservation);
@@ -72,18 +74,19 @@ public class ReservationController(
     [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/{reservationId:long}")]
-    public async Task<IActionResult> Update(
+    public async Task<IActionResult> Update( // PATCH api/reservation/my/{reservationId}
         [FromRoute] [SwaggerParameter("Идентификатор резервирования для обновления", Required = true)] long reservationId,
         [FromBody] [SwaggerRequestBody("Обновлённые данные для бронирования.", Required = true)] ReservationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
+        
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
 
         dto.Id = reservationId;
-        dto.TenantId = currentUserId;
+        dto.UserId = currentUserId;
         var reservation = mapper.Map<Reservation>(dto);
         var dbReservation = await service.UpdateAsync(reservation);
         var response = mapper.Map<ReservationDto>(dbReservation);
@@ -101,7 +104,8 @@ public class ReservationController(
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка удалить бронирование, участником которого пользователь не является.")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Попытка удалить бронирование, находящееся в обработке.")]
     [HttpDelete("my/{reservationId:long}")]
-    public async Task<IActionResult> Delete([SwaggerParameter("Идентификатор бронирования.")] long reservationId)
+    public async Task<IActionResult> Delete( // DELETE api/reservation/my/{reservationId}
+        [FromRoute] [SwaggerParameter("Идентификатор бронирования.", Required = true)] long reservationId)
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);

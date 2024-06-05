@@ -4,9 +4,9 @@ using static Placely.WebAPI.Dto.Validators.ValidatorMethods;
 
 namespace Placely.WebAPI.Dto.Validators;
 
-public class SensitiveTenantDtoValidator : AbstractValidator<SensitiveTenantDto>
+public class SensitiveUserDtoValidator : AbstractValidator<SensitiveUserDto>
 {
-    public SensitiveTenantDtoValidator()
+    public SensitiveUserDtoValidator()
     {
         RuleFor(dto => dto.Name)
             .NotEmpty().WithMessage(NullOrEmpty());

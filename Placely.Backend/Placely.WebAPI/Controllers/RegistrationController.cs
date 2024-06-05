@@ -11,8 +11,11 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Placely.WebAPI.Controllers;
 
 [Route("api/[controller]")]
-public class RegistrationController(IRegistrationService registrationService, IMapper mapper,
-    IValidator<RegistrationDto> validator) : ControllerBase
+public class RegistrationController(
+        IRegistrationService registrationService, 
+        IMapper mapper,
+        IValidator<RegistrationDto> validator
+    ) : ControllerBase
 {
     [SwaggerOperation("Регистрирует пользователя",
         "Если пользователь с такой же почтой уже существует регистрация не продолжается.")]
@@ -21,15 +24,18 @@ public class RegistrationController(IRegistrationService registrationService, IM
     [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost]
-    public async Task<IActionResult> Register(
+    public async Task<IActionResult> Register( // POST api/registration
         [FromBody] [SwaggerRequestBody("Данные для регистрации.", Required = true)] RegistrationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
-        var tenant = mapper.Map<User>(dto);
-        var result = await registrationService.RegisterUserAsync(tenant);
-        return result.Email == dto.Email ? Ok() : Conflict();
+        
+        var user = mapper.Map<User>(dto);
+        var result = await registrationService.RegisterUserAsync(user);
+        return result.Email == dto.Email 
+            ? Ok() 
+            : Conflict();
     }
 
     [SwaggerOperation("Дорегистрация пользователя после OAuth", 
@@ -48,15 +54,16 @@ public class RegistrationController(IRegistrationService registrationService, IM
     [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [Authorize, HttpPost("[action]")]
-    public async Task<IActionResult> Final(
+    public async Task<IActionResult> Final( // POST api/registration/final
         [FromBody] [SwaggerRequestBody("Данные для регистрации. Игнорирует почту.", Required = true)]
         RegistrationDto dto)
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
-        var tenant = mapper.Map<User>(dto);
-        await registrationService.FinalizeUserAsync(tenant);
+        
+        var user = mapper.Map<User>(dto);
+        await registrationService.FinalizeUserAsync(user);
         return Ok();
     }
 }

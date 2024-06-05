@@ -20,25 +20,25 @@ namespace Placely.Infrastructure.Services;
 
 public class AuthService(
     ILogger<AuthService> logger,
-    ITenantRepository tenantRepo,
+    IUserRepository tenantRepo,
     IConfiguration configuration) : IAuthService
 {
     public async Task<AuthorizationResult> AuthorizeAsync(AuthorizationModel tenant)
     {
         logger.Log(LogLevel.Trace, "Begin authorize user with email {Email}", tenant.Email);
         
-        var dbTenant = await tenantRepo.GetByEmailAsync(tenant.Email);
-        if (!PasswordHasher.IsValid(dbTenant.Password, tenant.Password))
+        var dbUser = await tenantRepo.GetByEmailAsync(tenant.Email);
+        if (!PasswordHasher.IsValid(dbUser.Password, tenant.Password))
         {
             logger.Log(LogLevel.Debug, "Authorization user with email {Email} failed due to: wrong password.", tenant.Email);
             
             return new AuthorizationResult { IsSuccess = false, Error = "Неверный пароль!" };
         }
 
-        if (dbTenant.IsTwoFactorEnabled)
+        if (dbUser.IsTwoFactorEnabled)
         {
             var tfa = new TwoFactorAuthenticator();
-            if (!tfa.ValidateTwoFactorPIN(dbTenant.TwoFactorAccountSecretKey, tenant.TwoFactorKey))
+            if (!tfa.ValidateTwoFactorPIN(dbUser.TwoFactorAccountSecretKey, tenant.TwoFactorKey))
             {
                 logger.Log(LogLevel.Debug, "Authorization user with email {Email} failed due to: wrong 2FA TOTP key.", tenant.Email);
                 
@@ -46,7 +46,7 @@ public class AuthService(
             }
         }
 
-        var tokenDto = await CreateTokenAsync(dbTenant, populateExp: true);
+        var tokenDto = await CreateTokenAsync(dbUser, populateExp: true);
         
         logger.Log(LogLevel.Debug, "Successfully authorized user with email {Email}.", tenant.Email);
         

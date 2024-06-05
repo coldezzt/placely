@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace Placely.WebAPI.Dto;
 
-public class SensitiveTenantDto
+public class SensitiveUserDto
 {
     [DefaultValue("Иванов Иван Иванович")]
     public string Name { get; set; }

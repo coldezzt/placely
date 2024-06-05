@@ -3,9 +3,9 @@ using static Placely.WebAPI.Dto.Validators.ValidatorErrorMessages;
 
 namespace Placely.WebAPI.Dto.Validators;
 
-public class TenantDtoValidator : AbstractValidator<TenantDto>
+public class UserDtoValidator : AbstractValidator<UserDto>
 {
-    public TenantDtoValidator()
+    public UserDtoValidator()
     {
         RuleFor(dto => dto.ContactAddress)
             .Must(s => s.Any(c => char.IsLetterOrDigit(c) || char.IsPunctuation(c) || c is '/'))

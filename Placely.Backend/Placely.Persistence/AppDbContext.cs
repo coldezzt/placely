@@ -13,7 +13,7 @@ public class AppDbContext(
 {
     #region Database sets
     
-    public DbSet<User> Tenants => Set<User>();
+    public DbSet<User> Users => Set<User>();
     public DbSet<PreviousPassword> PreviousPasswords => Set<PreviousPassword>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<Reservation> Reservations => Set<Reservation>();

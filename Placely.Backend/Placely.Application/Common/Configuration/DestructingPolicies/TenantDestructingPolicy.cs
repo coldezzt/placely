@@ -4,7 +4,7 @@ using Serilog.Events;
 
 namespace Placely.Application.Common.Configuration.DestructingPolicies;
 
-public class TenantDestructingPolicy : IDestructuringPolicy
+public class UserDestructingPolicy : IDestructuringPolicy
 {
     public bool TryDestructure(object value, ILogEventPropertyValueFactory propertyValueFactory,
         out LogEventPropertyValue result)
@@ -25,7 +25,7 @@ public class TenantDestructingPolicy : IDestructuringPolicy
                     new ScalarValue(t.IsAdditionalRegistrationRequired)),
                 new LogEventProperty("IsTwoFactorEnabled", new ScalarValue(t.IsTwoFactorEnabled))
             },
-            "Tenant");
+            "User");
         result = structure;
         return true;
     }
