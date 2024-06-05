@@ -1,6 +1,6 @@
 using LinqKit.Core;
 using Microsoft.Extensions.Logging;
-using Placely.Application.Abstractions.Repositories;
+using Placely.Application.Interfaces.Repositories;
 using Placely.Domain.Entities;
 
 namespace Placely.Persistence.Repositories;

@@ -4,8 +4,8 @@ using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Models;
+using Placely.Domain.Interfaces.Services;
 using Placely.WebAPI.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -39,10 +39,13 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
     public async Task<IActionResult> Get(
         [DefaultValue(1)] [SwaggerParameter("Идентификатор чата.", Required = true)] long chatId)
     {
-        var id = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
+        var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var chat = await chatService.GetByIdAsync(chatId);
-        if (id != chat.FirstUserId && id != chat.SecondUserId) return Forbid();
+        if (chat.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
         var response = mapper.Map<ChatDto>(chat);
         return Ok(response);
     }
@@ -77,8 +80,11 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (currentUserId != dbChat.FirstUserId && currentUserId != dbChat.SecondUserId) return Forbid();
+        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
         var chat = await chatService.DeleteByIdAsync(chatId);
         var response = mapper.Map<ChatDto>(chat);
         return Ok(response);

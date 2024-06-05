@@ -6,16 +6,17 @@ using Google.Authenticator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Placely.Application.Abstractions.Repositories;
-using Placely.Application.Exceptions;
-using Placely.Application.Models;
+using Placely.Application.Common.Exceptions;
+using Placely.Application.Common.Models;
+using Placely.Application.Interfaces.Repositories;
 using Placely.Application.Services.Utils;
-using Placely.Domain.Abstractions.Services;
+using Placely.Domain.Common.Enums;
 using Placely.Domain.Entities;
-using Placely.Domain.Enums;
-using AuthorizationResult = Placely.Application.Models.AuthorizationResult;
+using Placely.Infrastructure.Common.Models;
+using Placely.Infrastructure.Interfaces.Services;
+using AuthorizationResult = Placely.Infrastructure.Common.Models.AuthorizationResult;
 
-namespace Placely.Application.Services;
+namespace Placely.Infrastructure.Services;
 
 public class AuthService(
     ILogger<AuthService> logger,
@@ -71,7 +72,7 @@ public class AuthService(
         logger.Log(LogLevel.Trace, "Begin authorizing user with {Email} using external service.", email);
 
         // Ищем пользователя в бд - если нет создаём нового
-        var tenant = await tenantRepo.TryGetByEmailAsync(email) ?? new Tenant
+        var tenant = await tenantRepo.TryGetByEmailAsync(email) ?? new User
         {
             UserRole = UserRoleType.Tenant,
             Email = email,
@@ -142,15 +143,15 @@ public class AuthService(
         };
     }
     
-    private async Task<TokenModel> CreateTokenAsync(Tenant tenant, bool populateExp)
+    private async Task<TokenModel> CreateTokenAsync(User user, bool populateExp)
     {
-        logger.Log(LogLevel.Trace, "Begin creating tokens pair for user with email: {email}", tenant.Email);
+        logger.Log(LogLevel.Trace, "Begin creating tokens pair for user with email: {email}", user.Email);
         
-        var jwtToken = GenerateJwtToken(GenerateClaims(tenant));
+        var jwtToken = GenerateJwtToken(GenerateClaims(user));
         var refreshToken = GenerateRefreshToken();
         
-        tenant.RefreshToken = refreshToken;
-        if (populateExp) tenant.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
+        user.RefreshToken = refreshToken;
+        if (populateExp) user.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
 
         await tenantRepo.SaveChangesAsync();
 
@@ -160,7 +161,7 @@ public class AuthService(
             RefreshToken = refreshToken
         };
         
-        logger.Log(LogLevel.Trace, "Successfully created tokens pair for user with email: {email}", tenant.Email);
+        logger.Log(LogLevel.Trace, "Successfully created tokens pair for user with email: {email}", user.Email);
         return tokenDto;
     }
     
@@ -182,16 +183,16 @@ public class AuthService(
         return token;
     }
 
-    private IEnumerable<Claim> GenerateClaims(Tenant tenant)
+    private IEnumerable<Claim> GenerateClaims(User user)
     {
         var claims = new List<Claim>
         {
-            new(CustomClaimTypes.UserId, tenant.Id.ToString()),
-            new(ClaimTypes.Email, tenant.Email),
-            new(CustomClaimTypes.UserRole, tenant.UserRole.ToString()),
+            new(CustomClaimTypes.UserId, user.Id.ToString()),
+            new(ClaimTypes.Email, user.Email),
+            new(CustomClaimTypes.UserRole, user.UserRole.ToString()),
         };
 
-        logger.Log(LogLevel.Trace, "Successfully created server-side claims by user with {Email}", tenant.Email);
+        logger.Log(LogLevel.Trace, "Successfully created server-side claims by user with {Email}", user.Email);
         return claims;
     }
     

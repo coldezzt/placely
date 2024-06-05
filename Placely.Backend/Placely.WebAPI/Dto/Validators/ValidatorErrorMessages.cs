@@ -19,4 +19,6 @@ public static class ValidatorErrorMessages
     public static string DateTimeShouldBeNotFromFuture() => "Дата не может быть в будущем";
     public static string DateTimeShouldBeNotFromPast() => "Дата не может быть в прошлом";
     public static string TimeSpanDurationShouldBeMoreThan(int value) => $"Интервал должен быть длиннее чем {value}";
+
+    public static string ListLengthShouldBeEqualTo(int value) => $"Длина списка должна быть равна {value}";
 }

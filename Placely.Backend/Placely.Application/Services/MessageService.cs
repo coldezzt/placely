@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Placely.Application.Abstractions.Repositories;
-using Placely.Application.Options;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Options;
+using Placely.Application.Interfaces.Repositories;
 using Placely.Domain.Entities;
+using Placely.Domain.Interfaces.Services;
 
 namespace Placely.Application.Services;
 

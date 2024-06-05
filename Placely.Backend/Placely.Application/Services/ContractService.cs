@@ -1,12 +1,12 @@
 using EasyDox;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Placely.Application.Abstractions.Repositories;
-using Placely.Application.Exceptions;
-using Placely.Application.Models;
-using Placely.Application.Options;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Exceptions;
+using Placely.Application.Common.Models;
+using Placely.Application.Common.Options;
+using Placely.Application.Interfaces.Repositories;
 using Placely.Domain.Entities;
+using Placely.Domain.Interfaces.Services;
 using SautinSoft.Document;
 
 namespace Placely.Application.Services;
@@ -30,9 +30,9 @@ public class ContractService(
         return await contractRepo.GetByIdAsNoTrackingAsync(contractId);
     }
 
-    public async Task<List<string>> GetFileNamesListByLandlordAndTenantIdAsync(long landlordId, long tenantId)
+    public async Task<List<string>> GetFileNamesByUserIdsAsync(List<long> userIds)
     {
-        var workingDirectoryName = "contracts_" + string.Join("_", new List<long> {landlordId, tenantId}.Order());
+        var workingDirectoryName = "contracts_" + string.Join("_", userIds.Order());
         var pathToWorkingDirectory =
             Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToContractDirectory, 
                 workingDirectoryName);
@@ -40,7 +40,7 @@ public class ContractService(
         if (!Path.Exists(pathToWorkingDirectory))
             throw new ContractServiceException("У этого владельца ещё нет ни одного контракта!");
 
-        return Directory.GetFiles(pathToWorkingDirectory).Select(s => Path.GetFileName(s)).ToList();
+        return Directory.GetFiles(pathToWorkingDirectory).Select(Path.GetFileName).ToList()!;
     }
     
     public async Task<byte[]> GetFileBytesByIdAsync(long contractId, string fileName)
@@ -53,7 +53,7 @@ public class ContractService(
         var absoluteFilePath = Path.Combine(
             options.Value.ContentRootPath, 
             configurationOptions.Value.PathToContractDirectory,
-            "contracts_" + string.Join("_", new List<long> {contract.Reservation.LandlordId, contract.Reservation.TenantId}.Order()),
+            "contracts_" + string.Join("_", contract.Reservation.Participants.Order()),
             fileName
             );
         if (!Path.Exists(absoluteFilePath))
@@ -72,8 +72,8 @@ public class ContractService(
     {
         logger.Log(LogLevel.Trace, "Begin creating contract based on reservation {reservationId}", reservationId);
         // Достаём данные и "сокращаем переменные" (для читабельности)
-        var reservation = await reservationRepository.GetByIdAsync(reservationId);
-        var workingDirectoryName = "contracts_" + string.Join("_", new List<long> {reservation.LandlordId, reservation.TenantId}.Order());
+        var dbReservation = await reservationRepository.GetByIdAsync(reservationId);
+        var workingDirectoryName = "contracts_" + string.Join("_", dbReservation.Participants.Order());
         var absolutePathToTemplate = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToTemplate);
         var absolutePathToTemplateFields = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToTemplateFields);
         var absolutePathToContractDirectory = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToContractDirectory);
@@ -82,11 +82,17 @@ public class ContractService(
         // if (!await dadataAddressService.IsAddressExistsAsync(contract.Landlord.ContactAddress))
         //     throw new AddressException("Контактного адреса не существует или он содержит лишние части.");
 
+        if (dbReservation.PaymentAmount is null)
+            throw new ArgumentNullException(dbReservation.PaymentAmount.ToString());
+
+        if (dbReservation.PaymentFrequency is null)
+            throw new ArgumentNullException(dbReservation.PaymentFrequency);
+        
         // Создаём модель контракта
-        var reservationModel = new ReservationModel(reservation, reservation.PaymentAmount, reservation.PaymentFrequency);
+        var reservationModel = new ReservationModel(dbReservation, (decimal) dbReservation.PaymentAmount, dbReservation.PaymentFrequency);
         var contractDate = $"{reservationModel.ContractDate:yy-MM-dd_HH-mm-ss}";
-        var docxFileName = $"contract_{contractDate}_{reservation.TenantId}.docx";
-        var pdfFileName = $"contract_{contractDate}_{reservation.TenantId}.pdf";
+        var docxFileName = $"contract_{contractDate}_{reservationModel.Tenant.Id}.docx";
+        var pdfFileName = $"contract_{contractDate}_{reservationModel.Landlord.Id}.pdf";
         
         var absolutePathToDoc = Path.Combine(absolutePathToWorkingDirectory, docxFileName);
         var absolutePathToPdf = Path.Combine(absolutePathToWorkingDirectory, pdfFileName);
@@ -103,25 +109,25 @@ public class ContractService(
             if (!Directory.Exists(absolutePathToWorkingDirectory))
                 Directory.CreateDirectory(absolutePathToWorkingDirectory);
             logger.Log(LogLevel.Trace, "Created directory for " +
-                                       "contract based on reservation {reservationId}", reservation.Id);
+                                       "contract based on reservation {reservationId}", reservationModel.Entity.Id);
 
             // ... и копируем туда шаблон
             File.Copy(absolutePathToTemplate, absolutePathToDoc);
             logger.Log(LogLevel.Trace, "Copied template to directory for " +
-                                       "contract based on reservation {reservationId}", reservation.Id);
+                                       "contract based on reservation {reservationId}", reservationModel.Entity.Id);
             
             // Заменяем значения в шаблоне
             var values = await reservationModel.CreateFieldsAsync(absolutePathToTemplateFields);
             errors.AddRange(Docx.MergeInplace(new Engine(), absolutePathToDoc, values)
                 .Select(e => e.Accept(new ErrorToRussianString())).ToList());
             logger.Log(LogLevel.Trace, "Filled template to directory for " +
-                                       "contract based on reservation {reservationId}", reservation.Id);
+                                       "contract based on reservation {reservationId}", reservationModel.Entity.Id);
             
             // Берём изменённый шаблон и превращаем его в pdf, сохраняя туда же
             var documentCore = DocumentCore.Load(absolutePathToDoc);
             documentCore.Save(absolutePathToPdf);
             logger.Log(LogLevel.Trace, "Converted doc to pdf into directory for " +
-                                       "contract based on reservation {reservationId}", reservation.Id);
+                                       "contract based on reservation {reservationId}", reservationModel.Entity.Id);
             
             var contract = new Contract
             {
@@ -133,7 +139,7 @@ public class ContractService(
             await contractRepo.SaveChangesAsync();
             
             logger.Log(LogLevel.Information, "Successfully created contract " +
-                                             "based on reservation {reservationId}", reservation.Id);
+                                             "based on reservation {reservationId}", reservationModel.Entity.Id);
         }
         catch (Exception ex)
         {

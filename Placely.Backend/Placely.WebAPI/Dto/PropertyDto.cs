@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using Placely.Domain.Enums;
+using Placely.Domain.Common.Enums;
 
 namespace Placely.WebAPI.Dto;
 

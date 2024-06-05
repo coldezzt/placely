@@ -1,7 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
-using Placely.Domain.Abstractions.Services;
+using Placely.Infrastructure.Common.Models;
+using Placely.Infrastructure.Interfaces.Services;
 using Placely.WebAPI.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 

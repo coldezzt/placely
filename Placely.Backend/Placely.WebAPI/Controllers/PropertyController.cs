@@ -5,10 +5,10 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Models;
+using Placely.Domain.Common.Enums;
 using Placely.Domain.Entities;
-using Placely.Domain.Enums;
+using Placely.Domain.Interfaces.Services;
 using Placely.WebAPI.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -71,7 +71,7 @@ public class PropertyController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid) 
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
         var property = mapper.Map<Property>(dto);
@@ -86,7 +86,7 @@ public class PropertyController(
     [SwaggerResponse(200, "Обновлённая информация по имуществу.", typeof(PropertyDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Попытка обновить чужое имущество.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/{propertyId:long}")]
     public async Task<IActionResult> Patch(
@@ -99,7 +99,7 @@ public class PropertyController(
         if (dbProperty.OwnerId != currentUserId) return Forbid();
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
         var property = mapper.Map<Property>(dto);
         property.Id = propertyId;
         var updatedProperty = await service.UpdateAsync(property);

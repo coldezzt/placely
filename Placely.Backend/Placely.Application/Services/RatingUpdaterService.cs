@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using Placely.Application.Abstractions.Repositories;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Interfaces.Repositories;
+using Placely.Domain.Interfaces.Services;
 
 namespace Placely.Application.Services;
 

@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Models;
+using Placely.Infrastructure.Common.Models;
+using Placely.Infrastructure.Interfaces.Services;
 using Placely.WebAPI.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -24,7 +25,7 @@ public class AuthorizationController(
         "передавать и одноразовый ключ. **Иначе** поле игнорируется.")]
     [SwaggerResponse(200, "Cгенерированные токены для текущего пользователя.", typeof(TokenDto), "application/json")]
     [SwaggerResponse(400, "Неверные аутентификационные данные.", typeof(string), "text/plain")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost]
     public async Task<IActionResult> Authorize(
@@ -32,7 +33,7 @@ public class AuthorizationController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
         var model = mapper.Map<AuthorizationModel>(dto);
         var authResult = await service.AuthorizeAsync(model);
         if (!authResult.IsSuccess) return BadRequest(authResult.Error);

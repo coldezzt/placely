@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Placely.Domain.Abstractions.Entities;
+using Placely.Domain.Interfaces.Entities;
 
 namespace Placely.Domain.Entities;
 
@@ -7,7 +7,11 @@ namespace Placely.Domain.Entities;
 public class PriceList : IEntity
 {
     public long Id { get; set; }
-    public ushort PeriodShort { get; set; }
-    public ushort PeriodMedium { get; set; }
-    public ushort PeriodLong { get; set; }
+
+    public long PropertyId { get; set; }
+    public virtual Property Property { get; set; }
+    
+    public decimal PeriodShort { get; set; }
+    public decimal PeriodMedium { get; set; }
+    public decimal PeriodLong { get; set; }
 }

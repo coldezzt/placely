@@ -4,9 +4,9 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Models;
 using Placely.Domain.Entities;
+using Placely.Domain.Interfaces.Services;
 using Placely.WebAPI.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -30,7 +30,7 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
         "Идентификатор автора берётся из авторизационных данных пользователя.")]
     [SwaggerResponse(200, "Данные созданного отзыва.", typeof(ReviewDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost]
     public async Task<IActionResult> Add(
@@ -38,7 +38,7 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
         dto.AuthorId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
         var review = mapper.Map<Review>(dto);
@@ -51,7 +51,7 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
     [SwaggerResponse(200, "Обновлённая информация по отзыву.", typeof(ReviewDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Попытка обновить чужой отзыв.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/{reviewId:long}")]
     public async Task<IActionResult> Patch(
@@ -64,7 +64,7 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
         if (dbReview.AuthorId != currentUserId) return Forbid();
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
         var review = mapper.Map<Review>(dto);
         review.Id = reviewId;
         var updatedProperty = await service.UpdateAsync(review);

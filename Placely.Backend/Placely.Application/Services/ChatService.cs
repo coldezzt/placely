@@ -1,13 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
-using Placely.Application.Abstractions.Repositories;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Interfaces.Repositories;
 using Placely.Domain.Entities;
+using Placely.Domain.Interfaces.Services;
 
 namespace Placely.Application.Services;
 
 public class ChatService(
     ILogger<ChatService> logger,
-    IChatRepository chatRepo) : IChatService
+    IChatRepository chatRepo,
+    ITenantRepository tenantRepo
+    ) : IChatService
 {
     public async Task<Chat> GetByIdAsync(long chatId)
     {
@@ -29,14 +31,19 @@ public class ChatService(
             logger.Log(LogLevel.Debug, "Chat already exists. Between: {user1} and {user2}", firstUser, secondUser);
             return dbChat;
         }
-        
-        var chat = new Chat { FirstUserId = firstUser, SecondUserId = secondUser };
-        chat.DirectoryName = "chat-" + string.Join("-", new List<long> {chat.FirstUserId, chat.SecondUserId}.Order());
-        
+
+        var ids = new List<long> {firstUser, secondUser}.Order();
+        var tenants = ids.Select(id => tenantRepo.GetByIdAsync(id).Result).ToList();
+        var chat = new Chat
+        {
+            Participants = tenants,
+            DirectoryName = "chat-" + string.Join("-", ids)
+        };
+
         var result = await chatRepo.AddAsync(chat);
         await chatRepo.SaveChangesAsync();
         
-        logger.Log(LogLevel.Trace, "Successfully created chat between: {user1} and {user2}", chat.FirstUserId, chat.SecondUserId);
+        logger.Log(LogLevel.Trace, "Successfully created chat between: {user1} and {user2}", firstUser, secondUser);
         return result;
     }
 

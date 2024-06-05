@@ -2,9 +2,9 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Models;
 using Placely.Domain.Entities;
+using Placely.Domain.Interfaces.Services;
 using Placely.WebAPI.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -18,7 +18,7 @@ public class RegistrationController(IRegistrationService registrationService, IM
         "Если пользователь с такой же почтой уже существует регистрация не продолжается.")]
     [SwaggerResponse(200, "Пользователь зарегистрирован.")]
     [SwaggerResponse(409, "Пользователь с такой почтой уже зарегистрирован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost]
     public async Task<IActionResult> Register(
@@ -26,8 +26,8 @@ public class RegistrationController(IRegistrationService registrationService, IM
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
-        var tenant = mapper.Map<Tenant>(dto);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
+        var tenant = mapper.Map<User>(dto);
         var result = await registrationService.RegisterUserAsync(tenant);
         return result.Email == dto.Email ? Ok() : Conflict();
     }
@@ -45,7 +45,7 @@ public class RegistrationController(IRegistrationService registrationService, IM
         """)]
     [SwaggerResponse(200, "Регистрация закончена успешно.")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [Authorize, HttpPost("[action]")]
     public async Task<IActionResult> Final(
@@ -54,8 +54,8 @@ public class RegistrationController(IRegistrationService registrationService, IM
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
-        var tenant = mapper.Map<Tenant>(dto);
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
+        var tenant = mapper.Map<User>(dto);
         await registrationService.FinalizeUserAsync(tenant);
         return Ok();
     }

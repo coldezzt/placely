@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Placely.Application.Abstractions.Repositories;
+using Placely.Application.Interfaces.Repositories;
 using Placely.Domain.Entities;
 
 namespace Placely.Persistence.Repositories;
@@ -10,8 +10,7 @@ public class ReservationRepository(ILogger<ReservationRepository> logger, AppDbC
     public Task<List<Reservation>> FindAllByIdTriplet(Reservation reservation)
     {
         var found = appDbContext.Reservations.Where(r =>
-            r.TenantId == reservation.TenantId
-            && r.LandlordId == reservation.LandlordId
+            r.Participants.OrderBy(p => p.Id).SequenceEqual(reservation.Participants.OrderBy(p => p.Id))
             && r.PropertyId == reservation.PropertyId)
             .ToList();
 

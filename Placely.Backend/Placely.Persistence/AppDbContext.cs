@@ -1,18 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Placely.Domain.Common.Enums;
 using Placely.Domain.Entities;
-using Placely.Domain.Enums;
-using Placely.Persistence.Configuration.EntityConfigurations;
+using Placely.Persistence.Common.Configuration.EntityConfigurations;
 
 namespace Placely.Persistence;
 
-public class AppDbContext : DbContext
+public class AppDbContext(
+    ILogger<AppDbContext> logger, 
+    DbContextOptions<AppDbContext> options
+    ) : DbContext(options)
 {
-    private readonly ILogger<AppDbContext> _logger;
-    
     #region Database sets
     
-    public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<User> Tenants => Set<User>();
     public DbSet<PreviousPassword> PreviousPasswords => Set<PreviousPassword>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
@@ -20,49 +21,39 @@ public class AppDbContext : DbContext
     public DbSet<PriceList> Prices => Set<PriceList>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<Message> Messages => Set<Message>();
-    public DbSet<Landlord> Landlords => Set<Landlord>();
     public DbSet<Contract> Contracts => Set<Contract>();
     public DbSet<Chat> Chats => Set<Chat>();
     
     #endregion
-    
-    public AppDbContext(ILogger<AppDbContext> logger, DbContextOptions<AppDbContext> options) : base(options)
-    {
-        _logger = logger;
-        SavingChanges += (_, _) => 
-            _logger.Log(LogLevel.Trace, $"Begin saving changes in context: {ContextId}");
-        SavedChanges += (_, _) =>
-            _logger.Log(LogLevel.Debug, $"Successfully saved changes in context: {ContextId}");
-    }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        _logger.Log(LogLevel.Trace, $"Begin configuring AppDbContext in context: {ContextId}");
         optionsBuilder.UseLazyLoadingProxies();
         optionsBuilder.UseSnakeCaseNamingConvention();
+        // TODO: remove
+        optionsBuilder.EnableDetailedErrors();
+        optionsBuilder.EnableSensitiveDataLogging();
         base.OnConfiguring(optionsBuilder);
-        _logger.Log(LogLevel.Debug, $"Successfully configured AppDbContext in context: {ContextId}");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        _logger.Log(LogLevel.Trace, "Begin creating models for AppDbContext.");
+        logger.Log(LogLevel.Trace, "Begin creating models for AppDbContext.");
         
         #region Entities configuration
         
         modelBuilder.ApplyConfiguration(new PropertyEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ContractEntityConfiguration());
-        modelBuilder.ApplyConfiguration(new TenantEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ChatEntityConfiguration());
 
         #endregion
-        _logger.Log(LogLevel.Trace, "Applied configurations for AppDbContext.");
+        logger.Log(LogLevel.Trace, "Applied configurations for AppDbContext.");
         
         #region Seeding
         
         SeedingStartedTenant(modelBuilder);
         SeedingStartedNotifications(modelBuilder);
-        SeedingStartedLandlords(modelBuilder);
         SeedingStartedChats(modelBuilder);
         SeedingStartedPriceLists(modelBuilder);
         SeedingStartedProperties(modelBuilder);
@@ -72,17 +63,17 @@ public class AppDbContext : DbContext
         SeedingStartedMessages(modelBuilder);
         
         #endregion
-        _logger.Log(LogLevel.Trace, "Applied seeding for AppDbContext.");
+        logger.Log(LogLevel.Trace, "Applied seeding for AppDbContext.");
 
         base.OnModelCreating(modelBuilder);
-        _logger.Log(LogLevel.Debug, "Successfully created models for AppDbContext.");
+        logger.Log(LogLevel.Debug, "Successfully created models for AppDbContext.");
     }
 
     #region Seeding methods
 
     private static void SeedingStartedTenant(ModelBuilder modelBuilder)
     {
-        var l = new List<Tenant>
+        var l = new List<User>
         {
             new()
             {
@@ -141,7 +132,7 @@ public class AppDbContext : DbContext
             }
         };
 
-        modelBuilder.Entity<Tenant>().HasData(l);
+        modelBuilder.Entity<User>().HasData(l);
     }
 
     private static void SeedingStartedNotifications(ModelBuilder modelBuilder)
@@ -201,32 +192,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Notification>().HasData(l);
     }
-
-    private static void SeedingStartedLandlords(ModelBuilder modelBuilder)
-    {
-        var l = new List<Landlord>
-        {
-            new()
-            {
-                Id = 1,
-                TenantId = 4,
-                ContactAddress = "some address 1"
-            }, new()
-            {
-                Id = 2,
-                TenantId = 5,
-                ContactAddress = "some address 2"
-            }, new()
-            {
-                Id = 3,
-                TenantId = 6,
-                ContactAddress = "some address 3"
-            }
-        };
-
-        modelBuilder.Entity<Landlord>().HasData(l);
-    }
-
+    
     private static void SeedingStartedChats(ModelBuilder modelBuilder)
     {
         var l = new List<Chat>
@@ -234,21 +200,15 @@ public class AppDbContext : DbContext
             new()
             {
                 Id = 1,
-                FirstUserId = 1,
-                SecondUserId = 1,
-                DirectoryName = "/chat-t-1-l-1"
+                DirectoryName = "/chat-1-2"
             }, new()
             {
                 Id = 2,
-                FirstUserId = 2,
-                SecondUserId = 1,
-                DirectoryName = "/chat-t-2-l-1"
+                DirectoryName = "/chat-1-3"
             }, new()
             {
                 Id = 3,
-                FirstUserId = 2,
-                SecondUserId = 2,
-                DirectoryName = "/chat-t-2-l-2"
+                DirectoryName = "/chat-2-4"
             }
         };
 
@@ -324,9 +284,21 @@ public class AppDbContext : DbContext
     {
         var l = new List<Contract>
         {
-            new () {Id = 1}, 
-            new () {Id = 2}, 
-            new () {Id = 3}
+            new()
+            {
+                Id = 1,
+                ReservationId = 1,
+            },
+            new()
+            {
+                Id = 2,
+                ReservationId = 2,
+            },
+            new()
+            {
+                Id = 3,
+                ReservationId = 3,
+            }
         };
 
         modelBuilder.Entity<Contract>().HasData(l);
@@ -339,41 +311,46 @@ public class AppDbContext : DbContext
             new ()
             {
                 Id = 1,
-                TenantId = 1,
-                LandlordId = 1,
                 PropertyId = 1,
                 Status = ReservationStatus.Approved,
                 CreationDateTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(20)),
                 Duration = TimeSpan.FromDays(37),
                 EntryDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(7)).ToUniversalTime(),
-                GuestsAmount = 3
+                GuestsAmount = 3,
+                PaymentAmount = 250_000,
+                PaymentFrequency = "2 раза в год"
+                
             }, new ()
             {
                 Id = 2,
-                TenantId = 2,
-                LandlordId = 1,
+                // TenantId = 2,
+                // LandlordId = 1,
                 PropertyId = 2,
                 Status = ReservationStatus.Approved,
                 CreationDateTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(3)),
                 Duration = TimeSpan.FromDays(14),
                 EntryDate = DateTime.UtcNow,
-                GuestsAmount = 1
+                GuestsAmount = 1,
+                PaymentAmount = 3000,
+                PaymentFrequency = "2 раза в неделю"
             }, new ()
             {
                 Id = 3,
-                TenantId = 3,
-                LandlordId = 2,
+                // TenantId = 3,
+                // LandlordId = 2,
                 PropertyId = 3,
                 Status = ReservationStatus.Approved,
                 CreationDateTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(3)),
                 Duration = TimeSpan.FromDays(3),
                 EntryDate = DateTime.UtcNow.Subtract(TimeSpan.FromDays(2)).ToUniversalTime(),
-                GuestsAmount = 2
+                GuestsAmount = 2,
+                PaymentAmount = 40000,
+                PaymentFrequency = "1 раз в месяц"
             }, new()
             {
                 Id = 4,
-                TenantId = 1,
-                LandlordId = 1,
+                // TenantId = 1,
+                // LandlordId = 1,
                 PropertyId = 2,
                 Status = ReservationStatus.Opened,
                 CreationDateTime = DateTime.UtcNow,
@@ -383,8 +360,8 @@ public class AppDbContext : DbContext
             }, new()
             {
                 Id = 5,
-                TenantId = 3,
-                LandlordId = 2,
+                // TenantId = 3,
+                // LandlordId = 2,
                 PropertyId = 3,
                 Status = ReservationStatus.Declined,
                 DeclineReason = "too many guests",
@@ -395,8 +372,8 @@ public class AppDbContext : DbContext
             }, new()
             {
                 Id = 6,
-                TenantId = 1,
-                LandlordId = 2,
+                // TenantId = 1,
+                // LandlordId = 2,
                 PropertyId = 3,
                 Status = ReservationStatus.InProgress,
                 CreationDateTime = DateTime.UtcNow.Subtract(TimeSpan.FromDays(10)),

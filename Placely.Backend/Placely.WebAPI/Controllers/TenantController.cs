@@ -4,10 +4,10 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
+using Placely.Application.Common.Models;
 using Placely.Application.Services.Utils;
-using Placely.Domain.Abstractions.Services;
 using Placely.Domain.Entities;
+using Placely.Domain.Interfaces.Services;
 using Placely.WebAPI.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -89,7 +89,7 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     [SwaggerOperation("Обновляет настройки пользователя")]
     [SwaggerResponse(200, "Данные об обновлённых настройках.", typeof(SensitiveTenantDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/settings")]
     public async Task<IActionResult> UpdateSettings(
@@ -97,11 +97,11 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
         
         var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        var tenant = mapper.Map<Tenant>(dto);
+        var tenant = mapper.Map<User>(dto);
         tenant.Id = tenantId;
         var result = await service.PatchSettingsAsync(tenant);
         var response = mapper.Map<TenantDto>(result);
@@ -111,14 +111,14 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     [SwaggerOperation("Обновляет чувствительные настройки пользователя")]
     [SwaggerResponse(200, "Данные об обновлённых настройках.", typeof(SensitiveTenantDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/sensitive/settings")]
     public async Task<IActionResult> UpdateSensitiveSettings([FromBody] SensitiveTenantDto dto)
     {
         var validationResult = await sensitiveDtoValidator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
         var tenantId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
 
@@ -129,7 +129,7 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
         if (dbTenant.PreviousPasswords?.Select(pp => pp.Password == dto.NewPassword).Any() ?? false)
             return BadRequest();
         
-        var tenant = mapper.Map<Tenant>(dto);
+        var tenant = mapper.Map<User>(dto);
         tenant.Id = tenantId;
         var result = await service.PatchSensitiveSettingsAsync(tenant);
         var response = mapper.Map<SensitiveTenantDto>(result);

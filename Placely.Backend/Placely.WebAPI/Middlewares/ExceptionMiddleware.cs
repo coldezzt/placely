@@ -2,8 +2,8 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Placely.Application.Exceptions;
-using Placely.Application.Options;
+using Placely.Application.Common.Exceptions;
+using Placely.Application.Common.Options;
 
 namespace Placely.WebAPI.Middlewares;
 

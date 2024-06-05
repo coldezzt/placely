@@ -25,6 +25,25 @@ namespace Placely.Main.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ChatUser", b =>
+                {
+                    b.Property<long>("ChatsId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("chats_id");
+
+                    b.Property<long>("ParticipantsId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("participants_id");
+
+                    b.HasKey("ChatsId", "ParticipantsId")
+                        .HasName("pk_chat_user");
+
+                    b.HasIndex("ParticipantsId")
+                        .HasDatabaseName("ix_chat_user_participants_id");
+
+                    b.ToTable("chat_user", (string)null);
+                });
+
             modelBuilder.Entity("Placely.Domain.Entities.Chat", b =>
                 {
                     b.Property<long>("Id")
@@ -39,36 +58,8 @@ namespace Placely.Main.Migrations
                         .HasColumnType("text")
                         .HasColumnName("directory_name");
 
-                    b.Property<long>("FirstUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("first_user_id");
-
-                    b.Property<long?>("LandlordId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("landlord_id");
-
-                    b.Property<long>("SecondUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("second_user_id");
-
-                    b.Property<long?>("TenantId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tenant_id");
-
                     b.HasKey("Id")
                         .HasName("pk_chats");
-
-                    b.HasIndex("FirstUserId")
-                        .HasDatabaseName("ix_chats_first_user_id");
-
-                    b.HasIndex("LandlordId")
-                        .HasDatabaseName("ix_chats_landlord_id");
-
-                    b.HasIndex("SecondUserId")
-                        .HasDatabaseName("ix_chats_second_user_id");
-
-                    b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_chats_tenant_id");
 
                     b.ToTable("chats", (string)null);
 
@@ -76,23 +67,17 @@ namespace Placely.Main.Migrations
                         new
                         {
                             Id = 1L,
-                            DirectoryName = "/chat-t-1-l-1",
-                            FirstUserId = 1L,
-                            SecondUserId = 1L
+                            DirectoryName = "/chat-1-2"
                         },
                         new
                         {
                             Id = 2L,
-                            DirectoryName = "/chat-t-2-l-1",
-                            FirstUserId = 2L,
-                            SecondUserId = 1L
+                            DirectoryName = "/chat-1-3"
                         },
                         new
                         {
                             Id = 3L,
-                            DirectoryName = "/chat-t-2-l-2",
-                            FirstUserId = 2L,
-                            SecondUserId = 2L
+                            DirectoryName = "/chat-2-4"
                         });
                 });
 
@@ -113,51 +98,16 @@ namespace Placely.Main.Migrations
                         .HasColumnType("text")
                         .HasColumnName("finalized_pdf_file_name");
 
-                    b.Property<long>("LandlordId")
+                    b.Property<long>("ReservationId")
                         .HasColumnType("bigint")
-                        .HasColumnName("landlord_id");
-
-                    b.Property<DateTime>("LeaseEndDateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("lease_end_date_time");
-
-                    b.Property<DateTime>("LeaseStartDateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("lease_start_date_time");
-
-                    b.Property<long>("PropertyId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("property_id");
-
-                    b.Property<string>("TemplateFieldsPath")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Data/contracts/default/default_fields.json")
-                        .HasColumnName("template_fields_path");
-
-                    b.Property<string>("TemplatePath")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Data/contracts/default/default_template.docx")
-                        .HasColumnName("template_path");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tenant_id");
+                        .HasColumnName("reservation_id");
 
                     b.HasKey("Id")
                         .HasName("pk_contracts");
 
-                    b.HasIndex("LandlordId")
-                        .HasDatabaseName("ix_contracts_landlord_id");
-
-                    b.HasIndex("PropertyId")
-                        .HasDatabaseName("ix_contracts_property_id");
-
-                    b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_contracts_tenant_id");
+                    b.HasIndex("ReservationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_contracts_reservation_id");
 
                     b.ToTable("contracts", (string)null);
 
@@ -165,76 +115,17 @@ namespace Placely.Main.Migrations
                         new
                         {
                             Id = 1L,
-                            LandlordId = 1L,
-                            LeaseEndDateTime = new DateTime(2024, 7, 4, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(380),
-                            LeaseStartDateTime = new DateTime(2024, 5, 28, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(376),
-                            PropertyId = 1L,
-                            TenantId = 1L
+                            ReservationId = 1L
                         },
                         new
                         {
                             Id = 2L,
-                            LandlordId = 1L,
-                            LeaseEndDateTime = new DateTime(2024, 6, 18, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(387),
-                            LeaseStartDateTime = new DateTime(2024, 6, 4, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(387),
-                            PropertyId = 2L,
-                            TenantId = 2L
+                            ReservationId = 2L
                         },
                         new
                         {
                             Id = 3L,
-                            LandlordId = 2L,
-                            LeaseEndDateTime = new DateTime(2024, 6, 5, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(390),
-                            LeaseStartDateTime = new DateTime(2024, 6, 2, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(389),
-                            PropertyId = 3L,
-                            TenantId = 3L
-                        });
-                });
-
-            modelBuilder.Entity("Placely.Domain.Entities.Landlord", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("ContactAddress")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("contact_address");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tenant_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_landlords");
-
-                    b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_landlords_tenant_id");
-
-                    b.ToTable("landlords", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            ContactAddress = "some address 1",
-                            TenantId = 4L
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            ContactAddress = "some address 2",
-                            TenantId = 5L
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            ContactAddress = "some address 3",
-                            TenantId = 6L
+                            ReservationId = 3L
                         });
                 });
 
@@ -287,7 +178,7 @@ namespace Placely.Main.Migrations
                             AuthorId = 1L,
                             ChatId = 1L,
                             Content = "message 1",
-                            Date = new DateTime(2024, 6, 2, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(525),
+                            Date = new DateTime(2024, 6, 3, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(704),
                             FileName = ""
                         },
                         new
@@ -296,7 +187,7 @@ namespace Placely.Main.Migrations
                             AuthorId = 4L,
                             ChatId = 1L,
                             Content = "message 2",
-                            Date = new DateTime(2024, 6, 3, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(529),
+                            Date = new DateTime(2024, 6, 4, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(713),
                             FileName = ""
                         },
                         new
@@ -305,7 +196,7 @@ namespace Placely.Main.Migrations
                             AuthorId = 2L,
                             ChatId = 2L,
                             Content = "message with file",
-                            Date = new DateTime(2024, 5, 29, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(531),
+                            Date = new DateTime(2024, 5, 30, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(715),
                             FileName = "smt.txt"
                         });
                 });
@@ -354,7 +245,7 @@ namespace Placely.Main.Migrations
                         {
                             Id = 1L,
                             Content = "This is some helpful information",
-                            Date = new DateOnly(2024, 6, 4),
+                            Date = new DateOnly(2024, 6, 5),
                             IsDeleted = false,
                             ReceiverId = 2L,
                             Title = "Info"
@@ -363,7 +254,7 @@ namespace Placely.Main.Migrations
                         {
                             Id = 2L,
                             Content = "This is some helpful information",
-                            Date = new DateOnly(2024, 6, 4),
+                            Date = new DateOnly(2024, 6, 5),
                             IsDeleted = false,
                             ReceiverId = 2L,
                             Title = "Info"
@@ -372,7 +263,7 @@ namespace Placely.Main.Migrations
                         {
                             Id = 3L,
                             Content = "This is already readed some helpful information",
-                            Date = new DateOnly(2024, 6, 4),
+                            Date = new DateOnly(2024, 6, 5),
                             IsDeleted = false,
                             ReceiverId = 3L,
                             Title = "Info"
@@ -381,7 +272,7 @@ namespace Placely.Main.Migrations
                         {
                             Id = 4L,
                             Content = "This is already readed some helpful information",
-                            Date = new DateOnly(2024, 6, 4),
+                            Date = new DateOnly(2024, 6, 5),
                             IsDeleted = true,
                             ReceiverId = 3L,
                             Title = "Info"
@@ -390,7 +281,7 @@ namespace Placely.Main.Migrations
                         {
                             Id = 5L,
                             Content = "This is request on reservation",
-                            Date = new DateOnly(2024, 6, 4),
+                            Date = new DateOnly(2024, 6, 5),
                             IsDeleted = false,
                             ReceiverId = 4L,
                             Title = "Request"
@@ -399,7 +290,7 @@ namespace Placely.Main.Migrations
                         {
                             Id = 6L,
                             Content = "This is readed request on reservation",
-                            Date = new DateOnly(2024, 6, 4),
+                            Date = new DateOnly(2024, 6, 5),
                             IsDeleted = true,
                             ReceiverId = 5L,
                             Title = "Request"
@@ -442,17 +333,21 @@ namespace Placely.Main.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<int>("PeriodLong")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("PeriodLong")
+                        .HasColumnType("numeric")
                         .HasColumnName("period_long");
 
-                    b.Property<int>("PeriodMedium")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("PeriodMedium")
+                        .HasColumnType("numeric")
                         .HasColumnName("period_medium");
 
-                    b.Property<int>("PeriodShort")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("PeriodShort")
+                        .HasColumnType("numeric")
                         .HasColumnName("period_short");
+
+                    b.Property<long>("PropertyId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("property_id");
 
                     b.HasKey("Id")
                         .HasName("pk_prices");
@@ -463,23 +358,26 @@ namespace Placely.Main.Migrations
                         new
                         {
                             Id = 1L,
-                            PeriodLong = 11,
-                            PeriodMedium = 111,
-                            PeriodShort = 1111
+                            PeriodLong = 11m,
+                            PeriodMedium = 111m,
+                            PeriodShort = 1111m,
+                            PropertyId = 0L
                         },
                         new
                         {
                             Id = 2L,
-                            PeriodLong = 22,
-                            PeriodMedium = 222,
-                            PeriodShort = 2222
+                            PeriodLong = 22m,
+                            PeriodMedium = 222m,
+                            PeriodShort = 2222m,
+                            PropertyId = 0L
                         },
                         new
                         {
                             Id = 3L,
-                            PeriodLong = 33,
-                            PeriodMedium = 333,
-                            PeriodShort = 3333
+                            PeriodLong = 33m,
+                            PeriodMedium = 333m,
+                            PeriodShort = 3333m,
+                            PropertyId = 0L
                         });
                 });
 
@@ -501,10 +399,6 @@ namespace Placely.Main.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("description");
-
-                    b.Property<long?>("LandlordId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("landlord_id");
 
                     b.Property<long>("OwnerId")
                         .HasColumnType("bigint")
@@ -529,9 +423,6 @@ namespace Placely.Main.Migrations
                     b.HasKey("Id")
                         .HasName("pk_properties");
 
-                    b.HasIndex("LandlordId")
-                        .HasDatabaseName("ix_properties_landlord_id");
-
                     b.HasIndex("OwnerId")
                         .HasDatabaseName("ix_properties_owner_id");
 
@@ -549,7 +440,7 @@ namespace Placely.Main.Migrations
                             Description = "Flat property description",
                             OwnerId = 1L,
                             PriceListId = 1L,
-                            PublicationDate = new DateTime(2024, 6, 3, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(325),
+                            PublicationDate = new DateTime(2024, 6, 4, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(482),
                             Rating = 0.0,
                             Type = 2
                         },
@@ -560,7 +451,7 @@ namespace Placely.Main.Migrations
                             Description = "Hostel property description",
                             OwnerId = 1L,
                             PriceListId = 2L,
-                            PublicationDate = new DateTime(2024, 5, 5, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(336),
+                            PublicationDate = new DateTime(2024, 5, 6, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(493),
                             Rating = 0.0,
                             Type = 0
                         },
@@ -571,7 +462,7 @@ namespace Placely.Main.Migrations
                             Description = "Villa property description",
                             OwnerId = 2L,
                             PriceListId = 3L,
-                            PublicationDate = new DateTime(2024, 4, 5, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(339),
+                            PublicationDate = new DateTime(2024, 4, 6, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(495),
                             Rating = 0.0,
                             Type = 3
                         });
@@ -585,6 +476,10 @@ namespace Placely.Main.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ContractId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("contract_id");
 
                     b.Property<DateTime>("CreationDateTime")
                         .HasColumnType("timestamp with time zone")
@@ -606,33 +501,27 @@ namespace Placely.Main.Migrations
                         .HasColumnType("smallint")
                         .HasColumnName("guests_amount");
 
-                    b.Property<long>("LandlordId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("landlord_id");
+                    b.Property<decimal?>("PaymentAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("payment_amount");
+
+                    b.Property<string>("PaymentFrequency")
+                        .HasColumnType("text")
+                        .HasColumnName("payment_frequency");
 
                     b.Property<long>("PropertyId")
                         .HasColumnType("bigint")
                         .HasColumnName("property_id");
 
-                    b.Property<int?>("StatusType")
+                    b.Property<int?>("Status")
                         .HasColumnType("integer")
-                        .HasColumnName("status_type");
-
-                    b.Property<long>("TenantId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("tenant_id");
+                        .HasColumnName("status");
 
                     b.HasKey("Id")
                         .HasName("pk_reservations");
 
-                    b.HasIndex("LandlordId")
-                        .HasDatabaseName("ix_reservations_landlord_id");
-
                     b.HasIndex("PropertyId")
                         .HasDatabaseName("ix_reservations_property_id");
-
-                    b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_reservations_tenant_id");
 
                     b.ToTable("reservations", (string)null);
 
@@ -640,75 +529,69 @@ namespace Placely.Main.Migrations
                         new
                         {
                             Id = 1L,
-                            CreationDateTime = new DateTime(2024, 5, 15, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(422),
+                            CreationDateTime = new DateTime(2024, 5, 16, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(545),
                             Duration = new TimeSpan(37, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 5, 28, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(424),
+                            EntryDate = new DateTime(2024, 5, 29, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(548),
                             GuestsAmount = (byte)3,
-                            LandlordId = 1L,
+                            PaymentAmount = 250000m,
+                            PaymentFrequency = "2 раза в год",
                             PropertyId = 1L,
-                            StatusType = 2,
-                            TenantId = 1L
+                            Status = 2
                         },
                         new
                         {
                             Id = 2L,
-                            CreationDateTime = new DateTime(2024, 6, 1, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(431),
+                            CreationDateTime = new DateTime(2024, 6, 2, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(560),
                             Duration = new TimeSpan(14, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 6, 4, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(432),
+                            EntryDate = new DateTime(2024, 6, 5, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(561),
                             GuestsAmount = (byte)1,
-                            LandlordId = 1L,
+                            PaymentAmount = 3000m,
+                            PaymentFrequency = "2 раза в неделю",
                             PropertyId = 2L,
-                            StatusType = 2,
-                            TenantId = 2L
+                            Status = 2
                         },
                         new
                         {
                             Id = 3L,
-                            CreationDateTime = new DateTime(2024, 6, 1, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(434),
+                            CreationDateTime = new DateTime(2024, 6, 2, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(562),
                             Duration = new TimeSpan(3, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 6, 2, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(435),
+                            EntryDate = new DateTime(2024, 6, 3, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(563),
                             GuestsAmount = (byte)2,
-                            LandlordId = 2L,
+                            PaymentAmount = 40000m,
+                            PaymentFrequency = "1 раз в месяц",
                             PropertyId = 3L,
-                            StatusType = 2,
-                            TenantId = 3L
+                            Status = 2
                         },
                         new
                         {
                             Id = 4L,
-                            CreationDateTime = new DateTime(2024, 6, 4, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(437),
+                            CreationDateTime = new DateTime(2024, 6, 5, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(566),
                             Duration = new TimeSpan(10, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 6, 8, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(437),
+                            EntryDate = new DateTime(2024, 6, 9, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(566),
                             GuestsAmount = (byte)3,
-                            LandlordId = 1L,
                             PropertyId = 2L,
-                            StatusType = 0,
-                            TenantId = 1L
+                            Status = 0
                         },
                         new
                         {
                             Id = 5L,
-                            CreationDateTime = new DateTime(2024, 5, 25, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(440),
+                            CreationDateTime = new DateTime(2024, 5, 26, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(572),
                             DeclineReason = "too many guests",
                             Duration = new TimeSpan(10, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 6, 8, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(441),
+                            EntryDate = new DateTime(2024, 6, 9, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(572),
                             GuestsAmount = (byte)34,
-                            LandlordId = 2L,
                             PropertyId = 3L,
-                            StatusType = 3,
-                            TenantId = 3L
+                            Status = 3
                         },
                         new
                         {
                             Id = 6L,
-                            CreationDateTime = new DateTime(2024, 5, 25, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(444),
+                            CreationDateTime = new DateTime(2024, 5, 26, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(575),
                             Duration = new TimeSpan(10, 0, 0, 0, 0),
-                            EntryDate = new DateTime(2024, 6, 8, 7, 8, 44, 315, DateTimeKind.Utc).AddTicks(445),
+                            EntryDate = new DateTime(2024, 6, 9, 8, 14, 5, 602, DateTimeKind.Utc).AddTicks(576),
                             GuestsAmount = (byte)2,
-                            LandlordId = 2L,
                             PropertyId = 3L,
-                            StatusType = 1,
-                            TenantId = 1L
+                            Status = 1
                         });
                 });
 
@@ -801,7 +684,7 @@ namespace Placely.Main.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Placely.Domain.Entities.Tenant", b =>
+            modelBuilder.Entity("Placely.Domain.Entities.User", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -813,6 +696,10 @@ namespace Placely.Main.Migrations
                     b.Property<string>("About")
                         .HasColumnType("text")
                         .HasColumnName("about");
+
+                    b.Property<string>("ContactAddress")
+                        .HasColumnType("text")
+                        .HasColumnName("contact_address");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -962,102 +849,77 @@ namespace Placely.Main.Migrations
                         });
                 });
 
-            modelBuilder.Entity("PropertyTenant", b =>
+            modelBuilder.Entity("PropertyUser", b =>
                 {
-                    b.Property<long>("FavouriteId")
+                    b.Property<long>("FavouritesId")
                         .HasColumnType("bigint")
-                        .HasColumnName("favourite_id");
+                        .HasColumnName("favourites_id");
 
-                    b.Property<long>("InFavouritesId")
+                    b.Property<long>("FavouritesId1")
                         .HasColumnType("bigint")
-                        .HasColumnName("in_favourites_id");
+                        .HasColumnName("favourites_id1");
 
-                    b.HasKey("FavouriteId", "InFavouritesId")
-                        .HasName("pk_property_tenant");
+                    b.HasKey("FavouritesId", "FavouritesId1")
+                        .HasName("pk_property_user");
 
-                    b.HasIndex("InFavouritesId")
-                        .HasDatabaseName("ix_property_tenant_in_favourites_id");
+                    b.HasIndex("FavouritesId1")
+                        .HasDatabaseName("ix_property_user_favourites_id1");
 
-                    b.ToTable("property_tenant", (string)null);
+                    b.ToTable("property_user", (string)null);
                 });
 
-            modelBuilder.Entity("Placely.Domain.Entities.Chat", b =>
+            modelBuilder.Entity("ReservationUser", b =>
                 {
-                    b.HasOne("Placely.Domain.Entities.Tenant", "FirstUser")
+                    b.Property<long>("ParticipantsId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("participants_id");
+
+                    b.Property<long>("ReservationsId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("reservations_id");
+
+                    b.HasKey("ParticipantsId", "ReservationsId")
+                        .HasName("pk_reservation_user");
+
+                    b.HasIndex("ReservationsId")
+                        .HasDatabaseName("ix_reservation_user_reservations_id");
+
+                    b.ToTable("reservation_user", (string)null);
+                });
+
+            modelBuilder.Entity("ChatUser", b =>
+                {
+                    b.HasOne("Placely.Domain.Entities.Chat", null)
                         .WithMany()
-                        .HasForeignKey("FirstUserId")
+                        .HasForeignKey("ChatsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_chats_tenants_first_user_id");
+                        .HasConstraintName("fk_chat_user_chats_chats_id");
 
-                    b.HasOne("Placely.Domain.Entities.Landlord", null)
-                        .WithMany("Chats")
-                        .HasForeignKey("LandlordId")
-                        .HasConstraintName("fk_chats_landlords_landlord_id");
-
-                    b.HasOne("Placely.Domain.Entities.Tenant", "SecondUser")
+                    b.HasOne("Placely.Domain.Entities.User", null)
                         .WithMany()
-                        .HasForeignKey("SecondUserId")
+                        .HasForeignKey("ParticipantsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_chats_tenants_second_user_id");
-
-                    b.HasOne("Placely.Domain.Entities.Tenant", null)
-                        .WithMany("Chats")
-                        .HasForeignKey("TenantId")
-                        .HasConstraintName("fk_chats_tenants_tenant_id");
-
-                    b.Navigation("FirstUser");
-
-                    b.Navigation("SecondUser");
+                        .HasConstraintName("fk_chat_user_tenants_participants_id");
                 });
 
             modelBuilder.Entity("Placely.Domain.Entities.Contract", b =>
                 {
-                    b.HasOne("Placely.Domain.Entities.Landlord", "Landlord")
-                        .WithMany("Contracts")
-                        .HasForeignKey("LandlordId")
+                    b.HasOne("Placely.Domain.Entities.Reservation", "Reservation")
+                        .WithOne("Contract")
+                        .HasForeignKey("Placely.Domain.Entities.Contract", "ReservationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_contracts_landlords_landlord_id");
+                        .HasConstraintName("fk_contracts_reservations_reservation_id");
 
-                    b.HasOne("Placely.Domain.Entities.Property", "Property")
-                        .WithMany("Contracts")
-                        .HasForeignKey("PropertyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_contracts_properties_property_id");
-
-                    b.HasOne("Placely.Domain.Entities.Tenant", "Tenant")
-                        .WithMany("Contracts")
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_contracts_tenants_tenant_id");
-
-                    b.Navigation("Landlord");
-
-                    b.Navigation("Property");
-
-                    b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("Placely.Domain.Entities.Landlord", b =>
-                {
-                    b.HasOne("Placely.Domain.Entities.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_landlords_tenants_tenant_id");
-
-                    b.Navigation("Tenant");
+                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("Placely.Domain.Entities.Message", b =>
                 {
-                    b.HasOne("Placely.Domain.Entities.Tenant", "Author")
-                        .WithMany()
+                    b.HasOne("Placely.Domain.Entities.User", "Author")
+                        .WithMany("Messages")
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -1077,7 +939,7 @@ namespace Placely.Main.Migrations
 
             modelBuilder.Entity("Placely.Domain.Entities.Notification", b =>
                 {
-                    b.HasOne("Placely.Domain.Entities.Tenant", "Receiver")
+                    b.HasOne("Placely.Domain.Entities.User", "Receiver")
                         .WithMany("Notifications")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1089,33 +951,28 @@ namespace Placely.Main.Migrations
 
             modelBuilder.Entity("Placely.Domain.Entities.PreviousPassword", b =>
                 {
-                    b.HasOne("Placely.Domain.Entities.Tenant", "Tenant")
+                    b.HasOne("Placely.Domain.Entities.User", "User")
                         .WithMany("PreviousPasswords")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_previous_passwords_tenants_tenant_id");
 
-                    b.Navigation("Tenant");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Placely.Domain.Entities.Property", b =>
                 {
-                    b.HasOne("Placely.Domain.Entities.Landlord", null)
-                        .WithMany("Properties")
-                        .HasForeignKey("LandlordId")
-                        .HasConstraintName("fk_properties_landlords_landlord_id");
-
-                    b.HasOne("Placely.Domain.Entities.Tenant", "Owner")
-                        .WithMany()
+                    b.HasOne("Placely.Domain.Entities.User", "Owner")
+                        .WithMany("OwnedProperties")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_properties_tenants_owner_id");
 
                     b.HasOne("Placely.Domain.Entities.PriceList", "PriceList")
-                        .WithMany()
-                        .HasForeignKey("PriceListId")
+                        .WithOne("Property")
+                        .HasForeignKey("Placely.Domain.Entities.Property", "PriceListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_properties_prices_price_list_id");
@@ -1127,13 +984,6 @@ namespace Placely.Main.Migrations
 
             modelBuilder.Entity("Placely.Domain.Entities.Reservation", b =>
                 {
-                    b.HasOne("Placely.Domain.Entities.Landlord", "Landlord")
-                        .WithMany("Reservations")
-                        .HasForeignKey("LandlordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_reservations_landlords_landlord_id");
-
                     b.HasOne("Placely.Domain.Entities.Property", "Property")
                         .WithMany("Reservations")
                         .HasForeignKey("PropertyId")
@@ -1141,23 +991,12 @@ namespace Placely.Main.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_reservations_properties_property_id");
 
-                    b.HasOne("Placely.Domain.Entities.Tenant", "Tenant")
-                        .WithMany("Reservations")
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_reservations_tenants_tenant_id");
-
-                    b.Navigation("Landlord");
-
                     b.Navigation("Property");
-
-                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Placely.Domain.Entities.Review", b =>
                 {
-                    b.HasOne("Placely.Domain.Entities.Tenant", "Author")
+                    b.HasOne("Placely.Domain.Entities.User", "Author")
                         .WithMany("Reviews")
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1176,21 +1015,38 @@ namespace Placely.Main.Migrations
                     b.Navigation("Property");
                 });
 
-            modelBuilder.Entity("PropertyTenant", b =>
+            modelBuilder.Entity("PropertyUser", b =>
                 {
+                    b.HasOne("Placely.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("FavouritesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_property_user_tenants_favourites_id");
+
                     b.HasOne("Placely.Domain.Entities.Property", null)
                         .WithMany()
-                        .HasForeignKey("FavouriteId")
+                        .HasForeignKey("FavouritesId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_property_tenant_properties_favourite_id");
+                        .HasConstraintName("fk_property_user_properties_favourites_id1");
+                });
 
-                    b.HasOne("Placely.Domain.Entities.Tenant", null)
+            modelBuilder.Entity("ReservationUser", b =>
+                {
+                    b.HasOne("Placely.Domain.Entities.User", null)
                         .WithMany()
-                        .HasForeignKey("InFavouritesId")
+                        .HasForeignKey("ParticipantsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_property_tenant_tenants_in_favourites_id");
+                        .HasConstraintName("fk_reservation_user_tenants_participants_id");
+
+                    b.HasOne("Placely.Domain.Entities.Reservation", null)
+                        .WithMany()
+                        .HasForeignKey("ReservationsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_reservation_user_reservations_reservations_id");
                 });
 
             modelBuilder.Entity("Placely.Domain.Entities.Chat", b =>
@@ -1198,37 +1054,33 @@ namespace Placely.Main.Migrations
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("Placely.Domain.Entities.Landlord", b =>
+            modelBuilder.Entity("Placely.Domain.Entities.PriceList", b =>
                 {
-                    b.Navigation("Chats");
-
-                    b.Navigation("Contracts");
-
-                    b.Navigation("Properties");
-
-                    b.Navigation("Reservations");
+                    b.Navigation("Property")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Placely.Domain.Entities.Property", b =>
                 {
-                    b.Navigation("Contracts");
-
                     b.Navigation("Reservations");
 
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("Placely.Domain.Entities.Tenant", b =>
+            modelBuilder.Entity("Placely.Domain.Entities.Reservation", b =>
                 {
-                    b.Navigation("Chats");
+                    b.Navigation("Contract");
+                });
 
-                    b.Navigation("Contracts");
+            modelBuilder.Entity("Placely.Domain.Entities.User", b =>
+                {
+                    b.Navigation("Messages");
 
                     b.Navigation("Notifications");
 
-                    b.Navigation("PreviousPasswords");
+                    b.Navigation("OwnedProperties");
 
-                    b.Navigation("Reservations");
+                    b.Navigation("PreviousPasswords");
 
                     b.Navigation("Reviews");
                 });

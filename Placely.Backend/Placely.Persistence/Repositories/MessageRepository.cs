@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Placely.Application.Abstractions.Repositories;
-using Placely.Application.Exceptions;
+using Placely.Application.Common.Exceptions;
+using Placely.Application.Interfaces.Repositories;
 using Placely.Domain.Entities;
 
 namespace Placely.Persistence.Repositories;

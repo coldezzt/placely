@@ -4,10 +4,10 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Models;
+using Placely.Domain.Common.Enums;
 using Placely.Domain.Entities;
-using Placely.Domain.Enums;
+using Placely.Domain.Interfaces.Services;
 using Placely.WebAPI.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -30,8 +30,11 @@ public class ReservationController(
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbReservation = await service.GetByIdAsNoTrackingAsync(reservationId);
-        if (dbReservation.LandlordId != currentUserId && dbReservation.TenantId != currentUserId) return Forbid();
+        if (dbReservation.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
         var response = mapper.Map<ReservationDto>(dbReservation);
         return Ok(response);
     }
@@ -41,7 +44,7 @@ public class ReservationController(
     [SwaggerResponse(200, "Информация по созданному бронированию.", typeof(ReservationDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Попытка создать бронирование, участником которого пользователь не является.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost("my")]
     public async Task<IActionResult> Create(
@@ -50,7 +53,7 @@ public class ReservationController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
         
@@ -66,7 +69,7 @@ public class ReservationController(
     [SwaggerResponse(200, "Информация по созданному бронированию.", typeof(ReservationDto), "application/json")]
     [SwaggerResponse(401, "Пользователь не авторизован.")]
     [SwaggerResponse(403, "Попытка обновить бронирование, создателем которого пользователь не является.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationError>),
+    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/{reservationId:long}")]
     public async Task<IActionResult> Update(
@@ -75,7 +78,7 @@ public class ReservationController(
     {
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
-            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationError>));
+            return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
 
@@ -102,9 +105,14 @@ public class ReservationController(
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbReservation = await service.GetByIdAsNoTrackingAsync(reservationId);
-        if (dbReservation.LandlordId != currentUserId && dbReservation.TenantId != currentUserId) return Forbid();
-        if (dbReservation.Status == ReservationStatus.InProgress) return Conflict();
+        if (dbReservation.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
+        if (dbReservation.Status == ReservationStatus.InProgress) 
+            return Conflict();
+        
         var deletedReservation = await service.DeleteAsync(reservationId);
         var response = mapper.Map<ReservationDto>(deletedReservation);
         return Ok(response);

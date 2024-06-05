@@ -1,4 +1,4 @@
-using Placely.Domain.Abstractions.Entities;
+using Placely.Domain.Interfaces.Entities;
 
 namespace Placely.Domain.Entities;
 
@@ -7,7 +7,7 @@ public class Review : IEntity
     public long Id { get; set; }
     
     public long AuthorId { get; set; }
-    public virtual Tenant Author { get; set; }
+    public virtual User Author { get; set; }
 
     public long PropertyId { get; set; }
     public virtual Property Property { get; set; }

@@ -7,7 +7,8 @@ public class ChatDtoValidator : AbstractValidator<ChatDto>
 {
     public ChatDtoValidator()
     {
-        RuleFor(c => c.OtherUserId)
-            .NotEmpty().WithMessage(NullOrEmpty());
+        RuleFor(c => c.Participants)
+            .NotEmpty().WithMessage(NullOrEmpty())
+            .Must(p => p.Count == 2).WithMessage(ListLengthShouldBeEqualTo(2));
     }
 }

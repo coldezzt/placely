@@ -5,9 +5,9 @@ using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
-using Placely.Domain.Abstractions.Services;
-using Placely.Domain.Enums;
+using Placely.Application.Common.Models;
+using Placely.Domain.Common.Enums;
+using Placely.Domain.Interfaces.Services;
 using Placely.WebAPI.Dto;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -28,8 +28,11 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
-        if (dbContract.Reservation.LandlordId != currentUserId && dbContract.Reservation.TenantId != currentUserId) return Forbid();
+        if (dbContract.Reservation.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
         var response = mapper.Map<ContractDto>(dbContract.Reservation);
         return Ok(response);
     }
@@ -47,10 +50,13 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
-        if (currentUserId != dbContract.Reservation.TenantId && currentUserId != dbContract.Reservation.LandlordId) return Forbid();
-        var names = 
-            await service.GetFileNamesListByLandlordAndTenantIdAsync(dbContract.Reservation.LandlordId, dbContract.Reservation.TenantId);
+        if (dbContract.Reservation.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
+        var names = await service.GetFileNamesByUserIdsAsync(dbContract.Reservation.Participants
+                .Select(p => p.Id).ToList());
         return Ok(names);
     }
     
@@ -71,8 +77,7 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
             CultureInfo.InvariantCulture);
         var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
         
-        if (dbContract.Reservation.TenantId != currentUserId 
-            && dbContract.Reservation.LandlordId != currentUserId) 
+        if (dbContract.Reservation.Participants.Any(p => p.Id == currentUserId)) 
             return Forbid();
         
         var file = await service.GetFileBytesByIdAsync(dbContract.Id, fileName);
@@ -94,12 +99,12 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        var reservation = await service.GetReservationByIdAsync(reservationId);
+        var dbReservation = await service.GetReservationByIdAsync(reservationId);
         
-        if (reservation.LandlordId != currentUserId && reservation.TenantId != currentUserId) 
+        if (dbReservation.Participants.Any(p => p.Id == currentUserId)) 
             return Forbid();
         
-        if (reservation.Status is ReservationStatus.Declined) 
+        if (dbReservation.Status is ReservationStatus.Declined) 
             return Conflict();
         
         var contract = await service.GenerateAsync(reservationId);

@@ -2,9 +2,9 @@ using Dadata;
 using Dadata.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Placely.Domain.Abstractions.Services;
+using Placely.Domain.Interfaces.Services;
 
-namespace Placely.Application.Services;
+namespace Placely.Infrastructure.Services;
 
 public class DadataAddressService : IDadataAddressService
 {

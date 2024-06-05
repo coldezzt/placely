@@ -1,5 +1,5 @@
 using FluentValidation;
-using Placely.Domain.Enums;
+using Placely.Domain.Common.Enums;
 using static Placely.WebAPI.Dto.Validators.ValidatorErrorMessages;
 using static Placely.WebAPI.Dto.Validators.ValidatorMethods;
 

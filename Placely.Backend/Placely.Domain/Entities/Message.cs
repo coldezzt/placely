@@ -1,4 +1,4 @@
-using Placely.Domain.Abstractions.Entities;
+using Placely.Domain.Interfaces.Entities;
 
 namespace Placely.Domain.Entities;
 
@@ -10,9 +10,9 @@ public class Message : IEntity
     public virtual Chat Chat { get; set; }
         
     public long AuthorId { get; set; }
-    public virtual Tenant Author { get; set; }
+    public virtual User Author { get; set; }
     
-    public string Content { get; set; }
+    public required string Content { get; set; }
     public DateTime Date { get; set; }
     public string FileName { get; set; } = "";
 }

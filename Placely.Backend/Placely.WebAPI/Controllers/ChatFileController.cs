@@ -4,8 +4,8 @@ using System.Net.Mime;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Placely.Application.Models;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Models;
+using Placely.Domain.Interfaces.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Placely.WebAPI.Controllers;
@@ -27,8 +27,11 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (currentUserId != dbChat.FirstUserId && currentUserId != dbChat.SecondUserId) return Forbid();
+        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
         var names = await messageService.GetListFileNamesAsync(chatId);
         return Ok(names);
     }
@@ -48,12 +51,19 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (dbChat.FirstUserId != currentUserId && dbChat.SecondUserId != currentUserId) return Forbid();
+        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
         var dbMessage = dbChat.Messages.FirstOrDefault(m => m.Id == messageId);
-        if (dbMessage is null) return NotFound();
+        if (dbMessage is null) 
+            return NotFound();
+        
         var fileName = await messageService.AddFileToMessageAsync(messageId, file);
-        return fileName is "" ? Conflict() : Ok(fileName);
+        return fileName is "" 
+            ? Conflict() 
+            : Ok(fileName);
     }
 
     [SwaggerOperation("Скачивает файл из чата", "Нельзя скачать файл из чужого чата.")]
@@ -71,10 +81,15 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (dbChat.FirstUserId != currentUserId && dbChat.SecondUserId != currentUserId) return Forbid();
+        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
         var file = await messageService.GetFileBytesFromChatAsync(dbChat.Id, fileName);
-        return file.Length == 0 ? NotFound() : File(file, MediaTypeNames.Application.Octet, fileName);
+        return file.Length == 0 
+            ? NotFound() 
+            : File(file, MediaTypeNames.Application.Octet, fileName);
     }
 
     [SwaggerOperation("Удаляет файл из чата", "Нельзя удалить файл из чужого чата.")]
@@ -91,8 +106,11 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
+        
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (dbChat.FirstUserId != currentUserId && dbChat.SecondUserId != currentUserId) return Forbid();
+        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+            return Forbid();
+        
         var deletedFileName = await messageService.DeleteFileFromChatAsync(dbChat.Id, fileName);
         return Ok(deletedFileName);
     }

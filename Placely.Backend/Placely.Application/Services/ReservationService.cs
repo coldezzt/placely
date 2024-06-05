@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
-using Placely.Application.Abstractions.Repositories;
-using Placely.Application.Exceptions;
-using Placely.Domain.Abstractions.Services;
+using Placely.Application.Common.Exceptions;
+using Placely.Application.Interfaces.Repositories;
+using Placely.Domain.Common.Enums;
 using Placely.Domain.Entities;
-using Placely.Domain.Enums;
+using Placely.Domain.Interfaces.Services;
 
 namespace Placely.Application.Services;
 
