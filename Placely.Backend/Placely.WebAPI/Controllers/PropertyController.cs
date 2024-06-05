@@ -20,7 +20,7 @@ public class PropertyController(
     IPropertyService service, IMapper mapper, IValidator<PropertyDto> validator) : ControllerBase
 {
     [SwaggerOperation("Получает информацию по имуществу по его идентификатору", "Доступен всем.")]
-    [SwaggerResponse(200, "Информация об имуществе.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Информация об имуществе.", typeof(PropertyDto), "application/json")]
     [AllowAnonymous, HttpGet("{propertyId:long}")]
     public async Task<IActionResult> GetById(
         [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId = 1)
@@ -36,7 +36,7 @@ public class PropertyController(
 
         Получает на вход строку с адресом и пытается предположить какой адрес будет дальше.
         """)]
-    [SwaggerResponse(200, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
     [AllowAnonymous, HttpGet("suggestion")]
     public async Task<IActionResult> GetAddressSuggestion(
         [FromQuery] [SwaggerParameter("Адрес для предположения", Required = true)] string address)
@@ -46,7 +46,7 @@ public class PropertyController(
     }
 
     [SwaggerOperation("Получает список имуществ по фильтрам", "Доступен всем.")]
-    [SwaggerResponse(200, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
     [AllowAnonymous, HttpGet("catalog/page/{pageNumber:int}/take/{amount:int}")]
     public async Task<IActionResult> GetCatalog(
         [FromQuery] [SwaggerParameter("Фильтры.")] Dictionary<SearchParameterType, string> searchParameters,
@@ -59,9 +59,9 @@ public class PropertyController(
     }
 
     [SwaggerOperation("Публикует имущество", "Если у пользователя нет контактного адреса, не добавляет имущество.")]
-    [SwaggerResponse(200, "Информация о созданном имуществе.", typeof(PropertyDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(ValidationResult),
+    [SwaggerResponse(StatusCodes.Status200OK, "Информация о созданном имуществе.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(ValidationResult),
         "application/json")]
     [HttpPost]
     public async Task<IActionResult> Create(
@@ -83,10 +83,10 @@ public class PropertyController(
     }
 
     [SwaggerOperation("Обновляет имущество пользователя", "Нельзя обновить чужое имущество.")]
-    [SwaggerResponse(200, "Обновлённая информация по имуществу.", typeof(PropertyDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка обновить чужое имущество.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Обновлённая информация по имуществу.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка обновить чужое имущество.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/{propertyId:long}")]
     public async Task<IActionResult> Patch(
@@ -108,9 +108,9 @@ public class PropertyController(
     }
 
     [SwaggerOperation("Удаляет имущество пользователя", "Нельзя удалить чужое имущество.")]
-    [SwaggerResponse(200, "Данные удалённого имущества.", typeof(PropertyDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка удалить чужое имущество.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные удалённого имущества.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка удалить чужое имущество.")]
     [HttpDelete("my/{propertyId:long}")]
     public async Task<IActionResult> Delete(
         [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId)

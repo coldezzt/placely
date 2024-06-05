@@ -19,9 +19,9 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
 {
     [SwaggerOperation("Получает контракт по его идентификатору",
         "Если авторизованный пользователь не фигурирует в контракте запрещает доступ.")]
-    [SwaggerResponse(200, "Информация по контракту.", typeof(ContractDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка получить контракт, в котором нет текущего авторизованного пользователя.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Информация по контракту.", typeof(ContractDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка получить контракт, в котором нет текущего авторизованного пользователя.")]
     [HttpGet("{contractId:long}")]
     public async Task<IActionResult> Get(
         [SwaggerParameter("Идентификатор контракта.", Required = true)] long contractId)
@@ -39,10 +39,10 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
 
     [SwaggerOperation("Получает все названия файлов для контракта",
         "Нельзя получить названия чужих контрактов.")]
-    [SwaggerResponse(200, "Список названия контрактов.", typeof(List<string>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Список названия контрактов.", typeof(List<string>),
         "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка получить список чужих контрактов.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка получить список чужих контрактов.")]
     [HttpGet("file/list/{contractId:long}")]
     public async Task<IActionResult> GetAssociatedFiles(
         [DefaultValue(3)] [FromRoute] [SwaggerParameter("Идентификатор контракта.", Required = true)] 
@@ -61,11 +61,11 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
     }
     
     [SwaggerOperation("Скачивает файл из чата", "Нельзя скачать файл из чужого чата.")]
-    [SwaggerResponse(200, "Файл.", typeof(FileContentResult),
+    [SwaggerResponse(StatusCodes.Status200OK, "Файл.", typeof(FileContentResult),
         "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка загрузить файл из чужого чата.")]
-    [SwaggerResponse(404, "Файл для скачивания не был найден.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка загрузить файл из чужого чата.")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Файл для скачивания не был найден.")]
     [HttpGet("file/{contractId:long}")]
     public async Task<IActionResult> DownloadFile(
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
@@ -88,10 +88,10 @@ public class ContractController(IContractService service, IMapper mapper) : Cont
 
     [SwaggerOperation("Генерирует контракт на основе заявки", 
         "Создаёт контракт в папке (если нет создаёт её) с контрактами владельца имущества между пользователями.")]
-    [SwaggerResponse(200, "Информация по контракту.", typeof(ContractDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка запросить создание контракта пользователем, не фигурирующем в контракте.")]
-    [SwaggerResponse(409, "Попытка создать контракт на основе отклонённой заявки.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Информация по контракту.", typeof(ContractDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка запросить создание контракта пользователем, не фигурирующем в контракте.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Попытка создать контракт на основе отклонённой заявки.")]
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] [SwaggerRequestBody("Данные необходимые для завершения создания контракта.", Required = true)]

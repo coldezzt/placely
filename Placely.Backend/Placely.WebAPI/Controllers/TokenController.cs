@@ -14,7 +14,7 @@ public class TokenController(
     ) : ControllerBase
 {
     [SwaggerOperation("Обновляет токены доступа пользователя", "Для обновления необходимы старые токены.")]
-    [SwaggerResponse(200, "Обновлённые токены пользователя. ", typeof(TokenDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Обновлённые токены пользователя. ", typeof(TokenDto), "application/json")]
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh(
         [FromBody] [SwaggerRequestBody("Старые токены доступа.", Required = true)] TokenDto dto)

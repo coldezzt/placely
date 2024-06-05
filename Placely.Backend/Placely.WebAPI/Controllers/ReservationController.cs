@@ -20,9 +20,9 @@ public class ReservationController(
 {
     [SwaggerOperation("Получает бронирование по идентификатору",
         "Нельзя получить бронирование, участником которого ты не являешься (не арендатор или арендодатель)")]
-    [SwaggerResponse(200, "Информация по бронированию.", typeof(ReservationDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка получить бронирование, участником которого пользователь не является.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Информация по бронированию.", typeof(ReservationDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка получить бронирование, участником которого пользователь не является.")]
     [HttpGet("my/{reservationId:long}")]
     public async Task<IActionResult> Get(
         [SwaggerParameter("Идентификатор бронирования.", Required = true)]
@@ -41,10 +41,10 @@ public class ReservationController(
 
     [SwaggerOperation("Добавляет новое бронирование",
         "Нельзя добавить бронирование, участником которого ты не являешься (не арендатор).")]
-    [SwaggerResponse(200, "Информация по созданному бронированию.", typeof(ReservationDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка создать бронирование, участником которого пользователь не является.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Информация по созданному бронированию.", typeof(ReservationDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка создать бронирование, участником которого пользователь не является.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost("my")]
     public async Task<IActionResult> Create(
@@ -66,10 +66,10 @@ public class ReservationController(
 
     [SwaggerOperation("Обновляет уже существующее бронирование",
         "Нельзя обновить бронирование, участником которого ты не являешься (не арендатор).")]
-    [SwaggerResponse(200, "Информация по созданному бронированию.", typeof(ReservationDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка обновить бронирование, создателем которого пользователь не является.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Информация по созданному бронированию.", typeof(ReservationDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка обновить бронирование, создателем которого пользователь не является.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/{reservationId:long}")]
     public async Task<IActionResult> Update(
@@ -96,10 +96,10 @@ public class ReservationController(
 
         Нельзя удалить бронирование с состоянием "В обработке" (арендодатель его просматривает).
         """)]
-    [SwaggerResponse(200, "Данные об удалённом бронировании.", typeof(ReservationDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка удалить бронирование, участником которого пользователь не является.")]
-    [SwaggerResponse(409, "Попытка удалить бронирование, находящееся в обработке.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные об удалённом бронировании.", typeof(ReservationDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка удалить бронирование, участником которого пользователь не является.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Попытка удалить бронирование, находящееся в обработке.")]
     [HttpDelete("my/{reservationId:long}")]
     public async Task<IActionResult> Delete([SwaggerParameter("Идентификатор бронирования.")] long reservationId)
     {

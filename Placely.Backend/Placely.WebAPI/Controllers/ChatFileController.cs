@@ -16,10 +16,10 @@ public class ChatFileController(IChatService chatService, IMessageService messag
 {
     [SwaggerOperation("Получает все названия файлов выбранного чата",
         "Нельзя получить названия файлов из чужого чата.")]
-    [SwaggerResponse(200, "Список название файлов.", typeof(List<string>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Список название файлов.", typeof(List<string>),
         "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка получить список файлов из чужого чата.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка получить список файлов из чужого чата.")]
     [HttpGet("list")]
     public async Task<IActionResult> GetAssociatedFiles(
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
@@ -37,11 +37,11 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     }
 
     [SwaggerOperation("Загружает файл в чат", "Нельзя загрузить файл в чужой чат.")]
-    [SwaggerResponse(200, "Путь до загруженного файла.", typeof(string),
+    [SwaggerResponse(StatusCodes.Status200OK, "Путь до загруженного файла.", typeof(string),
         "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка загрузить файл в чужой чат.")]
-    [SwaggerResponse(409, "Попытка загрузить файл в сообщение, у которого уже есть файл.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка загрузить файл в чужой чат.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Попытка загрузить файл в сообщение, у которого уже есть файл.")]
     [HttpPost]
     public async Task<IActionResult> UploadFile(
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
@@ -67,11 +67,11 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     }
 
     [SwaggerOperation("Скачивает файл из чата", "Нельзя скачать файл из чужого чата.")]
-    [SwaggerResponse(200, "Файл.", typeof(FileContentResult),
+    [SwaggerResponse(StatusCodes.Status200OK, "Файл.", typeof(FileContentResult),
         "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка загрузить файл из чужого чата.")]
-    [SwaggerResponse(404, "Файл для скачивания не был найден.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка загрузить файл из чужого чата.")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Файл для скачивания не был найден.")]
     [HttpGet]
     public async Task<IActionResult> DownloadFile(
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]
@@ -93,10 +93,10 @@ public class ChatFileController(IChatService chatService, IMessageService messag
     }
 
     [SwaggerOperation("Удаляет файл из чата", "Нельзя удалить файл из чужого чата.")]
-    [SwaggerResponse(200, "Путь до удалённого файла. Возвращается даже если была попытка удалить несуществующий файл.",
+    [SwaggerResponse(StatusCodes.Status200OK, "Путь до удалённого файла. Возвращается даже если была попытка удалить несуществующий файл.",
         typeof(string), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка удалить файл из чужого чата.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка удалить файл из чужого чата.")]
     [HttpDelete]
     public async Task<IActionResult> DeleteFile(
         [DefaultValue(1)] [FromRoute] [SwaggerParameter("Идентификатор чата.", Required = true)]

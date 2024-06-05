@@ -23,9 +23,9 @@ public class AuthorizationController(
     [SwaggerOperation("Авторизует пользователя",
         "**Если** на аккаунте подключена двухфакторная аутентификация необходимо " +
         "передавать и одноразовый ключ. **Иначе** поле игнорируется.")]
-    [SwaggerResponse(200, "Cгенерированные токены для текущего пользователя.", typeof(TokenDto), "application/json")]
-    [SwaggerResponse(400, "Неверные аутентификационные данные.", typeof(string), "text/plain")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Cгенерированные токены для текущего пользователя.", typeof(TokenDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Неверные аутентификационные данные.", typeof(string), "text/plain")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost]
     public async Task<IActionResult> Authorize(
@@ -42,7 +42,7 @@ public class AuthorizationController(
 
     [SwaggerOperation("Авторизует пользователя используя Google OAuth",
         "Ничего не возвращает и не принимает, всегда перенаправляет пользователя на Google OAuth.")]
-    [SwaggerResponse(302, "Перенаправление на Google OAuth.")]
+    [SwaggerResponse(StatusCodes.Status302Found, "Перенаправление на Google OAuth.")]
     [HttpGet("google")]
     public Task<IActionResult> GoogleAuthorize()
     {
@@ -56,8 +56,8 @@ public class AuthorizationController(
         Если обращается **уже** авторизованный пользователь возвращает его токены авторизации
         (обновляя refresh-token).
         """)]
-    [SwaggerResponse(200, "Cгенерированные токены для текущего пользователя.", typeof(TokenDto), "application/json")]
-    [SwaggerResponse(400, """
+    [SwaggerResponse(StatusCodes.Status200OK, "Cгенерированные токены для текущего пользователя.", typeof(TokenDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, """
                           Неизвестная ошибка при аутентификации пользователя.
 
                           Возвращает пустую строку.
@@ -69,7 +69,9 @@ public class AuthorizationController(
     public async Task<IActionResult> GoogleCallback()
     {
         var authResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
-        if (!authResult.Succeeded) return BadRequest("");
+        if (!authResult.Succeeded) 
+            return BadRequest("");
+        
         var email = authResult.Principal.FindFirstValue(ClaimTypes.Email)!;
         var tokens = await service.AuthorizeUserFromExternalService(email, authResult.Principal.Claims);
         return Ok(tokens);
@@ -84,9 +86,9 @@ public class AuthorizationController(
             2) **Иначе**:
                - Возвращает код 401 - Unauthorized.
             """)]
-    [SwaggerResponse(200, "2FA успешно добавлена. Содержит токен для ручного ввода, и QR-код в виде строки.",
+    [SwaggerResponse(StatusCodes.Status200OK, "2FA успешно добавлена. Содержит токен для ручного ввода, и QR-код в виде строки.",
         typeof(TwoFactorAuthenticationModel), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [Authorize, HttpPost("google/2fa")]
     public async Task<IActionResult> GoogleTwoFactorCreation()
     {

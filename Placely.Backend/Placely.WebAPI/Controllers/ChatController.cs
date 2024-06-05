@@ -17,8 +17,8 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
 {
     [SwaggerOperation("Получает список всех чатов для текущего пользователя",
         "Используется для получения всех чатов (без истории сообщений) пользователя, когда он перешёл на страницу с сообщениями.")]
-    [SwaggerResponse(200, "Список информации по всем чатам пользователя.", typeof(List<ChatDto>), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Список информации по всем чатам пользователя.", typeof(List<ChatDto>), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [HttpGet("my/list")]
     public async Task<IActionResult> GetList()
     {
@@ -32,9 +32,9 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
     [SwaggerOperation("Возвращает чат по его идентификатору",
         "Может быть использовано, когда вам нужно часто проверять" +
         " только несколько определённых чатов, а не все сразу.")]
-    [SwaggerResponse(200, "Информация по выбранному чату.", typeof(ChatDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Пользователь попытался получить чат, участником, которого он не является.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Информация по выбранному чату.", typeof(ChatDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Пользователь попытался получить чат, участником, которого он не является.")]
     [HttpGet("{chatId:long}")]
     public async Task<IActionResult> Get(
         [DefaultValue(1)] [SwaggerParameter("Идентификатор чата.", Required = true)] long chatId)
@@ -53,9 +53,9 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
     [SwaggerOperation("Создаёт чат между пользователями",
         "Запрещено создавать чат с самим собой и нельзя создать чат " +
         "между двумя пользователями если он уже существует.")]
-    [SwaggerResponse(200, "Информация про созданный чат.", typeof(ChatDto),
+    [SwaggerResponse(StatusCodes.Status200OK, "Информация про созданный чат.", typeof(ChatDto),
         "application/json")]
-    [SwaggerResponse(409, "Попытка создать чат с самим собой или с уже существующим аккаунтом.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Попытка создать чат с самим собой или с уже существующим аккаунтом.")]
     [HttpPost("my")]
     public async Task<IActionResult> Create(
         [DefaultValue(1)]
@@ -72,8 +72,8 @@ public class ChatController(IChatService chatService, IMapper mapper) : Controll
 
     [SwaggerOperation("Удаляет чат по его идентификатору",
         "Нельзя удалить чат, участником которого пользователь не является.")]
-    [SwaggerResponse(200, "Чат успешно удалён.", typeof(ChatDto), "application/json")]
-    [SwaggerResponse(403, "Попытка удалить чат, участником которого пользователь не является.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Чат успешно удалён.", typeof(ChatDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка удалить чат, участником которого пользователь не является.")]
     [HttpDelete("my/{chatId:long}")]
     public async Task<IActionResult> Delete(
         [DefaultValue(1)] [SwaggerParameter("Идентификатор чата.", Required = true)] long chatId)

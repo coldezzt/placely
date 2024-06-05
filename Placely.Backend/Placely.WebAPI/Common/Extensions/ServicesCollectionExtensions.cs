@@ -126,16 +126,14 @@ public static class ServicesCollectionExtensions
             {
                 options.Events.OnRedirectToLogin = context =>
                 {
-                    context.Response.StatusCode = 401;
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     return Task.CompletedTask;
                 };
-                options.Events.OnRedirectToLogout = context => Task.FromResult("Logout!");
                 options.Events.OnRedirectToAccessDenied = context =>
                 {
-                    context.Response.StatusCode = 403;
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
                     return Task.CompletedTask;
                 };
-                options.Events.OnRedirectToReturnUrl = context => Task.FromResult("RedirectToReturnUrl!");
             })
             .AddGoogle(options =>
             {

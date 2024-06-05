@@ -19,7 +19,7 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     IValidator<SensitiveTenantDto> sensitiveDtoValidator) : ControllerBase
 {
     [SwaggerOperation("Получает публичные данные пользователя", "Доступен всем.")]
-    [SwaggerResponse(200, "Данные о пользователе.", typeof(TenantDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные о пользователе.", typeof(TenantDto), "application/json")]
     [AllowAnonymous, HttpGet("{tenantId}")]
     public async Task<IActionResult> Get(
         [SwaggerParameter("Идентификатор пользователя.", Required = true)] long tenantId)
@@ -30,8 +30,8 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     }
 
     [SwaggerOperation("Получает все имущества, добавленные пользователем в избранное")]
-    [SwaggerResponse(200, "Список имуществ.", typeof(List<PropertyDto>), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Список имуществ.", typeof(List<PropertyDto>), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [HttpGet("my/favourite")]
     public async Task<IActionResult> GetFavouriteProperties()
     {
@@ -44,8 +44,8 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     }
 
     [SwaggerOperation("Получает настройки пользователя")]
-    [SwaggerResponse(200, "Данные о настройках.", typeof(TenantDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные о настройках.", typeof(TenantDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [HttpGet("my/settings")]
     public async Task<IActionResult> GetSettings()
     {
@@ -58,8 +58,8 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     }
     
     [SwaggerOperation("Получает конфиденциальные настройки пользователя")]
-    [SwaggerResponse(200, "Данные о конфиденциальных настройках.", typeof(SensitiveTenantDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные о конфиденциальных настройках.", typeof(SensitiveTenantDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [HttpGet("my/sensitive/settings")]
     public async Task<IActionResult> GetSensitiveSettings()
     {
@@ -72,8 +72,8 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     }
 
     [SwaggerOperation("Добавляет имущество в избранное текущему пользователю")]
-    [SwaggerResponse(200, "Данные о добавленном в избранное имуществе.", typeof(PropertyDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные о добавленном в избранное имуществе.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [HttpPost("my/favourite")]
     public async Task<IActionResult> AddPropertyToFavourite(
         [FromQuery] [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId)
@@ -87,9 +87,9 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     }
 
     [SwaggerOperation("Обновляет настройки пользователя")]
-    [SwaggerResponse(200, "Данные об обновлённых настройках.", typeof(SensitiveTenantDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные об обновлённых настройках.", typeof(SensitiveTenantDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/settings")]
     public async Task<IActionResult> UpdateSettings(
@@ -109,9 +109,9 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     }
 
     [SwaggerOperation("Обновляет чувствительные настройки пользователя")]
-    [SwaggerResponse(200, "Данные об обновлённых настройках.", typeof(SensitiveTenantDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные об обновлённых настройках.", typeof(SensitiveTenantDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/sensitive/settings")]
     public async Task<IActionResult> UpdateSensitiveSettings([FromBody] SensitiveTenantDto dto)
@@ -137,8 +137,8 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     }
 
     [SwaggerOperation("Удаляет аккаунт пользователя")]
-    [SwaggerResponse(200, "Данные об удалённом аккаунте.", typeof(TenantDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные об удалённом аккаунте.", typeof(TenantDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [HttpDelete("my")]
     public async Task<IActionResult> Delete()
     {
@@ -150,8 +150,8 @@ public class TenantController(ITenantService service, IMapper mapper, IValidator
     }
 
     [SwaggerOperation("Удаляет имущество из избранного текущего пользователя")]
-    [SwaggerResponse(200, "Данные об удалённом из избранного имуществе.", typeof(PropertyDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные об удалённом из избранного имуществе.", typeof(PropertyDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [HttpDelete("my/favourite")]
     public async Task<IActionResult> DeletePropertyFromFavourite(
         [FromQuery] [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId)

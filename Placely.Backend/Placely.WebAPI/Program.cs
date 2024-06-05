@@ -21,6 +21,7 @@ try
     builder.Configuration
         .AddJsonFile("appsettings.json", true, true)
         .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true);
+    
     Log.Logger.Verbose("Added application configuration files.");
 
     // Добавление сервисов. Всё что возвращает IServiceCollection
@@ -49,6 +50,7 @@ try
     Log.Logger.Information("Successfully configured application builder.");
 
     Log.Logger.Information("Begin building application.");
+    
     // Сборка приложения
     var application = builder.Build();
 
@@ -64,6 +66,7 @@ try
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "Placely API v1");
                 options.DocExpansion(DocExpansion.None);
             });
+        
         Log.Logger.Verbose("Added SwaggerUI to application pipeline.");
     }
 
@@ -74,26 +77,31 @@ try
         .UseAuthorization()
         .UseHttpsRedirection()
         .UseHangfireDashboard();
+    
     Log.Logger.Verbose("Added usings to application.");
 
     // Маппинг
     application.MapControllers();
     // application.MapHub<ChatHub>("api/hubs/chat"); в разработке :(
+    
     Log.Logger.Verbose("Successfully mapped endpoints in application.");
 
     // Background задачи
     RecurringJob.AddOrUpdate<IRatingUpdaterService>("Update rating", static service => service.UpdatePropertyRating(),
         "0 6 * * *");
+    
     Log.Logger.Verbose("Successfully create recurring jobs for application.");
 
     Log.Logger.Information("Successfully built an application.");
+    
     Log.Logger.Information("Begin booting application.");
+    
     // Запуск
     application.Run();
 }
 catch (Exception ex)
 {
-    Log.Logger.Error("Unhandled error. {@ex}", ex);
+    Log.Logger.Fatal("Unhandled error. {@ex}", ex);
 }
 
 /*
@@ -118,12 +126,13 @@ DONE:   сделать нормальные связи в БД (с помощь�
 DONE:   заменить почти все логи в конце методов на тип Debug - они не подходят под инфу т.к. всё равно слишком подробные, но и под Trace не подходят - не достаточно подробны.
         заменено, добавлен доп. лог в middleware по отлову ошибок, для вывода серьёзных исключений
 
-
+DONE:   заменить все статусные коды на Enum StatusCodes из Microsoft.AspNetCore
+        заменено
+        
 
 */
 
 /*
- TODO: [IN PROGRESS] заменить все статусные коды на Enum StatusCodes из Microsoft.AspNetCore
  TODO: навесить `check constraint`-ы на все нужные поля сущностей в БД (продублировать валидацию с фронта)
  TODO: добавить аналогичные методы /my только для админов (чтобы они могли удалять и получать доступ к любому аккаунту)
  TODO: не совсем нравится как работает авторизация, попробовать исправить.

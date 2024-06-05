@@ -16,9 +16,9 @@ public class RegistrationController(IRegistrationService registrationService, IM
 {
     [SwaggerOperation("Регистрирует пользователя",
         "Если пользователь с такой же почтой уже существует регистрация не продолжается.")]
-    [SwaggerResponse(200, "Пользователь зарегистрирован.")]
-    [SwaggerResponse(409, "Пользователь с такой почтой уже зарегистрирован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Пользователь зарегистрирован.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Пользователь с такой почтой уже зарегистрирован.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost]
     public async Task<IActionResult> Register(
@@ -43,9 +43,9 @@ public class RegistrationController(IRegistrationService registrationService, IM
 
         Метод **можно** вызвать при следующей авторизации через OAuth.
         """)]
-    [SwaggerResponse(200, "Регистрация закончена успешно.")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Регистрация закончена успешно.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [Authorize, HttpPost("[action]")]
     public async Task<IActionResult> Final(

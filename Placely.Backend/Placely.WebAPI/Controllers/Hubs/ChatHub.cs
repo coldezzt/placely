@@ -28,19 +28,19 @@ public class ChatHub(
 
         Возвращает ответ вызывающему.
         """, operation: Operation.Get)]
-    [return: SignalRReturn(typeof(List<MessageDto>), 200,
+    [return: SignalRReturn(typeof(List<MessageDto>), StatusCodes.Status200OK,
         """
         Список сообщений.
 
         Вызывает 'LoadHistory' у клиента. Передаёт список сообщений.
         """)]
-    [return: SignalRReturn(typeof(string), 401, 
+    [return: SignalRReturn(typeof(string), StatusCodes.Status401Unauthorized, 
         """
         Пользователь не авторизован.
 
         Вызывает 'Unauthorized' у клиента.
         """)]
-    [return: SignalRReturn(typeof(string), 403, 
+    [return: SignalRReturn(typeof(string), StatusCodes.Status403Forbidden, 
         """
         Попытка получить историю сообщения чужого чата.
 
@@ -82,25 +82,25 @@ public class ChatHub(
 
         Отправляет ответ ВСЕМ участникам чата.
         """)]
-    [return: SignalRReturn(typeof(MessageDto), 200, 
+    [return: SignalRReturn(typeof(MessageDto), StatusCodes.Status200OK, 
         """
         Отправленное сообщение.
 
         Вызывает 'ReceiveMessage' у ВСЕХ участников чата. Передаёт сообщение.
         """)]
-    [return: SignalRReturn(typeof(string), 401, 
+    [return: SignalRReturn(typeof(string), StatusCodes.Status401Unauthorized, 
         """
         Пользователь не авторизован.
 
         Вызывает 'Unauthorized' у клиента.
         """)]
-    [return: SignalRReturn(typeof(string), 403, 
+    [return: SignalRReturn(typeof(string), StatusCodes.Status403Forbidden, 
         """
         Попытка получить историю сообщения чужого чата.
 
         Вызывает 'Forbidden' у клиента.
         """)]
-    [return: SignalRReturn(typeof(List<ValidationErrorModel>), 422, 
+    [return: SignalRReturn(typeof(List<ValidationErrorModel>), StatusCodes.Status422UnprocessableEntity, 
         """
         Данные не прошли валидацию.
 

@@ -17,7 +17,7 @@ namespace Placely.WebAPI.Controllers;
 public class ReviewController(IReviewService service, IMapper mapper, IValidator<ReviewDto> validator) : ControllerBase
 {
     [SwaggerOperation("Получает отзыв пользователя по идентификатору", "Доступен всем.")]
-    [SwaggerResponse(200, "Данные по отзыву.", typeof(ReviewDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные по отзыву.", typeof(ReviewDto), "application/json")]
     [AllowAnonymous, HttpGet("{reviewId:long}")]
     public async Task<IActionResult> GetById([SwaggerParameter("Идентификатор отзыва.", Required = true)] long reviewId)
     {
@@ -28,9 +28,9 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
 
     [SwaggerOperation("Добавляет отзыв пользователя",
         "Идентификатор автора берётся из авторизационных данных пользователя.")]
-    [SwaggerResponse(200, "Данные созданного отзыва.", typeof(ReviewDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные созданного отзыва.", typeof(ReviewDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPost]
     public async Task<IActionResult> Add(
@@ -48,10 +48,10 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
     }
     
     [SwaggerOperation("Обновляет отзыв пользователя", "Нельзя обновить чужой отзыв.")]
-    [SwaggerResponse(200, "Обновлённая информация по отзыву.", typeof(ReviewDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка обновить чужой отзыв.")]
-    [SwaggerResponse(422, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
+    [SwaggerResponse(StatusCodes.Status200OK, "Обновлённая информация по отзыву.", typeof(ReviewDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка обновить чужой отзыв.")]
+    [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
     [HttpPatch("my/{reviewId:long}")]
     public async Task<IActionResult> Patch(
@@ -73,9 +73,9 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
     }
 
     [SwaggerOperation("Удаляет отзыв пользователя", "Нельзя удалить чужой отзыв.")]
-    [SwaggerResponse(200, "Данные удалённого отзыва.", typeof(ReviewDto), "application/json")]
-    [SwaggerResponse(401, "Пользователь не авторизован.")]
-    [SwaggerResponse(403, "Попытка удалить чужой отзыв.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Данные удалённого отзыва.", typeof(ReviewDto), "application/json")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка удалить чужой отзыв.")]
     [HttpDelete("{reviewId:long}")]
     public async Task<IActionResult> Delete([SwaggerParameter("Идентификатор отзыва.", Required = true)] long reviewId)
     {
@@ -89,7 +89,7 @@ public class ReviewController(IReviewService service, IMapper mapper, IValidator
     }
     
     [SwaggerOperation("Достаёт отзывы по имуществу", "Доступно всем.")]
-    [SwaggerResponse(200, "Список отзывов.", typeof(List<ReviewDto>), "application/json")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Список отзывов.", typeof(List<ReviewDto>), "application/json")]
     [AllowAnonymous, HttpGet("list")]
     public async Task<IActionResult> GetListByPropertyId(
         [FromQuery] [SwaggerParameter("Идентификатор имущества.", Required = true)] long propertyId,
