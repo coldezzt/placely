@@ -83,7 +83,8 @@ public class AppDbContext(
                 Email = "test.tenant.1@email.domen",
                 Password = "test.tenant.1@email.domen",
                 About = "I'm test tenant 1",
-                Work = "I'm working nowhere"
+                Work = "I'm working nowhere",
+                UserRole = UserRoleType.Tenant
             }, new()
             {
                 Id = 2,
@@ -92,7 +93,8 @@ public class AppDbContext(
                 Email = "test.tenant.2@email.domen",
                 Password = "test.tenant.2@email.domen",
                 About = "I'm test tenant 2",
-                Work = "I'm working nowhere"
+                Work = "I'm working nowhere",
+                UserRole = UserRoleType.Tenant
             }, new()
             {
                 Id = 3,
@@ -101,7 +103,8 @@ public class AppDbContext(
                 Email = "test.tenant.3@email.domen",
                 Password = "test.tenant.3@email.domen",
                 About = "I'm test tenant 3",
-                Work = "I'm working nowhere"
+                Work = "I'm working nowhere",
+                UserRole = UserRoleType.Tenant
             }, new()
             {
                 Id = 4,
@@ -110,7 +113,8 @@ public class AppDbContext(
                 Email = "test.landlord.1@email.domen",
                 Password = "test.landlord.1@email.domen",
                 About = "I'm test landlord 1",
-                Work = "I'm working here"
+                Work = "I'm working here",
+                UserRole = UserRoleType.Landlord
             }, new()
             {
                 Id = 5,
@@ -119,7 +123,8 @@ public class AppDbContext(
                 Email = "test.landlord.2@email.domen",
                 Password = "test.landlord.2@email.domen",
                 About = "I'm test landlord 2",
-                Work = "I'm working here"
+                Work = "I'm working here",
+                UserRole = UserRoleType.Landlord
             }, new()
             {
                 Id = 6,
@@ -128,7 +133,8 @@ public class AppDbContext(
                 Email = "test.landlord.3@email.domen",
                 Password = "test.landlord.3@email.domen",
                 About = "I'm test landlord 3",
-                Work = "I'm working here"
+                Work = "I'm working here",
+                UserRole = UserRoleType.Landlord
             }
         };
 
@@ -224,19 +230,22 @@ public class AppDbContext(
                 Id = 1,
                 PeriodShort = 1111,
                 PeriodMedium = 111,
-                PeriodLong = 11
+                PeriodLong = 11,
+                PropertyId = 1
             }, new()
             {
                 Id = 2,
                 PeriodShort = 2222,
                 PeriodMedium = 222,
-                PeriodLong = 22
+                PeriodLong = 22,
+                PropertyId = 2
             }, new()
             {
                 Id = 3,
                 PeriodShort = 3333,
                 PeriodMedium = 333,
-                PeriodLong = 33
+                PeriodLong = 33,
+                PropertyId = 3
             }
         };
 
@@ -396,35 +405,40 @@ public class AppDbContext(
                 AuthorId = 1,
                 PropertyId = 1,
                 Rating = 1,
-                Content = "review 1"
+                Content = "review 1",
+                Date = DateTime.UtcNow
             }, new()
             {
                 Id = 2,
                 AuthorId = 2,
                 PropertyId = 2,
                 Rating = 2,
-                Content = "review 2"
+                Content = "review 2",
+                Date = DateTime.UtcNow
             }, new()
             {
                 Id = 3,
                 AuthorId = 3,
                 PropertyId = 3,
                 Rating = 3,
-                Content = "review 3"
+                Content = "review 3",
+                Date = DateTime.UtcNow
             }, new()
             {
                 Id = 4,
                 AuthorId = 4,
                 PropertyId = 1,
                 Rating = 4,
-                Content = "review 4"
+                Content = "review 4",
+                Date = DateTime.UtcNow
             }, new()
             {
                 Id = 5,
                 AuthorId = 5,
                 PropertyId = 2,
                 Rating = 5,
-                Content = "review 5"
+                Content = "review 5",
+                Date = DateTime.UtcNow
             }
         };
 

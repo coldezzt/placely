@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Placely.Application.Common.Exceptions;
 using Placely.Application.Interfaces.Repositories;
 using Placely.Application.Services.Utils;
+using Placely.Domain.Common.Enums;
 using Placely.Domain.Entities;
 using Placely.Domain.Interfaces.Services;
 
@@ -19,7 +20,11 @@ public class RegistrationService(
             await tenantRepo.GetByEmailAsync(user.Email);
             
             logger.Log(LogLevel.Debug, "Registration failure. User with same email already exists: {@tenant}.", user);
-            return new User {Email = ""};
+            return new User
+            {
+                Email = "",
+                UserRole = UserRoleType.Tenant
+            };
         }
         catch (EntityNotFoundException)
         {

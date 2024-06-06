@@ -13,12 +13,12 @@ public class Reservation : IEntity
     public long? ContractId { get; set; }
     public virtual Contract? Contract { get; set; }
 
-    public ReservationStatus? Status { get; set; }
+    public required ReservationStatus Status { get; set; }
     public string? DeclineReason { get; set; }
     
-    public DateTime CreationDateTime { get; set; }
-    public TimeSpan Duration { get; set; }
-    public DateTime EntryDate { get; set; }
+    public required DateTime CreationDateTime { get; set; }
+    public required TimeSpan Duration { get; set; }
+    public required DateTime EntryDate { get; set; }
     public byte GuestsAmount { get; set; }
     public decimal? PaymentAmount { get; set; }
     public string? PaymentFrequency { get; set; }

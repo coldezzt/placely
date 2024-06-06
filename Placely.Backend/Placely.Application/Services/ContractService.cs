@@ -101,7 +101,7 @@ public class ContractService(
         var absolutePathToPdf = Path.Combine(absolutePathToWorkingDirectory, pdfFileName);
 
         List<string> errors = new();
-        var result = new Contract();
+        var result = new Contract {ReservationId = reservationId};
         
         // Здесь блок try-catch, потому что это так называемая "опасная зона"
         // Мы взаимодействуем с физическими файлами снаружи нашей программы (которые не под нашим контролем),

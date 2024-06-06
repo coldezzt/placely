@@ -81,8 +81,8 @@ public static class ServicesCollectionExtensions
         services.AddScoped<IValidator<RegistrationDto>, RegistrationDtoValidator>();
         services.AddScoped<IValidator<ReservationDto>, ReservationDtoValidator>();
         services.AddScoped<IValidator<ReviewDto>, ReviewDtoValidator>();
-        services.AddScoped<IValidator<SensitiveUserDto>, SensitiveTenantDtoValidator>();
-        services.AddScoped<IValidator<UserDto>, TenantDtoValidator>();
+        services.AddScoped<IValidator<SensitiveUserDto>, SensitiveUserDtoValidator>();
+        services.AddScoped<IValidator<UserDto>, UserDtoValidator>();
         
         // Чтобы валидаторы не продолжали валидацию после первой же ошибки.
         ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop; 

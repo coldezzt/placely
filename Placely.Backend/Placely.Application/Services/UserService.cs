@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Placely.Application.Interfaces.Repositories;
 using Placely.Application.Services.Utils;
+using Placely.Domain.Common.Enums;
 using Placely.Domain.Entities;
 using Placely.Domain.Interfaces.Services;
 
@@ -87,7 +88,15 @@ public class UserService(
         var dbUser = await tenantRepo.GetByIdAsync(tenantId);
         var dbProperty = dbUser.Favourites.Find(p => p.Id == propertyId);
         if (dbProperty is null) 
-            return new Property();
+            return new Property
+            {
+                OwnerId = 0,
+                PriceListId = 0,
+                Address = null,
+                Description = null,
+                Type = PropertyType.Hostel,
+                PublicationDate = default
+            };
         
         dbUser.Favourites.Remove(dbProperty);
         

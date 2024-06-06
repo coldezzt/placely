@@ -13,10 +13,10 @@ public class Property : IEntity
     public long PriceListId { get; set; }
     public virtual PriceList PriceList { get; set; }
     
-    public string Address { get; set; }
-    public string Description { get; set; }
-    public PropertyType Type { get; set; }
-    public DateTime PublicationDate { get; set; }
+    public required string Address { get; set; }
+    public required string Description { get; set; }
+    public required PropertyType Type { get; set; }
+    public required DateTime PublicationDate { get; set; }
     public double Rating { get; set; }
     
     public virtual List<Review> Reviews { get; set; }

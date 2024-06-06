@@ -12,11 +12,12 @@ public class PropertyMapperProfile : Profile
             .ForMember(p => p.PriceList,
                 opt => 
                     opt.MapFrom(dto => new PriceList
-                        {
-                            PeriodShort = dto.ShortPeriodPayment,
-                            PeriodMedium = dto.MediumPeriodPayment,
-                            PeriodLong = dto.LongPeriodPayment
-                        })
+                    {
+                        PeriodShort = dto.ShortPeriodPayment,
+                        PeriodMedium = dto.MediumPeriodPayment,
+                        PeriodLong = dto.LongPeriodPayment,
+                        PropertyId = 0
+                    })
                     );
 
         CreateMap<Property, PropertyDto>()

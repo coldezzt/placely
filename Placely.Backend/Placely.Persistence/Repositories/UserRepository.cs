@@ -32,7 +32,7 @@ public class UserRepository(ILogger<UserRepository> logger, AppDbContext appDbCo
 
     public async Task<User> AddOrUpdateAsync(User user)
     {
-        logger.Log(LogLevel.Trace, "Begin adding or updating user according to it's existing. User: {@tenant}", user);
+        logger.Log(LogLevel.Trace, "Begin adding or updating user according to it's existing. User: {@user}", user);
         
         var dbUser = await appDbContext.Users.FirstOrDefaultAsync(t => t.Email == user.Email);
         EntityEntry<User> resultUserEntry;
@@ -41,14 +41,14 @@ public class UserRepository(ILogger<UserRepository> logger, AppDbContext appDbCo
             resultUserEntry = await appDbContext.Users.AddAsync(user);
             
             logger.Log(LogLevel.Debug, "Successfully created user according to it's nonexistence. " +
-                                             "User: {@resultTenant}", resultUserEntry.Entity);
+                                             "User: {@user}", resultUserEntry.Entity);
         }
         else
         {
             resultUserEntry = appDbContext.Users.Update(user);
             
             logger.Log(LogLevel.Debug, "Successfully updated user according to it's existence. " +
-                                             "User: {@resultTenant}", resultUserEntry.Entity);
+                                             "User: {@user}", resultUserEntry.Entity);
         }
 
         return resultUserEntry.Entity;

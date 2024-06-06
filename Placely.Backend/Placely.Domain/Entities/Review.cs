@@ -13,6 +13,6 @@ public class Review : IEntity
     public virtual Property Property { get; set; }
     
     public double Rating { get; set; }
-    public DateTime Date { get; set; }
-    public string Content { get; set; }
+    public required DateTime Date { get; set; }
+    public string? Content { get; set; }
 }

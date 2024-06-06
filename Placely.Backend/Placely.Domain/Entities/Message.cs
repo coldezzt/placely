@@ -13,6 +13,6 @@ public class Message : IEntity
     public virtual User Author { get; set; }
     
     public required string Content { get; set; }
-    public DateTime Date { get; set; }
-    public string FileName { get; set; } = "";
+    public required DateTime Date { get; set; }
+    public string? FileName { get; set; } = "";
 }

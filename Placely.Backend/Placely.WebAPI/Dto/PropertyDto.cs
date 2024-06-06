@@ -7,6 +7,7 @@ public class PropertyDto
 {
     [DefaultValue(1)]
     public long Id { get; set; }
+    
     [DefaultValue(1)]
     public long OwnerId { get; set; }
     
