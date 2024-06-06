@@ -4,9 +4,9 @@ namespace Placely.Domain.Interfaces.Services;
 
 public interface IDadataAddressService
 {
-    public Task<Address> NormalizeAddressAsync(string address);
+    Task<Address> NormalizeAddressAsync(string address);
 
-    public Task<SuggestResponse<Address>> SuggestAddress(string address);
+    Task<SuggestResponse<Address>> SuggestAddress(string address);
     
-    public Task<bool> IsAddressExistsAsync(string address);
+    Task<bool> IsAddressExistsAsync(string address);
 }

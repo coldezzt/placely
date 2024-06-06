@@ -5,11 +5,11 @@ namespace Placely.Domain.Interfaces.Services;
 
 public interface IPropertyService
 {
-    public Task<Property> GetByIdAsNoTrackingAsync(long propertyId);
-    public Task<Property> AddAsync(Property property);
-    public Task<Property> UpdateAsync(Property property);
-    public Task<Property> DeleteAsync(long propertyId);
-    public Task<List<Property>> GetChunkByFilterAsync(Dictionary<SearchParameterType, string> searchParameters,
+    Task<Property> GetByIdAsNoTrackingAsync(long propertyId);
+    Task<Property> AddAsync(Property property);
+    Task<Property> UpdateAsync(Property property);
+    Task<Property> DeleteAsync(long propertyId);
+    Task<List<Property>> GetChunkByFilterAsync(Dictionary<SearchParameterType, string> searchParameters,
         int extraLoadNumber, int amount);
-    public Task<List<string>> GetAddressSuggestionAsync(string address);
+    Task<List<string>> GetAddressSuggestionAsync(string address);
 }

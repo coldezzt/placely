@@ -4,9 +4,9 @@ namespace Placely.Application.Interfaces.Repositories;
 
 public interface IUserRepository : IRepository<User>
 {
-    public Task<User> GetByEmailAsync(string email);
+    Task<User> GetByEmailAsync(string email);
 
-    public Task<User?> TryGetByEmailAsync(string email);
+    Task<User?> TryGetByEmailAsync(string email);
 
-    public Task<User> AddOrUpdateAsync(User user);
+    Task<User> AddOrUpdateAsync(User user);
 }
