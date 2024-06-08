@@ -27,7 +27,7 @@ public class ReservationEntityConfiguration : IEntityTypeConfiguration<Reservati
             .HasMany(r => r.Participants)
             .WithMany(u => u.Reservations);
         
-        builder.Property(r => r.Status)
-            .HasDefaultValue(ReservationStatus.Opened);
+        builder.Property(r => r.StatusType)
+            .HasDefaultValue(ReservationStatusType.Opened);
     }
 }

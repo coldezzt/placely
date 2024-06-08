@@ -21,7 +21,7 @@ public class ReservationDestructionProperty : IDestructuringPolicy
                 new LogEventProperty("Id", new ScalarValue(r.Id)),
                 new LogEventProperty("Participants", new ScalarValue(r.Participants)),
                 new LogEventProperty("PropertyId", new ScalarValue(r.PropertyId)),
-                new LogEventProperty("ReservationStatus", new ScalarValue(r.Status.ToString())),
+                new LogEventProperty("ReservationStatus", new ScalarValue(r.StatusType.ToString())),
                 new LogEventProperty("DeclineReason", new ScalarValue("******")),
                 new LogEventProperty("CreationDateTime", new ScalarValue(r.CreationDateTime)),
                 new LogEventProperty("GuestsAmount", new ScalarValue(r.GuestsAmount)),

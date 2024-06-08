@@ -59,7 +59,7 @@ public class ReservationController(
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
         
-        dto.UserId = currentUserId;
+        dto.TenantId = currentUserId;
         var reservation = mapper.Map<Reservation>(dto);
         var dbReservation = await service.CreateAsync(reservation);
         var response = mapper.Map<ReservationDto>(dbReservation);
@@ -86,7 +86,7 @@ public class ReservationController(
             CultureInfo.InvariantCulture);
 
         dto.Id = reservationId;
-        dto.UserId = currentUserId;
+        dto.TenantId = currentUserId;
         var reservation = mapper.Map<Reservation>(dto);
         var dbReservation = await service.UpdateAsync(reservation);
         var response = mapper.Map<ReservationDto>(dbReservation);
@@ -114,7 +114,7 @@ public class ReservationController(
         if (dbReservation.Participants.Any(p => p.Id == currentUserId)) 
             return Forbid();
         
-        if (dbReservation.Status == ReservationStatus.InProgress) 
+        if (dbReservation.StatusType == ReservationStatusType.InProgress) 
             return Conflict();
         
         var deletedReservation = await service.DeleteAsync(reservationId);

@@ -42,7 +42,7 @@ public class ReservationService(
         
         var dbReservation = await reservationRepo.GetByIdAsync(reservation.Id);
 
-        if (reservation.Status >= ReservationStatus.InProgress)
+        if (reservation.StatusType >= ReservationStatusType.InProgress)
             throw new ReservationServiceException("Резервирование уже находится в неизменяемом состоянии.");
 
         dbReservation.Duration = reservation.Duration;

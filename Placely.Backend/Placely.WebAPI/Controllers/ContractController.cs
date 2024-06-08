@@ -107,7 +107,7 @@ public class ContractController(
         if (dbReservation.Participants.Any(p => p.Id == currentUserId)) 
             return Forbid();
         
-        if (dbReservation.Status is ReservationStatus.Declined) 
+        if (dbReservation.StatusType is ReservationStatusType.Declined) 
             return Conflict();
         
         var contract = await service.GenerateAsync(reservationId);

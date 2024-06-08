@@ -13,7 +13,7 @@ public class Reservation : IEntity
     public long? ContractId { get; set; }
     public virtual Contract? Contract { get; set; }
 
-    public required ReservationStatus Status { get; set; }
+    public required ReservationStatusType StatusType { get; set; }
     public string? DeclineReason { get; set; }
     
     public required DateTime CreationDateTime { get; set; }

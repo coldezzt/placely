@@ -1,7 +1,8 @@
 namespace Placely.Domain.Common.Enums;
 
-public enum ReservationStatus
+public enum ReservationStatusType
 {
+    Undefined,
     Opened,
     InProgress,
     Approved,
