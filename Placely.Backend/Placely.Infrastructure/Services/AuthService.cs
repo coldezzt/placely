@@ -198,8 +198,8 @@ public class AuthService(
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.UserId, user.Id.ToString()),
-            new(ClaimTypes.Email, user.Email),
-            new(CustomClaimTypes.UserRole, user.UserRole.ToString()),
+            new(ClaimTypes.Email, user.Email ?? ""),
+            new(ClaimTypes.Role, user.UserRole.ToString()),
         };
 
         logger.Log(LogLevel.Trace, "Successfully created server-side claims by user with {Email}", user.Email);
@@ -216,7 +216,7 @@ public class AuthService(
         {
             ValidateAudience = false,
             ValidateIssuer = false,
-            ValidateIssuerSigningKey = false,
+            ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["JwtSecurityKey"]!)),
             ValidateLifetime = false
         };

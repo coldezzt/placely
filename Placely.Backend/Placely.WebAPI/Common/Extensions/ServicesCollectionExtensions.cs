@@ -116,7 +116,7 @@ public static class ServicesCollectionExtensions
                 {
                     ValidateAudience = false,
                     ValidateIssuer = false,
-                    ValidateIssuerSigningKey = false,
+                    ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)),
                     ValidateLifetime = false
