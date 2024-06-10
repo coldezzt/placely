@@ -28,7 +28,7 @@ public class AuthService(
         logger.Log(LogLevel.Trace, "Begin authorize user with email {Email}", tenant.Email);
         
         var dbUser = await tenantRepo.GetByEmailAsync(tenant.Email);
-        if (!PasswordHasher.IsValid(dbUser.Password, tenant.Password))
+        if (!PasswordHasher.IsValid(dbUser.Password ?? "" , tenant.Password))
         {
             logger.Log(LogLevel.Debug, "Authorization user with email {Email} failed due to: wrong password.", tenant.Email);
             
@@ -46,7 +46,7 @@ public class AuthService(
             }
         }
 
-        var tokenDto = await CreateTokenAsync(dbUser, populateExp: true);
+        var tokenDto = await CreateTokensAsync(dbUser, populateExp: true);
         
         logger.Log(LogLevel.Debug, "Successfully authorized user with email {Email}.", tenant.Email);
         
@@ -66,7 +66,7 @@ public class AuthService(
             || tenant.RefreshTokenExpirationDate <= DateTime.Now)
             throw new RefreshTokenBadRequestException();
         
-        var newTokenPair = await CreateTokenAsync(tenant, populateExp: false);
+        var newTokenPair = await CreateTokensAsync(tenant, populateExp: false);
         
         logger.Log(LogLevel.Debug, "Successfully refresh user tokens with expired access token {accessToken}", tokenDto.AccessToken);
         
@@ -154,7 +154,7 @@ public class AuthService(
         };
     }
     
-    private async Task<TokenModel> CreateTokenAsync(User user, bool populateExp)
+    private async Task<TokenModel> CreateTokensAsync(User user, bool populateExp)
     {
         logger.Log(LogLevel.Trace, "Begin creating tokens pair for user with email: {email}", user.Email);
         
@@ -199,7 +199,7 @@ public class AuthService(
         {
             new(CustomClaimTypes.UserId, user.Id.ToString()),
             new(ClaimTypes.Email, user.Email ?? ""),
-            new(ClaimTypes.Role, user.UserRole.ToString()),
+            new(ClaimTypes.Role, user.UserRole),
         };
 
         logger.Log(LogLevel.Trace, "Successfully created server-side claims by user with {Email}", user.Email);
@@ -211,13 +211,13 @@ public class AuthService(
     {
         logger.Log(LogLevel.Trace, "Begin extracting claims from expired token - {token}", token);
 
-        var jwtSettings = configuration.GetSection("JwtAuth");
+        var jwtSettings = configuration.GetSection("JWT");
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false,
             ValidateIssuer = false,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["JwtSecurityKey"]!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!)),
             ValidateLifetime = false
         };
 

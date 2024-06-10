@@ -23,7 +23,7 @@ public class RegistrationController(
     [SwaggerResponse(StatusCodes.Status409Conflict, "Пользователь с такой почтой уже зарегистрирован.")]
     [SwaggerResponse(StatusCodes.Status422UnprocessableEntity, "Данные не прошли валидацию. Возвращает список ошибок.", typeof(List<ValidationErrorModel>),
         "application/json")]
-    [HttpPost]
+    [AllowAnonymous, HttpPost]
     public async Task<IActionResult> Register( // POST api/registration
         [FromBody] [SwaggerRequestBody("Данные для регистрации.", Required = true)] RegistrationDto dto)
     {

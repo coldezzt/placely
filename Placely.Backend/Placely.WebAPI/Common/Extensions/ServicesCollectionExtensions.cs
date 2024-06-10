@@ -118,7 +118,7 @@ public static class ServicesCollectionExtensions
                     ValidateIssuer = false,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)),
+                        Encoding.UTF8.GetBytes(configuration["Authorization:JWT:Secret"]!)),
                     ValidateLifetime = false
                 };
             })
@@ -170,7 +170,7 @@ public static class ServicesCollectionExtensions
                             т.к. пользователь не авторизован. Либо перенаправляет на Google для авторизации.
                             - 404 статус. Сервер не смог найти какой-то объект из-запроса в базе данных.
                             - 503 статус. Какие-то проблемы с базой данных.
-                            - 500 статус. Возвращается при незадокументированном исключении.
+                            - 500 статус. Возвращается при не задокументированном исключении.
                             """,
                         Contact = new OpenApiContact
                         {

@@ -16,6 +16,17 @@ public class ReservationService(
         return reservationRepo.GetByIdAsNoTrackingAsync(reservationId);
     }
 
+    public async Task<User> UpdateReservationStatus(long contractId, long askedId)
+    {
+        var dbReservation = await reservationRepo.GetByIdAsync(contractId);
+        var asked = dbReservation.Participants.First(p => p.Id == askedId);
+        if (asked.UserRole == UserRoleType.Landlord)
+            dbReservation.StatusType = ReservationStatusType.InProgress;
+
+        await reservationRepo.SaveChangesAsync();
+        return asked;
+    }
+
     public async Task<Reservation> CreateAsync(Reservation reservation)
     {
         logger.Log(LogLevel.Trace, "Begin creating reservation: {@reservation}", reservation);

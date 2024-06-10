@@ -24,7 +24,7 @@ public class UserController(
 {
     [SwaggerOperation("Получает публичные данные пользователя", "Доступен всем.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Данные о пользователе.", typeof(UserDto), "application/json")]
-    [AllowAnonymous, HttpGet("{userId}")]
+    [AllowAnonymous, HttpGet("{userId:long}")]
     public async Task<IActionResult> Get( // GET api/user/{userId}
         [FromRoute] [SwaggerParameter("Идентификатор пользователя.", Required = true)] long userId)
     {

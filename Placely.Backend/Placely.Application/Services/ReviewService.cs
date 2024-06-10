@@ -8,6 +8,7 @@ namespace Placely.Application.Services;
 
 public class ReviewService(
     ILogger<ReviewService> logger,
+    IContractRepository contractRepo,
     IReviewRepository reviewRepo) 
     : IReviewService
 {
@@ -18,8 +19,8 @@ public class ReviewService(
     
     public async Task<Review> AddAsync(Review review)
     {
-        var found = await reviewRepo.TryFindByAuthorIdAndPropertyId(review.AuthorId, review.PropertyId);
-        if (found is not null)
+        var foundReview = await reviewRepo.TryFindByAuthorIdAndPropertyId(review.AuthorId, review.PropertyId);
+        if (foundReview is not null)
             throw new ConflictException("Пользователь уже оставлял отзыв на это имущество!");
         
         var result = await reviewRepo.AddAsync(review);
