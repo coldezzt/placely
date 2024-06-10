@@ -40,7 +40,7 @@ public class ContractController(
         return Ok(response);
     }
 
-    [SwaggerOperation("Получает все названия файлов для контракта",
+    [SwaggerOperation("Получает все названия файлов, созданных по контракту",
         "Нельзя получить названия чужих контрактов.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Список названия контрактов.", typeof(List<string>),
         "application/json")]
@@ -95,7 +95,7 @@ public class ContractController(
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Попытка запросить создание контракта пользователем, не фигурирующем в контракте.")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Попытка создать контракт на основе отклонённой заявки.")]
-    [HttpPost]
+    [Authorize(Roles = $"{UserRoleType.Landlord},{UserRoleType.Admin}"), HttpPost]
     public async Task<IActionResult> Create( // POST api/contract?reservationId={reservationId}
         [FromQuery] [SwaggerRequestBody("Данные необходимые для завершения создания контракта.", Required = true)]
         long reservationId)

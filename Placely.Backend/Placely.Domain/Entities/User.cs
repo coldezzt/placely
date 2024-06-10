@@ -7,7 +7,7 @@ public class User : IEntity
 {
     public long Id { get; set; }
     
-    public required UserRoleType UserRole { get; set; }
+    public required string UserRole { get; set; }
     public string? Name { get; set; }
     public string? PhoneNumber { get; set; }
     public string? Email { get; set; }

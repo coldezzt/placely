@@ -59,13 +59,13 @@ public class AuthorizationController(
         """)]
     [SwaggerResponse(StatusCodes.Status200OK, "Cгенерированные токены для текущего пользователя.", typeof(TokenDto), "application/json")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, """
-                          Неизвестная ошибка при аутентификации пользователя.
+        Неизвестная ошибка при аутентификации пользователя.
 
-                          Возвращает пустую строку.
+        Возвращает пустую строку.
 
-                          Такое может случиться **только** если пользователь вручную менял Cookie,
-                          которые предоставляет Google **или** изменилась процедура авторизации через Google OAuth.
-                          """, typeof(string), "text/plain")]
+        Такое может случиться **только** если пользователь вручную менял Cookie,
+        которые предоставляет Google **или** изменилась процедура авторизации через Google OAuth.
+        """, typeof(string), "text/plain")]
     [HttpGet("google/callback")]
     public async Task<IActionResult> GoogleCallback() // GET api/auth/google/callback
     {
@@ -80,13 +80,13 @@ public class AuthorizationController(
 
     [SwaggerOperation(
         "Применяет двухфакторную аутентификацию (2FA) к аккаунту с использованием TOTP от Google Authenticator", """
-            1) **Если** обращается авторизованный пользователь:
-               - **Если** у пользователя не добавлена 2FA, то добавляет 2FA для этого аккаунта и возвращает ключи
-               для настройки на стороне клиента - ключ для ручного ввода, и QR-код в виде строки.
-               - **Иначе** достаёт данные о 2FA из базы данных.
-            2) **Иначе**:
-               - Возвращает код 401 - Unauthorized.
-            """)]
+        1) **Если** обращается авторизованный пользователь:
+           - **Если** у пользователя не добавлена 2FA, то добавляет 2FA для этого аккаунта и возвращает ключи
+           для настройки на стороне клиента - ключ для ручного ввода, и QR-код в виде строки.
+           - **Иначе** достаёт данные о 2FA из базы данных.
+        2) **Иначе**:
+           - Возвращает код 401 - Unauthorized.
+        """)]
     [SwaggerResponse(StatusCodes.Status200OK, "2FA успешно добавлена. Содержит токен для ручного ввода, и QR-код в виде строки.",
         typeof(TwoFactorAuthenticationModel), "application/json")]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Пользователь не авторизован.")]

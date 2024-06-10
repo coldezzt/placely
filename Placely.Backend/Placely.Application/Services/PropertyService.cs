@@ -11,6 +11,7 @@ namespace Placely.Application.Services;
 public class PropertyService(
     ILogger<PropertyService> logger,
     IPropertyRepository propertyRepo,
+    IUserRepository userRepo,
     IDadataAddressService dadataAddressService) : IPropertyService
 {
     public async Task<Property> GetByIdAsNoTrackingAsync(long propertyId)
@@ -27,9 +28,11 @@ public class PropertyService(
         if (parsedAddress.unparsed_parts != null)
             throw new AddressException("Адрес содержит части, которые не могут быть нормализованы.");
 
-        // var dbLandlord = await landlordRepo.GetByIdAsync(property.OwnerId);
-        // if (dbLandlord.ContactAddress is null or "")
-        //    throw new AddressException("Контактный адрес не может быть пуст.");
+        var dbUser = await userRepo.GetByIdAsync(property.OwnerId);
+        if (dbUser.ContactAddress is null or "")
+            throw new AddressException("Контактный адрес не может быть пуст.");
+
+        dbUser.UserRole = UserRoleType.Landlord;
         
         var dbEntity = await propertyRepo.AddAsync(property);
         await propertyRepo.SaveChangesAsync();

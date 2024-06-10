@@ -38,7 +38,7 @@ public class PropertyController(
         """
         Доступен всем.
 
-        Получает на вход строку с адресом и пытается предположить какой адрес будет дальше.
+        Получает на вход строку с адресом и предполагает какой адрес будет дальше.
         """)]
     [SwaggerResponse(StatusCodes.Status200OK, "Список предполагаемых адресов.", typeof(List<string>), "application/json")]
     [AllowAnonymous, HttpGet("suggestion")]
