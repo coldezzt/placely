@@ -13,6 +13,7 @@ using Placely.Application.Common.Options;
 using Placely.Application.Interfaces.Repositories;
 using Placely.Application.Services;
 using Placely.Domain.Interfaces.Services;
+using Placely.Infrastructure.Common.Options;
 using Placely.Infrastructure.Interfaces.Services;
 using Placely.Infrastructure.Services;
 using Placely.Persistence;
@@ -37,6 +38,7 @@ public static class ServicesCollectionExtensions
             options.IsProduction = env.IsProduction();
         });
         services.Configure<ContractServiceOptions>(configuration.GetSection("ContractGeneration"));
+        services.Configure<AuthServiceOptions>(configuration.GetSection("Authentication:JWT"));
 
         return services;
     }
@@ -112,14 +114,16 @@ public static class ServicesCollectionExtensions
             })
             .AddJwtBearer(opt =>
             {
+                var jwtOptions = configuration.GetSection("Authentication:JWT");
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateAudience = false,
-                    ValidateIssuer = false,
+                    ValidateAudience = true,
+                    ValidAudience = jwtOptions["ValidAudience"],
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtOptions["ValidIssuer"],
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["Authorization:JWT:Secret"]!)),
-                    ValidateLifetime = false
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions["Secret"]!)),
+                    ValidateLifetime = true
                 };
             })
             .AddCookie(options =>

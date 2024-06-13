@@ -35,10 +35,13 @@ public class AuthorizationController(
         var validationResult = await validator.ValidateAsync(dto);
         if (!validationResult.IsValid)
             return UnprocessableEntity(validationResult.Errors.Select(mapper.Map<ValidationErrorModel>));
+        
         var model = mapper.Map<AuthorizationModel>(dto);
         var authResult = await service.AuthorizeAsync(model);
-        if (!authResult.IsSuccess) return BadRequest(authResult.Error);
-        return Ok(authResult.TokenModel);
+        
+        return authResult.IsSuccess 
+            ? Ok(authResult.TokenModel) 
+            : BadRequest(authResult.Error);
     }
 
     [SwaggerOperation("Авторизует пользователя используя Google OAuth",

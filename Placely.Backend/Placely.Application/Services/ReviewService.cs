@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Placely.Application.Common.Exceptions;
 using Placely.Application.Interfaces.Repositories;
+using Placely.Domain.Common.Enums;
 using Placely.Domain.Entities;
 using Placely.Domain.Interfaces.Services;
 
@@ -8,7 +9,7 @@ namespace Placely.Application.Services;
 
 public class ReviewService(
     ILogger<ReviewService> logger,
-    IContractRepository contractRepo,
+    IUserRepository userRepo,
     IReviewRepository reviewRepo) 
     : IReviewService
 {
@@ -19,6 +20,10 @@ public class ReviewService(
     
     public async Task<Review> AddAsync(Review review)
     {
+        var dbUser = await userRepo.GetByIdAsNoTrackingAsync(review.AuthorId);
+        if (dbUser.Reservations.Any(r => r.StatusType == ReservationStatusType.Approved))
+            throw new ConflictException("У пользователя нет контракта аренды с этим пользователем!");
+        
         var foundReview = await reviewRepo.TryFindByAuthorIdAndPropertyId(review.AuthorId, review.PropertyId);
         if (foundReview is not null)
             throw new ConflictException("Пользователь уже оставлял отзыв на это имущество!");

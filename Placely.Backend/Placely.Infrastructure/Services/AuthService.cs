@@ -5,6 +5,7 @@ using System.Text;
 using Google.Authenticator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Placely.Application.Common.Exceptions;
 using Placely.Application.Common.Models;
@@ -13,15 +14,17 @@ using Placely.Application.Services.Utils;
 using Placely.Domain.Common.Enums;
 using Placely.Domain.Entities;
 using Placely.Infrastructure.Common.Models;
+using Placely.Infrastructure.Common.Options;
 using Placely.Infrastructure.Interfaces.Services;
 using AuthorizationResult = Placely.Infrastructure.Common.Models.AuthorizationResult;
 
 namespace Placely.Infrastructure.Services;
 
 public class AuthService(
-    ILogger<AuthService> logger,
-    IUserRepository tenantRepo,
-    IConfiguration configuration) : IAuthService
+        ILogger<AuthService> logger,
+        IUserRepository tenantRepo,
+        IOptions<AuthServiceOptions> options
+    ) : IAuthService
 {
     public async Task<AuthorizationResult> AuthorizeAsync(AuthorizationModel tenant)
     {
@@ -182,9 +185,11 @@ public class AuthService(
         var claimsList = claims.ToList();
         var jwt = new JwtSecurityToken(
             claims: claimsList,
+            issuer: options.Value.ValidIssuer,
+            audience: options.Value.ValidAudience,
             expires: DateTime.UtcNow.Add(TimeSpan.FromHours(1)),
             signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtAuth:JwtSecurityKey"]!)),
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Secret)),
                 SecurityAlgorithms.HmacSha256
             )
         );
@@ -199,7 +204,7 @@ public class AuthService(
         {
             new(CustomClaimTypes.UserId, user.Id.ToString()),
             new(ClaimTypes.Email, user.Email ?? ""),
-            new(ClaimTypes.Role, user.UserRole),
+            new(ClaimTypes.Role, user.UserRole)
         };
 
         logger.Log(LogLevel.Trace, "Successfully created server-side claims by user with {Email}", user.Email);
@@ -211,14 +216,15 @@ public class AuthService(
     {
         logger.Log(LogLevel.Trace, "Begin extracting claims from expired token - {token}", token);
 
-        var jwtSettings = configuration.GetSection("JWT");
         var tokenValidationParameters = new TokenValidationParameters
         {
-            ValidateAudience = false,
-            ValidateIssuer = false,
+            ValidateAudience = true,
+            ValidAudience = options.Value.ValidAudience,
+            ValidateIssuer = true,
+            ValidIssuer = options.Value.ValidIssuer,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!)),
-            ValidateLifetime = false
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Secret)),
+            ValidateLifetime = true
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
