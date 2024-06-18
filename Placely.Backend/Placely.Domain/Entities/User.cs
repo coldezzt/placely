@@ -1,5 +1,4 @@
-﻿using Placely.Domain.Common.Enums;
-using Placely.Domain.Interfaces.Entities;
+﻿using Placely.Domain.Interfaces.Entities;
 
 namespace Placely.Domain.Entities;
 
@@ -7,7 +6,7 @@ public class User : IEntity
 {
     public long Id { get; set; }
     
-    public required string UserRole { get; set; }
+    public string UserRole { get; set; }
     public string? Name { get; set; }
     public string? PhoneNumber { get; set; }
     public string? Email { get; set; }

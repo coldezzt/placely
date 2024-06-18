@@ -230,22 +230,19 @@ public class AppDbContext(
                 Id = 1,
                 PeriodShort = 1111,
                 PeriodMedium = 111,
-                PeriodLong = 11,
-                PropertyId = 1
+                PeriodLong = 11
             }, new()
             {
                 Id = 2,
                 PeriodShort = 2222,
                 PeriodMedium = 222,
-                PeriodLong = 22,
-                PropertyId = 2
+                PeriodLong = 22
             }, new()
             {
                 Id = 3,
                 PeriodShort = 3333,
                 PeriodMedium = 333,
-                PeriodLong = 33,
-                PropertyId = 3
+                PeriodLong = 33
             }
         };
 

@@ -40,13 +40,14 @@ public class UserService(
         return dbProperty;
     }
     
-    public async Task<User> PatchSettingsAsync(User user)
+    public async Task<User> UpdateSettingsAsync(User user)
     {
         logger.Log(LogLevel.Trace, "Begin updating settings for user: {@tenant}", user);
         var dbUser = await tenantRepo.GetByIdAsync(user.Id);
 
         dbUser.About = user.About;
         dbUser.Work = user.Work;
+        dbUser.ContactAddress = user.ContactAddress;
         var result = await tenantRepo.UpdateAsync(dbUser);
         await tenantRepo.SaveChangesAsync();
         

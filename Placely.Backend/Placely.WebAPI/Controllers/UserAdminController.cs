@@ -46,7 +46,7 @@ public class UserAdminController(
         
         var user = mapper.Map<User>(dto);
         user.Id = userId;
-        var result = await service.PatchSettingsAsync(user);
+        var result = await service.UpdateSettingsAsync(user);
         var response = mapper.Map<UserDto>(result);
         return Ok(response);
     }

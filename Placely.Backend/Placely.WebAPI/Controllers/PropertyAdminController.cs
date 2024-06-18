@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;

@@ -12,7 +12,7 @@ public class ContractEntityConfiguration : IEntityTypeConfiguration<Contract>
 
         builder
             .HasOne(c => c.Reservation)
-            .WithOne(c => c.Contract)
+            .WithOne(r => r.Contract)
             .HasForeignKey<Contract>(c => c.ReservationId)
             .IsRequired();
     }

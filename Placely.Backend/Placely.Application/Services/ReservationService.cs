@@ -9,7 +9,8 @@ namespace Placely.Application.Services;
 
 public class ReservationService(
     ILogger<ReservationService> logger,
-    IReservationRepository reservationRepo) : IReservationService
+    IReservationRepository reservationRepo,
+    IUserRepository userRepository) : IReservationService
 {
     public Task<Reservation> GetByIdAsNoTrackingAsync(long reservationId)
     {
@@ -30,11 +31,16 @@ public class ReservationService(
     public async Task<Reservation> CreateAsync(Reservation reservation)
     {
         logger.Log(LogLevel.Trace, "Begin creating reservation: {@reservation}", reservation);
+
+        var participants = reservation.Participants
+            .Select(p => userRepository.GetByIdAsync(p.Id).Result)
+            .ToList();
+        reservation.Participants = participants;
         
         // Если пользователь пытается создать резерирование, у которого время "въезда" раньше,
         // чем время окончания последнего резервирования с этим владельцем в этом здании,
         // то выбрасывается исключение.
-        var found = await reservationRepo.FindAllByIdTriplet(reservation);
+        var found = await reservationRepo.FindAllByIdTriplet(reservation.Participants[0].Id, reservation.Participants[1].Id, reservation.PropertyId);
         var latest = found.MaxBy(f => f.EntryDate + f.Duration);
         if (latest is not null && latest.EntryDate + latest.Duration > reservation.EntryDate)
             throw new ReservationServiceException("Время начала нового резервирования раньше, чем время окончания " +

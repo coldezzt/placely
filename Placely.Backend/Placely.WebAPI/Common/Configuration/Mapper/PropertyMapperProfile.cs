@@ -15,10 +15,9 @@ public class PropertyMapperProfile : Profile
                     {
                         PeriodShort = dto.ShortPeriodPayment,
                         PeriodMedium = dto.MediumPeriodPayment,
-                        PeriodLong = dto.LongPeriodPayment,
-                        PropertyId = 0
+                        PeriodLong = dto.LongPeriodPayment
                     })
-                    );
+                );
 
         CreateMap<Property, PropertyDto>()
             .ForMember(dto => dto.ShortPeriodPayment,
