@@ -32,9 +32,9 @@ public class ChatService(
             return dbChat;
         }
 
-        var ids = new List<long> {firstUser, secondUser}.Order();
+        var ids = new List<long> {firstUser, secondUser}.Order().ToList();
         var tenants = ids.Select(id => userRepo.GetByIdAsync(id).Result).ToList();
-        var chat = new Chat
+        var chat = new Chat 
         {
             Participants = tenants,
             DirectoryName = "chat-" + string.Join("-", ids)

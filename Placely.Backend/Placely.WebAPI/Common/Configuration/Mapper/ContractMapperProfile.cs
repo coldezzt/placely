@@ -9,7 +9,7 @@ public class ContractMapperProfile : Profile
     public ContractMapperProfile()
     {
         CreateMap<Reservation, Contract>();
-        
+            
         CreateMap<Contract, ContractDto>()
             .ForMember(dto => dto.DocxPath,
                 opt => opt.MapFrom(c => c.FinalizedDocxFileName))

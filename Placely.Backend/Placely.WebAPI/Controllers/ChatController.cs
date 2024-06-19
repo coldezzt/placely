@@ -46,7 +46,7 @@ public class ChatController(
             CultureInfo.InvariantCulture);
         
         var chat = await chatService.GetByIdAsync(chatId);
-        if (chat.Participants.Any(p => p.Id == currentUserId)) 
+        if (chat.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         var response = mapper.Map<ChatDto>(chat);
@@ -85,7 +85,7 @@ public class ChatController(
             CultureInfo.InvariantCulture);
         
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbChat.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         var chat = await chatService.DeleteByIdAsync(chatId);

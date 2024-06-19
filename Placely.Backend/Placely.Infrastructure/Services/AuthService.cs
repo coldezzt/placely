@@ -55,22 +55,22 @@ public class AuthService(
         return new AuthorizationResult { IsSuccess = true, TokenModel = tokenDto };
     }
     
-    public async Task<TokenModel> RefreshTokenAsync(TokenModel tokenDto)
+    public async Task<TokenModel> RefreshTokenAsync(TokenModel tokenModel)
     {
-        logger.Log(LogLevel.Trace, "Begin refreshing user tokens with expired access token {accessToken}", tokenDto.AccessToken);
+        logger.Log(LogLevel.Trace, "Begin refreshing user tokens with expired access token {accessToken}", tokenModel.AccessToken);
         
-        var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
+        var principal = GetPrincipalFromExpiredToken(tokenModel.AccessToken);
 
         var email = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
         var tenant = await tenantRepo.GetByEmailAsync(email!);
 
-        if (tenant.RefreshToken != tokenDto.RefreshToken
+        if (tenant.RefreshToken != tokenModel.RefreshToken
             || tenant.RefreshTokenExpirationDate <= DateTime.Now)
             throw new RefreshTokenBadRequestException();
         
         var newTokenPair = await CreateTokensAsync(tenant, populateExp: false);
         
-        logger.Log(LogLevel.Debug, "Successfully refresh user tokens with expired access token {accessToken}", tokenDto.AccessToken);
+        logger.Log(LogLevel.Debug, "Successfully refresh user tokens with expired access token {accessToken}", tokenModel.AccessToken);
         
         return newTokenPair;
     }

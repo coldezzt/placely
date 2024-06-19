@@ -35,6 +35,14 @@ public class ReservationDto
     [DefaultValue(4)]
     public byte GuestsAmount { get; set; }
 
+    [SwaggerSchema("Стоимость аренды. Необязательна при создании заявки.")]
+    [DefaultValue(13200.32)]
+    public decimal? PaymentAmount { get; set; }
+    
+    [SwaggerSchema("Частота оплат. Необязательна при создании заявки.")]
+    [DefaultValue("2 раза в месяц")]
+    public string? PaymentFrequency { get; set; }
+
     [SwaggerSchema("Дата создания резервирования.")]
     public DateTime CreationDateTime { get; set; }
     

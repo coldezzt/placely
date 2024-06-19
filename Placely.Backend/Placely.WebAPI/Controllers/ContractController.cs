@@ -33,10 +33,11 @@ public class ContractController(
             CultureInfo.InvariantCulture);
         
         var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
-        if (dbContract.Reservation.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbContract.Reservation.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
-        var response = mapper.Map<ContractDto>(dbContract.Reservation);
+        var response = mapper.Map<ContractDto>(dbContract);
+        response.Reservation = mapper.Map<ReservationDto>(dbContract.Reservation);
         return Ok(response);
     }
 
@@ -55,7 +56,7 @@ public class ContractController(
             CultureInfo.InvariantCulture);
         
         var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
-        if (dbContract.Reservation.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbContract.Reservation.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         var names = await service.GetFileNamesByUserIdsAsync(dbContract.Reservation.Participants
@@ -78,9 +79,9 @@ public class ContractController(
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId)!, NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
         
-        if (dbContract.Reservation.Participants.Any(p => p.Id == currentUserId)) 
+        var dbContract = await service.GetByIdAsNoTrackingAsync(contractId);
+        if (dbContract.Reservation.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         var file = await service.GetFileBytesByIdAsync(dbContract.Id, fileName);
@@ -104,7 +105,7 @@ public class ContractController(
             CultureInfo.InvariantCulture);
         var dbReservation = await service.GetReservationByIdAsync(reservationId);
         
-        if (dbReservation.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbReservation.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         if (dbReservation.StatusType is ReservationStatusType.Declined) 

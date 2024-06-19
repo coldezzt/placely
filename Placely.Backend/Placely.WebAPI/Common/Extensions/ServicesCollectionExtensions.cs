@@ -233,6 +233,7 @@ public static class ServicesCollectionExtensions
                 new RegistrationMapperProfile(),
                 new ReservationMapperProfile(),
                 new ReviewMapperProfile(),
+                new TokenModelMapperProfile(),
                 new UserMapperProfile(),
                 new ValidationFailureMapperProfile(),
             });

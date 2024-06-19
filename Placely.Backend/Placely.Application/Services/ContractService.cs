@@ -54,7 +54,7 @@ public class ContractService(
         var absoluteFilePath = Path.Combine(
                 options.Value.ContentRootPath, 
                 configurationOptions.Value.PathToContractDirectory,
-                "contracts_" + string.Join("_", dbContract.Reservation.Participants.Order()),
+                "contracts_" + string.Join("_", dbContract.Reservation.Participants.Select(p => p.Id).Order()),
                 fileName
             );
         
@@ -76,21 +76,15 @@ public class ContractService(
         
         // Достаём данные и "сокращаем переменные" (для читабельности)
         var dbReservation = await reservationRepository.GetByIdAsync(reservationId);
-        var workingDirectoryName = "contracts_" + string.Join("_", dbReservation.Participants.Order());
+        var workingDirectoryName = "contracts_" + string.Join("_", dbReservation.Participants.Select(p => p.Id).Order());
         var absolutePathToTemplate = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToTemplate);
         var absolutePathToTemplateFields = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToTemplateFields);
         var absolutePathToContractDirectory = Path.Combine(options.Value.ContentRootPath, configurationOptions.Value.PathToContractDirectory);
         var absolutePathToWorkingDirectory = Path.Combine(absolutePathToContractDirectory, workingDirectoryName);
-        
-        // if (!await dadataAddressService.IsAddressExistsAsync(contract.Landlord.ContactAddress))
-        //     throw new AddressException("Контактного адреса не существует или он содержит лишние части.");
 
-        if (dbReservation.PaymentAmount is null)
-            throw new ArgumentNullException(dbReservation.PaymentAmount.ToString());
+        if (dbReservation.PaymentAmount is null || dbReservation.PaymentFrequency is null)
+            throw new ContractServiceException("Сначала нужно задать стоимость и частоту оплаты!");
 
-        if (dbReservation.PaymentFrequency is null)
-            throw new ArgumentNullException(dbReservation.PaymentFrequency);
-        
         // Создаём модель контракта
         var reservationModel = new ReservationModel(dbReservation, (decimal) dbReservation.PaymentAmount, dbReservation.PaymentFrequency);
         var contractDate = $"{reservationModel.ContractDate:yy-MM-dd_HH-mm-ss}";
@@ -135,8 +129,8 @@ public class ContractService(
             var contract = new Contract
             {
                 ReservationId = reservationId,
-                FinalizedDocxFileName = Path.Combine(workingDirectoryName, docxFileName),
-                FinalizedPdfFileName = Path.Combine(workingDirectoryName, pdfFileName)
+                FinalizedDocxFileName = absolutePathToDoc,
+                FinalizedPdfFileName = absolutePathToPdf
             };
             result = await contractRepo.AddAsync(contract);
             await contractRepo.SaveChangesAsync();

@@ -34,7 +34,7 @@ public class ReservationController(
             CultureInfo.InvariantCulture);
         
         var dbReservation = await service.GetByIdAsNoTrackingAsync(reservationId);
-        if (dbReservation.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbReservation.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
 
         await service.UpdateReservationStatus(reservationId, currentUserId);
@@ -86,7 +86,7 @@ public class ReservationController(
         
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
-
+        
         dto.Id = reservationId;
         dto.TenantId = currentUserId;
         var reservation = mapper.Map<Reservation>(dto);
@@ -111,9 +111,9 @@ public class ReservationController(
     {
         var currentUserId = long.Parse(User.FindFirstValue(CustomClaimTypes.UserId) ?? "", NumberStyles.Any,
             CultureInfo.InvariantCulture);
-        
+
         var dbReservation = await service.GetByIdAsNoTrackingAsync(reservationId);
-        if (dbReservation.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbReservation.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         if (dbReservation.StatusType == ReservationStatusType.InProgress) 

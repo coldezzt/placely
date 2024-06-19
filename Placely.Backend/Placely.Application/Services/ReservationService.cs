@@ -78,6 +78,7 @@ public class ReservationService(
     {
         var dbReservation = await GetByIdAsNoTrackingAsync(reservationId);
         var deletedReservation = await reservationRepo.DeleteAsync(dbReservation);
+        await reservationRepo.SaveChangesAsync();
         return deletedReservation;
     }
 }

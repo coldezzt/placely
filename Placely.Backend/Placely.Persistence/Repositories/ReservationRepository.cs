@@ -18,6 +18,13 @@ public class ReservationRepository(ILogger<ReservationRepository> logger, AppDbC
             select * from reservations_by_tenant_landlord_property_ids
                 (tenantId := {tenantId}, landlordId := {landlordId}, propertyId := {propertyId});
             """).ToList();
+
+        found = found.Where(r => 
+            r.Participants
+                .Select(p => p.Id)
+                .Order()
+                .SequenceEqual(new List<long> {tenantId, landlordId}.Order())
+            ).ToList();
         
         return Task.FromResult(found);
     }

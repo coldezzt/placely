@@ -32,7 +32,7 @@ public class ChatFileController(
             CultureInfo.InvariantCulture);
         
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbChat.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         var names = await messageService.GetListFileNamesAsync(chatId);
@@ -56,7 +56,7 @@ public class ChatFileController(
             CultureInfo.InvariantCulture);
         
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbChat.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         var dbMessage = dbChat.Messages.FirstOrDefault(m => m.Id == messageId);
@@ -86,7 +86,7 @@ public class ChatFileController(
             CultureInfo.InvariantCulture);
         
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbChat.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         var file = await messageService.GetFileBytesFromChatAsync(dbChat.Id, fileName);
@@ -111,7 +111,7 @@ public class ChatFileController(
             CultureInfo.InvariantCulture);
         
         var dbChat = await chatService.GetByIdAsync(chatId);
-        if (dbChat.Participants.Any(p => p.Id == currentUserId)) 
+        if (dbChat.Participants.All(p => p.Id != currentUserId)) 
             return Forbid();
         
         var deletedFileName = await messageService.DeleteFileFromChatAsync(dbChat.Id, fileName);
