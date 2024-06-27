@@ -3,9 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Placely.Main", "Placely.Main\Placely.Main.csproj", "{38A7A676-1B3E-49D7-BF09-31D4308A269C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Placely.Domain", "Placely.Domain\Placely.Domain.csproj", "{AF9D80FA-9EB4-4125-AA66-5F268D090C52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Placely.Data", "Placely.Data\Placely.Data.csproj", "{F326DBF8-110C-4A31-BFA0-8A334E4CB229}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Placely.Application", "Placely.Application\Placely.Application.csproj", "{553113B0-AE84-4825-AC5B-6C74752C4B21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Placely.Infrastructure", "Placely.Infrastructure\Placely.Infrastructure.csproj", "{8365A488-3219-4B1A-A30B-9812DC48E00E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Placely.WebAPI", "Placely.WebAPI\Placely.WebAPI.csproj", "{E12F2447-31FA-4EDF-961F-3817E2B32546}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Placely.Persistence", "Placely.Persistence\Placely.Persistence.csproj", "{8F6BF309-6D1B-4B80-BCFA-CCF7EC992185}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,13 +22,25 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{38A7A676-1B3E-49D7-BF09-31D4308A269C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{38A7A676-1B3E-49D7-BF09-31D4308A269C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{38A7A676-1B3E-49D7-BF09-31D4308A269C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{38A7A676-1B3E-49D7-BF09-31D4308A269C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F326DBF8-110C-4A31-BFA0-8A334E4CB229}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F326DBF8-110C-4A31-BFA0-8A334E4CB229}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F326DBF8-110C-4A31-BFA0-8A334E4CB229}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F326DBF8-110C-4A31-BFA0-8A334E4CB229}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF9D80FA-9EB4-4125-AA66-5F268D090C52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF9D80FA-9EB4-4125-AA66-5F268D090C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF9D80FA-9EB4-4125-AA66-5F268D090C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF9D80FA-9EB4-4125-AA66-5F268D090C52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{553113B0-AE84-4825-AC5B-6C74752C4B21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{553113B0-AE84-4825-AC5B-6C74752C4B21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{553113B0-AE84-4825-AC5B-6C74752C4B21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{553113B0-AE84-4825-AC5B-6C74752C4B21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8365A488-3219-4B1A-A30B-9812DC48E00E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8365A488-3219-4B1A-A30B-9812DC48E00E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8365A488-3219-4B1A-A30B-9812DC48E00E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8365A488-3219-4B1A-A30B-9812DC48E00E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E12F2447-31FA-4EDF-961F-3817E2B32546}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E12F2447-31FA-4EDF-961F-3817E2B32546}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E12F2447-31FA-4EDF-961F-3817E2B32546}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E12F2447-31FA-4EDF-961F-3817E2B32546}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F6BF309-6D1B-4B80-BCFA-CCF7EC992185}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F6BF309-6D1B-4B80-BCFA-CCF7EC992185}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F6BF309-6D1B-4B80-BCFA-CCF7EC992185}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F6BF309-6D1B-4B80-BCFA-CCF7EC992185}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -3,9 +3,6 @@
 **/Logs
 **/obj
 
-# Storing source
-**/Data
-
 # Private settings
 **/appsettings.Development.json
 
@@ -14,3 +11,4 @@
 
 # Rider
 **/.idea
+Placely.Backend/Placely.sln.DotSettings.user
