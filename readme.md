@@ -12,16 +12,16 @@ Link to [YouTrack project](https://coldezzt.youtrack.cloud/projects/1364d4b4-ae9
 
 ## How to run project?
 
-After cloning repository, you need to run two projects. Order is not important.
+After cloning repository, you need to build and run project.
 
-**The backend** can be started using the following commands:
+**Backend** can be started using the following commands:
 
 ```bash
 cd Placely.Backend/Placely.Main
+dotnet restore
+dotnet build
 dotnet run
 ```
-
-**The frontend** is not available for now.
 
 ## Backend
 
@@ -40,16 +40,3 @@ dotnet run
 - SwaggerUI
 - FluentValidation
 - PostgreSQL
-
-## Frontend (in progress)
-
-**Architecture**: Component approach.
-
-**Stack and technologies**:
-
-- React.js
-- Redux
-- Webpack
-- Babel
-- SCSS
-- ESLint
